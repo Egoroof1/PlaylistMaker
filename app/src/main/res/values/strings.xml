@@ -15,6 +15,6 @@
     <!--    contentDescription-->
     <string name="back">back</string>
     <string name="share">share</string>
-    <string name="support">share</string>
-    <string name="arrow_forward">share</string>
+    <string name="support">support</string>
+    <string name="arrow_forward">arrow_forward</string>
 </resources>

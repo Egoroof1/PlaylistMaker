@@ -15,10 +15,9 @@
             android:layout_height="@dimen/dp_56"
             android:gravity="center_vertical"
             android:layout_marginStart="@dimen/dp_20"
-            android:fontFamily="@font/roboto"
             android:text="@string/app_name"
             android:textColor="@color/white"
-            android:textSize="20sp" />
+            android:textSize="@dimen/sp_22" />
 
     <Button
         android:id="@+id/btn_search"
@@ -27,11 +26,13 @@
         android:layout_marginHorizontal="@dimen/dp_20"
         android:layout_marginTop="@dimen/dp_5"
         android:layout_weight="1"
+        android:textAllCaps="false"
         android:text="@string/search"
+        android:textSize="@dimen/sp_22"
         android:textColor="@color/sting_and_icon"
         android:backgroundTint="@color/white"
         app:cornerRadius="@dimen/dp_16"
-        app:icon="@drawable/ic_search"
+        app:icon="@drawable/ic_search_24"
         app:iconTint="@color/sting_and_icon"
         app:iconGravity="textStart"/>
 
@@ -42,11 +43,13 @@
         android:layout_marginHorizontal="@dimen/dp_20"
         android:layout_marginTop="@dimen/dp_5"
         android:layout_weight="1"
+        android:textAllCaps="false"
         android:text="@string/media_library"
+        android:textSize="@dimen/sp_22"
         android:textColor="@color/sting_and_icon"
         android:backgroundTint="@color/white"
         app:cornerRadius="@dimen/dp_16"
-        app:icon="@drawable/ic_media_library"
+        app:icon="@drawable/ic_media_library_24"
         app:iconTint="@color/sting_and_icon"
         app:iconGravity="textStart"/>
 
@@ -57,11 +60,13 @@
         android:layout_marginHorizontal="@dimen/dp_20"
         android:layout_marginTop="@dimen/dp_5"
         android:layout_weight="1"
+        android:textAllCaps="false"
         android:text="@string/settings"
+        android:textSize="@dimen/sp_22"
         android:textColor="@color/sting_and_icon"
         android:backgroundTint="@color/white"
         app:cornerRadius="@dimen/dp_16"
-        app:icon="@drawable/ic_settings"
+        app:icon="@drawable/ic_settings_24"
         app:iconTint="@color/sting_and_icon"
         app:iconGravity="textStart"/>
 
