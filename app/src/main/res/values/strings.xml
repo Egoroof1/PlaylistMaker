@@ -1,3 +1,20 @@
 <resources>
     <string name="app_name">Playlist Maker</string>
+
+    <!--    MainActivity-->
+    <string name="search">Поиск</string>
+    <string name="media_library">Медиатека</string>
+
+    <!--    SettingActivity-->
+    <string name="settings">Настройки</string>
+    <string name="black_theme">Тёмная тема</string>
+    <string name="share_app">Поделиться приложением</string>
+    <string name="write_to_support">Написать в поддержку</string>
+    <string name="user_agreement">Пользовательское соглашение</string>
+
+    <!--    contentDescription-->
+    <string name="back">back</string>
+    <string name="share">share</string>
+    <string name="support">support</string>
+    <string name="arrow_forward">arrow_forward</string>
 </resources>
