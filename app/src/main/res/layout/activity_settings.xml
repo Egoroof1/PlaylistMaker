@@ -5,7 +5,8 @@
     android:id="@+id/settings"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical">
+    android:orientation="vertical"
+    android:background="@color/bg_activity">
 
 
     <TextView
@@ -22,12 +23,13 @@
 
         <TextView
             style="@style/text_settings"
+            android:layout_width="0dp"
             android:layout_weight="1"
             android:text="@string/black_theme"/>
 
         <Switch
             android:id="@+id/sw_isBlackTheme"
-            android:layout_width="wrap_content"
+            android:layout_width="50dp"
             android:layout_height="match_parent"
             android:layout_marginEnd="@dimen/dp_16"
             android:thumbTint="@color/switch_thumb"

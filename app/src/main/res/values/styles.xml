@@ -31,9 +31,11 @@
         <item name="android:layout_weight">1</item>
         <item name="android:textAllCaps">false</item>
         <item name="android:textSize">@dimen/sp_22</item>
-        <item name="android:textColor">@color/string</item>
+        <item name="android:textColor">@color/color_icon_main</item>
         <item name="android:backgroundTint">@color/white</item>
         <item name="android:fontFamily">@font/ys_display_medium</item>
         <item name="android:textFontWeight">500</item>
+        <item name="iconTint">@color/color_icon_main</item>
+        <item name="iconGravity">textStart</item>
     </style>
 </resources>
