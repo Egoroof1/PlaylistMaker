@@ -5,7 +5,7 @@
     android:id="@+id/settings"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/white"
+    android:background="@color/bg_color_settings"
     android:orientation="vertical">
 
 
@@ -16,7 +16,7 @@
         android:layout_marginBottom="@dimen/dp_24"
         app:navigationIcon="@drawable/ic_back_arrow_24"
         app:title="@string/settings"
-        app:titleTextColor="@color/sting_and_icon" />
+        app:titleTextColor="@color/sting" />
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -30,15 +30,15 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:text="@string/black_theme"
-            android:textColor="@color/sting_and_icon"
+            android:textColor="@color/string_setting"
             android:textSize="@dimen/sp_16" />
 
         <Switch
             android:id="@+id/sw_isBlackTheme"
             android:layout_width="50dp"
             android:layout_height="match_parent"
-            android:thumbTint="@color/switch_thumd"
-            android:trackTint="#D5D7D9"
+            android:thumbTint="@color/switch_thumb"
+            android:trackTint="@color/switch_track"
             tools:ignore="UseSwitchCompatOrMaterialXml" />
 
     </LinearLayout>
@@ -51,7 +51,7 @@
         android:gravity="center_vertical"
         android:paddingHorizontal="@dimen/dp_16"
         android:text="@string/share_app"
-        android:textColor="@color/sting_and_icon"
+        android:textColor="@color/sting"
         android:textSize="@dimen/sp_16"
         app:drawableEndCompat="@drawable/ic_share_24" />
 
@@ -62,7 +62,7 @@
         android:gravity="center_vertical"
         android:paddingHorizontal="@dimen/dp_16"
         android:text="@string/write_to_support"
-        android:textColor="@color/sting_and_icon"
+        android:textColor="@color/sting"
         android:textSize="@dimen/sp_16"
         app:drawableEndCompat="@drawable/ic_support_24" />
 
@@ -73,7 +73,7 @@
         android:gravity="center_vertical"
         android:paddingHorizontal="@dimen/dp_16"
         android:text="@string/user_agreement"
-        android:textColor="@color/sting_and_icon"
+        android:textColor="@color/sting"
         android:textSize="@dimen/sp_16"
         app:drawableEndCompat="@drawable/ic_arrow_forward_24" />
 

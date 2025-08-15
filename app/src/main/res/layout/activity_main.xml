@@ -27,11 +27,11 @@
         android:textAllCaps="false"
         android:text="@string/search"
         android:textSize="@dimen/sp_22"
-        android:textColor="@color/sting_and_icon"
+        android:textColor="@color/sting"
         android:backgroundTint="@color/white"
         app:cornerRadius="@dimen/dp_16"
         app:icon="@drawable/ic_search_24"
-        app:iconTint="@color/sting_and_icon"
+        app:iconTint="@color/sting"
         app:iconGravity="textStart"/>
 
     <Button
@@ -44,11 +44,11 @@
         android:textAllCaps="false"
         android:text="@string/media_library"
         android:textSize="@dimen/sp_22"
-        android:textColor="@color/sting_and_icon"
+        android:textColor="@color/sting"
         android:backgroundTint="@color/white"
         app:cornerRadius="@dimen/dp_16"
         app:icon="@drawable/ic_media_library_24"
-        app:iconTint="@color/sting_and_icon"
+        app:iconTint="@color/sting"
         app:iconGravity="textStart"/>
 
     <Button
@@ -61,11 +61,11 @@
         android:textAllCaps="false"
         android:text="@string/settings"
         android:textSize="@dimen/sp_22"
-        android:textColor="@color/sting_and_icon"
+        android:textColor="@color/sting"
         android:backgroundTint="@color/white"
         app:cornerRadius="@dimen/dp_16"
         app:icon="@drawable/ic_settings_24"
-        app:iconTint="@color/sting_and_icon"
+        app:iconTint="@color/sting"
         app:iconGravity="textStart"/>
 
 </LinearLayout>
