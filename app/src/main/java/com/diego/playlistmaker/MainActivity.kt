@@ -30,7 +30,6 @@ class MainActivity : AppCompatActivity() {
         }
 
         btnMediaLibrary.setOnClickListener {
-
             startActivity(Intent(this, MediaActivity::class.java))
         }
 
