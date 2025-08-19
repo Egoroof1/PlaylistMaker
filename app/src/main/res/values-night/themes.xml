@@ -10,4 +10,7 @@
     <color name="color_icon_main">#1A1B22</color>"
     <color name="switch_thumb">#3772E7</color>
     <color name="switch_track">#9FBBF3</color>
+
+    <color name="color_edittext_hint">#1A1B22</color>
+    <color name="form">#ffffff</color>
 </resources>

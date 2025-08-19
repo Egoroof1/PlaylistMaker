@@ -9,4 +9,9 @@
     <color name="switch_track">#D5D7D9</color>
     <color name="color_icon_setting">#AEAFB4</color>
     <color name="color_icon_main">@color/string</color>
+
+
+    <color name="color_edittext_hint">#818C99</color>
+    <color name="form">#E6E8EB</color>
+    <color name="color_edittext_text">#1A1B22</color>
 </resources>

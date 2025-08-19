@@ -16,21 +16,21 @@
         android:text="@string/app_name"
         android:textColor="@color/white" />
 
-    <Button
+    <com.google.android.material.button.MaterialButton
         android:id="@+id/btn_search"
         style="@style/btn_main"
         android:text="@string/search"
         app:cornerRadius="@dimen/dp_16"
         app:icon="@drawable/ic_search_24" />
 
-    <Button
+    <com.google.android.material.button.MaterialButton
         android:id="@+id/btn_media_library"
         style="@style/btn_main"
         android:text="@string/media_library"
         app:cornerRadius="@dimen/dp_16"
         app:icon="@drawable/ic_media_library_24" />
 
-    <Button
+    <com.google.android.material.button.MaterialButton
         android:id="@+id/btn_settings"
         style="@style/btn_main"
         android:layout_marginBottom="@dimen/dp_20"
