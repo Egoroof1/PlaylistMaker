@@ -21,6 +21,10 @@ class MainActivity : AppCompatActivity() {
             insets
         }
 
+        setupClickListeners()
+    }
+
+    private fun setupClickListeners(){
         val btnSearch = findViewById<Button>(R.id.btn_search)
         val btnMediaLibrary = findViewById<Button>(R.id.btn_media_library)
         val btnSettings = findViewById<Button>(R.id.btn_settings)

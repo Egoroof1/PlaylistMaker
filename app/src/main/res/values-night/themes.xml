@@ -1,5 +1,6 @@
 <resources >
     <style name="Base.Theme.PlaylistMaker" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+
     </style>
 
     <color name="bg_main">#1A1B22</color>

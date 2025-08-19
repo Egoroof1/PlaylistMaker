@@ -1,11 +1,13 @@
 package com.diego.playlistmaker
 
+import android.content.Intent
 import android.os.Bundle
 import android.widget.TextView
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import androidx.core.net.toUri
 
 class SettingsActivity : AppCompatActivity() {
 
@@ -19,10 +21,46 @@ class SettingsActivity : AppCompatActivity() {
             insets
         }
 
-        val btnBack = findViewById<TextView>(R.id.toolbar)
+        setupClickListeners()
+    }
 
-        btnBack.setOnClickListener {
-            finish()
+    private fun setupClickListeners() {
+        val btnBack = findViewById<TextView>(R.id.toolbar)
+        val btnShare = findViewById<TextView>(R.id.btn_search)
+        val btnSupport = findViewById<TextView>(R.id.btn_support)
+        val btnAgreement = findViewById<TextView>(R.id.btn_agreement)
+
+        btnBack.setOnClickListener { finish() }
+        btnShare.setOnClickListener { shareApp() }
+        btnSupport.setOnClickListener { contactSupport() }
+        btnAgreement.setOnClickListener { openAgreement() }
+    }
+
+    private fun shareApp() {
+        val shareIntent = Intent(Intent.ACTION_SEND).apply {
+            type = "text/plain"
+            putExtra(Intent.EXTRA_TEXT, getString(R.string.practicum_ru))
         }
+
+        startActivity(shareIntent)
+    }
+
+    private fun contactSupport() {
+        val shareIntent = Intent(Intent.ACTION_SENDTO).apply {
+            data = "mailto:".toUri()
+            putExtra(Intent.EXTRA_EMAIL, arrayOf(getString(R.string.email_developers)))
+            putExtra(Intent.EXTRA_SUBJECT, getString(R.string.subject_to_email))
+            putExtra(Intent.EXTRA_TEXT, getString(R.string.message_to_email))
+        }
+
+        startActivity(shareIntent)
+    }
+
+    private fun openAgreement() {
+        val url = getString(R.string.practicum_offer_ru)
+        val agreementIntent = Intent(Intent.ACTION_VIEW, url.toUri())
+
+        startActivity(agreementIntent)
+
     }
 }
