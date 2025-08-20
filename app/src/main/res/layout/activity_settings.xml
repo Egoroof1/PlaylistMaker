@@ -5,38 +5,33 @@
     android:id="@+id/settings"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/bg_color_settings"
-    android:orientation="vertical">
+    android:orientation="vertical"
+    android:background="@color/bg_activity">
 
 
-    <com.google.android.material.appbar.MaterialToolbar
+    <TextView
+        style="@style/title"
         android:id="@+id/toolbar"
-        android:layout_width="match_parent"
-        android:layout_height="@dimen/dp_56"
-        android:layout_marginBottom="@dimen/dp_24"
-        app:navigationIcon="@drawable/ic_back_arrow_24"
-        app:title="@string/settings"
-        app:titleTextColor="@color/sting" />
+        android:text="@string/settings"
+        app:drawableStartCompat="@drawable/ic_back_arrow_24"
+        app:drawableTint="@color/string" />
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="@dimen/dp_56"
-        android:gravity="center_vertical"
-        android:orientation="horizontal"
-        android:paddingHorizontal="@dimen/dp_16">
+        android:orientation="horizontal">
 
         <TextView
+            style="@style/text_settings"
             android:layout_width="0dp"
-            android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="@string/black_theme"
-            android:textColor="@color/string_setting"
-            android:textSize="@dimen/sp_16" />
+            android:text="@string/black_theme"/>
 
         <Switch
             android:id="@+id/sw_isBlackTheme"
             android:layout_width="50dp"
             android:layout_height="match_parent"
+            android:layout_marginEnd="@dimen/dp_16"
             android:thumbTint="@color/switch_thumb"
             android:trackTint="@color/switch_track"
             tools:ignore="UseSwitchCompatOrMaterialXml" />
@@ -45,37 +40,25 @@
 
 
     <TextView
+        style="@style/text_settings"
         android:id="@+id/btn_search"
-        android:layout_width="match_parent"
-        android:layout_height="@dimen/dp_56"
-        android:gravity="center_vertical"
-        android:paddingHorizontal="@dimen/dp_16"
         android:text="@string/share_app"
-        android:textColor="@color/sting"
-        android:textSize="@dimen/sp_16"
-        app:drawableEndCompat="@drawable/ic_share_24" />
+        app:drawableEndCompat="@drawable/ic_share_24"
+        app:drawableTint="@color/color_icon_setting"/>
 
     <TextView
+        style="@style/text_settings"
         android:id="@+id/btn_support"
-        android:layout_width="match_parent"
-        android:layout_height="@dimen/dp_56"
-        android:gravity="center_vertical"
-        android:paddingHorizontal="@dimen/dp_16"
         android:text="@string/write_to_support"
-        android:textColor="@color/sting"
-        android:textSize="@dimen/sp_16"
-        app:drawableEndCompat="@drawable/ic_support_24" />
+        app:drawableEndCompat="@drawable/ic_support_24"
+        app:drawableTint="@color/color_icon_setting"/>
 
     <TextView
+        style="@style/text_settings"
         android:id="@+id/btn_agreement"
-        android:layout_width="match_parent"
-        android:layout_height="@dimen/dp_56"
-        android:gravity="center_vertical"
-        android:paddingHorizontal="@dimen/dp_16"
         android:text="@string/user_agreement"
-        android:textColor="@color/sting"
-        android:textSize="@dimen/sp_16"
-        app:drawableEndCompat="@drawable/ic_arrow_forward_24" />
+        app:drawableEndCompat="@drawable/ic_arrow_forward_24"
+        app:drawableTint="@color/color_icon_setting" />
 
 
 </LinearLayout>

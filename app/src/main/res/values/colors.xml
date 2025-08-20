@@ -3,9 +3,15 @@
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
     <color name="bg_main">#3772E7</color>
-    <color name="sting">#1A1B22</color>
+    <color name="bg_activity">@color/white</color>
+    <color name="string">#1A1B22</color>
     <color name="switch_thumb">#AEAFB4</color>
     <color name="switch_track">#D5D7D9</color>
-    <color name="bg_color_settings">#ffffff</color>
-    <color name="string_setting">#1A1B22</color>
+    <color name="color_icon_setting">#AEAFB4</color>
+    <color name="color_icon_main">@color/string</color>
+
+
+    <color name="color_edittext_hint">#818C99</color>
+    <color name="form">#E6E8EB</color>
+    <color name="color_edittext_text">#1A1B22</color>
 </resources>

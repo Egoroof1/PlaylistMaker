@@ -2,7 +2,6 @@
     <string name="app_name">Playlist Maker</string>
 
     <!--    MainActivity-->
-    <string name="search">Поиск</string>
     <string name="media_library">Медиатека</string>
 
     <!--    SettingActivity-->
@@ -11,10 +10,21 @@
     <string name="share_app">Поделиться приложением</string>
     <string name="write_to_support">Написать в поддержку</string>
     <string name="user_agreement">Пользовательское соглашение</string>
+    <string name="message_to_email">Спасибо разработчикам и разработчицам
+        за крутое приложение!</string>
+    <string name="email_developers">egoroof1@yandex.ru</string>
+    <string name="subject_to_email">Сообщение разработчикам и разработчицам приложения Playlist Maker</string>
+    <string name="practicum_ru">https://practicum.yandex.ru/profile/android-developer-plus/</string>
+    <string name="practicum_offer_ru">https://yandex.ru/legal/practicum_offer/ru/</string>
+
+    <!--  Search Activity  -->
+    <string name="search">Поиск</string>
+    <string name="clear">clear</string>
 
     <!--    contentDescription-->
     <string name="back">back</string>
     <string name="share">share</string>
     <string name="support">support</string>
     <string name="arrow_forward">arrow_forward</string>
+
 </resources>

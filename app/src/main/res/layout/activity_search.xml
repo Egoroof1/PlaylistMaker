@@ -1,17 +1,61 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:id="@+id/main"
+    android:id="@+id/main_search"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@color/bg_activity">
 
     <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:id="@+id/btn_back"
+        style="@style/title"
         android:text="@string/search"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        android:layout_marginBottom="0dp"
+        app:drawableStartCompat="@drawable/ic_back_arrow_24"
+        app:drawableTint="@color/string"/>
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="36dp"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:background="@drawable/bg_forms"
+        android:layout_marginHorizontal="@dimen/sp_16"
+        android:layout_marginVertical="8dp"
+        android:paddingHorizontal="@dimen/dp_12">
+
+        <EditText
+            android:id="@+id/editTextSearch"
+            android:layout_width="0dp"
+            android:layout_height="36dp"
+            android:layout_weight="1"
+            android:autofillHints=""
+            android:drawableStart="@drawable/ic_search_16"
+            android:drawablePadding="8dp"
+            android:drawableTint="@color/color_edittext_hint"
+            android:background="@drawable/bg_forms"
+            android:inputType="text"
+            android:hint="@string/search"
+            android:textColorHint="@color/color_edittext_hint"
+            android:fontFamily="@font/ys_display_regular"
+            android:textFontWeight="400"
+            android:textSize="@dimen/sp_16"
+            android:lines="1"
+            android:maxLength="40"
+            android:textColor="@color/color_edittext_text"/>
+
+        <ImageView
+            android:id="@+id/ic_clearEditText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:contentDescription="@string/clear"
+            android:visibility="gone"
+            app:srcCompat="@drawable/ic_clear"
+            app:tint="@color/color_edittext_hint"/>
+
+
+    </LinearLayout>
+
+</LinearLayout>
