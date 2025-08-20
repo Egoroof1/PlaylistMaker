@@ -2,7 +2,6 @@
     <string name="app_name">Playlist Maker</string>
 
     <!--    MainActivity-->
-    <string name="search">Поиск</string>
     <string name="media_library">Медиатека</string>
 
     <!--    SettingActivity-->
@@ -18,6 +17,9 @@
     <string name="practicum_ru">https://practicum.yandex.ru/profile/android-developer-plus/</string>
     <string name="practicum_offer_ru">https://yandex.ru/legal/practicum_offer/ru/</string>
 
+    <!--  Search Activity  -->
+    <string name="search">Поиск</string>
+    <string name="clear">clear</string>
 
     <!--    contentDescription-->
     <string name="back">back</string>

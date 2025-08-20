@@ -2,6 +2,12 @@ package com.diego.playlistmaker
 
 import android.annotation.SuppressLint
 import android.os.Bundle
+import android.text.Editable
+import android.text.TextWatcher
+import android.view.View
+import android.view.inputmethod.InputMethodManager
+import android.widget.EditText
+import android.widget.ImageView
 import android.widget.TextView
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
@@ -21,11 +27,56 @@ class SearchActivity : AppCompatActivity() {
         }
 
         val btnBack = findViewById<TextView>(R.id.btn_back)
+        val btnClear = findViewById<ImageView>(R.id.ic_clearEditText)
+        val editTextSearch = findViewById<EditText>(R.id.editTextSearch)
 
-        btnBack.setOnClickListener {
-            finish()
+        btnBack.setOnClickListener { finish() }
+
+        btnClear.setOnClickListener {
+            editTextSearch.text.clear()
+            hideKeyboard()
+            editTextSearch.clearFocus()
         }
 
+        val simpleTextWatcher = object : TextWatcher {
+            override fun afterTextChanged(s: Editable?) {
+                //empty
+            }
 
+            override fun beforeTextChanged(
+                s: CharSequence?,
+                start: Int,
+                count: Int,
+                after: Int
+            ) {
+                //empty
+            }
+
+            override fun onTextChanged(
+                s: CharSequence?,
+                start: Int,
+                before: Int,
+                count: Int
+            ) {
+                btnClear.visibility = clearButtonVisibility(s)
+            }
+
+        }
+
+        editTextSearch.addTextChangedListener(simpleTextWatcher)
+
+    }
+
+    fun clearButtonVisibility(s: CharSequence?): Int {
+        return if(s.isNullOrEmpty()){
+            View.GONE
+        } else {
+            View.VISIBLE
+        }
+    }
+
+    fun hideKeyboard(){
+        val imm = getSystemService(INPUT_METHOD_SERVICE) as InputMethodManager
+        imm.hideSoftInputFromWindow(currentFocus?.windowToken, 0)
     }
 }
