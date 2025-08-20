@@ -37,5 +37,7 @@
         <item name="android:textFontWeight">500</item>
         <item name="iconTint">@color/color_icon_main</item>
         <item name="iconGravity">textStart</item>
+        <!-- удаление тени -->
+        <item name="android:stateListAnimator">@null</item>
     </style>
 </resources>

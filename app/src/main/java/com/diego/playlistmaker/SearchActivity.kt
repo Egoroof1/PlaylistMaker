@@ -15,6 +15,14 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 
 class SearchActivity : AppCompatActivity() {
+
+    private var currentEditText: String = CURRENT_TEXT
+
+    companion object {
+        const val CURRENT_TEXT = ""
+        const val KEY_CURRENT_TEXT = "current_text"
+    }
+
     @SuppressLint("MissingInflatedId")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -59,12 +67,23 @@ class SearchActivity : AppCompatActivity() {
                 count: Int
             ) {
                 btnClear.visibility = clearButtonVisibility(s)
+                currentEditText = s.toString()
             }
-
         }
 
         editTextSearch.addTextChangedListener(simpleTextWatcher)
 
+    }
+
+    override fun onRestoreInstanceState(savedInstanceState: Bundle) {
+        super.onRestoreInstanceState(savedInstanceState)
+        currentEditText = savedInstanceState.getString(KEY_CURRENT_TEXT, currentEditText)
+        findViewById<EditText>(R.id.editTextSearch).setText(currentEditText)
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        outState.putString(KEY_CURRENT_TEXT, currentEditText)
     }
 
     fun clearButtonVisibility(s: CharSequence?): Int {

@@ -43,7 +43,7 @@
             android:textFontWeight="400"
             android:textSize="@dimen/sp_16"
             android:lines="1"
-            android:maxLength="20"
+            android:maxLength="40"
             android:textColor="@color/color_edittext_text"/>
 
         <ImageView
