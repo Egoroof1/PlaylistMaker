@@ -8,6 +8,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.net.toUri
+import com.google.android.material.appbar.MaterialToolbar
 
 class SettingsActivity : AppCompatActivity() {
 
@@ -25,12 +26,12 @@ class SettingsActivity : AppCompatActivity() {
     }
 
     private fun setupClickListeners() {
-        val btnBack = findViewById<TextView>(R.id.toolbar)
+        val btnBack = findViewById<MaterialToolbar>(R.id.toolbar)
         val btnShare = findViewById<TextView>(R.id.btn_search)
         val btnSupport = findViewById<TextView>(R.id.btn_support)
         val btnAgreement = findViewById<TextView>(R.id.btn_agreement)
 
-        btnBack.setOnClickListener { finish() }
+        btnBack.setNavigationOnClickListener { finish() }
         btnShare.setOnClickListener { shareApp() }
         btnSupport.setOnClickListener { contactSupport() }
         btnAgreement.setOnClickListener { openAgreement() }

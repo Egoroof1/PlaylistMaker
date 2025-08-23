@@ -8,11 +8,11 @@ import android.view.View
 import android.view.inputmethod.InputMethodManager
 import android.widget.EditText
 import android.widget.ImageView
-import android.widget.TextView
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import com.google.android.material.appbar.MaterialToolbar
 
 class SearchActivity : AppCompatActivity() {
 
@@ -34,11 +34,11 @@ class SearchActivity : AppCompatActivity() {
             insets
         }
 
-        val btnBack = findViewById<TextView>(R.id.btn_back)
+        val btnBack = findViewById<MaterialToolbar>(R.id.toolbar)
         val btnClear = findViewById<ImageView>(R.id.ic_clearEditText)
         val editTextSearch = findViewById<EditText>(R.id.editTextSearch)
 
-        btnBack.setOnClickListener { finish() }
+        btnBack.setNavigationOnClickListener { finish() }
 
         btnClear.setOnClickListener {
             editTextSearch.text.clear()
