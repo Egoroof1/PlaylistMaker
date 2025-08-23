@@ -7,13 +7,12 @@
     android:orientation="vertical"
     android:background="@color/bg_activity">
 
-    <TextView
-        android:id="@+id/btn_back"
-        style="@style/title"
-        android:text="@string/search"
+    <com.google.android.material.appbar.MaterialToolbar
+        style="@style/toolbar"
+        android:id="@+id/toolbar"
+        app:title="@string/search"
         android:layout_marginBottom="0dp"
-        app:drawableStartCompat="@drawable/ic_back_arrow_24"
-        app:drawableTint="@color/string"/>
+        app:navigationIcon="@drawable/ic_back_arrow_24"/>
 
 
     <LinearLayout

@@ -9,34 +9,22 @@
     android:background="@color/bg_activity">
 
 
-    <TextView
-        style="@style/title"
+    <com.google.android.material.appbar.MaterialToolbar
+        style="@style/toolbar"
         android:id="@+id/toolbar"
-        android:text="@string/settings"
-        app:drawableStartCompat="@drawable/ic_back_arrow_24"
-        app:drawableTint="@color/string" />
+        app:title="@string/settings"
+        app:navigationIcon="@drawable/ic_back_arrow_24" />
 
-    <LinearLayout
+    <com.google.android.material.switchmaterial.SwitchMaterial
+        style="@style/text_settings"
         android:layout_width="match_parent"
         android:layout_height="@dimen/dp_56"
-        android:orientation="horizontal">
-
-        <TextView
-            style="@style/text_settings"
-            android:layout_width="0dp"
-            android:layout_weight="1"
-            android:text="@string/black_theme"/>
-
-        <Switch
-            android:id="@+id/sw_isBlackTheme"
-            android:layout_width="50dp"
-            android:layout_height="match_parent"
-            android:layout_marginEnd="@dimen/dp_16"
-            android:thumbTint="@color/switch_thumb"
-            android:trackTint="@color/switch_track"
-            tools:ignore="UseSwitchCompatOrMaterialXml" />
-
-    </LinearLayout>
+        android:layout_gravity="center_vertical"
+        android:id="@+id/sw_isBlackTheme"
+        android:paddingHorizontal="@dimen/dp_16"
+        android:text="@string/black_theme"
+        app:thumbTint="@color/switch_thumb"
+        app:trackTint="@color/switch_track"/>
 
 
     <TextView
