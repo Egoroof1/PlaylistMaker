@@ -36,6 +36,9 @@ android {
 }
 
 dependencies {
+    implementation(libs.material.v161)
+    implementation(libs.glide)
+    annotationProcessor (libs.compiler)
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
