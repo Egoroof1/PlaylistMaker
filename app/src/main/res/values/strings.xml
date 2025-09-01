@@ -26,5 +26,7 @@
     <string name="share">share</string>
     <string name="support">support</string>
     <string name="arrow_forward">arrow_forward</string>
+    <string name="track_cover">track cover</string>
+    <string name="space">/ /</string>
 
 </resources>
