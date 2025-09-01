@@ -17,7 +17,7 @@ class TrackHolder(item: View): RecyclerView.ViewHolder(item) {
 
         val image = itemView.findViewById<ImageView>(R.id.image)
         Glide.with(itemView)
-            .load("")
+            .load(track.artworkUrl100)
             .placeholder(R.drawable.placeholder)
             .into(image)
     }
