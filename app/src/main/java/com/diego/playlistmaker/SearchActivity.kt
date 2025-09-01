@@ -22,7 +22,7 @@ class SearchActivity : AppCompatActivity() {
     private var currentEditText: String = CURRENT_TEXT
 
 
-    private val tracks = arrayListOf(
+    private val tracks = mutableListOf(
         Track(
             trackName = "Smells Like Teen Spirit",
             artistName = "Nirvana",
