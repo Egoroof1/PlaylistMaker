@@ -43,6 +43,8 @@
             android:textSize="@dimen/sp_16"
             android:lines="1"
             android:maxLength="40"
+            android:imeOptions="actionDone"
+            android:singleLine="true"
             android:textColor="@color/color_edittext_text"/>
 
         <ImageView
