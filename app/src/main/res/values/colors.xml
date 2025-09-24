@@ -14,4 +14,5 @@
     <color name="color_edittext_hint">#818C99</color>
     <color name="form">#E6E8EB</color>
     <color name="color_edittext_text">#1A1B22</color>
+    <color name="btn_update_text">#FFFFFF</color>
 </resources>

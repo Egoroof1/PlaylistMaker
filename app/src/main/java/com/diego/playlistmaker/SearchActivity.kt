@@ -1,15 +1,19 @@
 package com.diego.playlistmaker
 
 import android.annotation.SuppressLint
+import android.content.Context
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
 import android.util.Log
+import android.view.KeyEvent
 import android.view.View
 import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputMethodManager
 import android.widget.EditText
 import android.widget.ImageView
+import android.widget.LinearLayout
+import android.widget.TextView
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
@@ -20,6 +24,7 @@ import com.diego.playlistmaker.models.Track
 import com.diego.playlistmaker.models.TrackResponse
 import com.diego.playlistmaker.services.ITunesApi
 import com.google.android.material.appbar.MaterialToolbar
+import com.google.android.material.button.MaterialButton
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -27,6 +32,8 @@ import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 
 class SearchActivity : AppCompatActivity() {
+
+    var actionID: Int = 0
 
     // создание Retrofit клиента
     private val imdBaseURL = "https://itunes.apple.com"
@@ -144,52 +151,26 @@ class SearchActivity : AppCompatActivity() {
         val recycler = findViewById<RecyclerView>(R.id.recycler_tracks)
         recycler.adapter = TrackAdapter(tracks)
 
+        val statusNotFound = findViewById<LinearLayout>(R.id.search_error_not_found)
+        val statusNotSignal = findViewById<LinearLayout>(R.id.search_error_not_signal)
+        val btnUpdate = findViewById<MaterialButton>(R.id.btn_error_update)
+
         // Обработчик клавиатуры (кнопка "Готово")
         editTextSearch.setOnEditorActionListener { _, actionId, _ ->
-            if(actionId == EditorInfo.IME_ACTION_DONE) {
-                hideKeyboard()     // Скрыть клавиатуру
-                editTextSearch.clearFocus()       // Убрать фокус с поля ввода
+            this.actionID = actionId
+            requestServer(
+                editTextSearch,
+                recycler,
+                statusNotFound,
+                statusNotSignal,
+                actionID
+            )
+        }
 
-                if (editTextSearch.text.isNotEmpty()) {
-                    // Вызов API при нажатии кнопки
-                    iTunesApi.searchSongs(editTextSearch.text.toString()).enqueue(object :
-                        Callback<TrackResponse> {
-                        @SuppressLint("NotifyDataSetChanged")
-                        override fun onResponse(call: Call<TrackResponse>, response: Response<TrackResponse>) {
-                            if (response.code() == 200) { // Если успешный ответ
-                                tracks.clear() // Очистка старого списка
-
-                                // Добавление новых данных
-                                if (response.body()?.results?.isNotEmpty() == true) {
-                                    tracks.addAll(response.body()?.results!!)
-                                    recycler.adapter?.notifyDataSetChanged() // Обновление списка
-                                }
-
-//                                // Показать/скрыть сообщение в зависимости от результатов
-//                                if (tracks.isEmpty()) {
-//                                    showMessage(getString(R.string.nothing_found), "")
-//                                } else {
-//                                    showMessage("", "")
-//                                }
-                            } else {
-                                // Обработка ошибки HTTP
-//                                showMessage(getString(R.string.something_went_wrong1), response.code().toString())
-                                Log.d("TAG", "onResponse: Серверная ошибка не 200-ОК")
-                            }
-                        }
-
-                        override fun onFailure(call: Call<TrackResponse>, t: Throwable) {
-                            // Обработка сетевой ошибки
-//                            showMessage(getString(R.string.something_went_wrong2), t.message.toString())
-                            Log.d("TAG", "onFailure: Сетевая ошибка")
-                        }
-                    })
-                }
-
-                true
-            } else {
-                false
-            }
+        // кнопка обновления
+        btnUpdate.setOnClickListener {
+            requestServer(editTextSearch, recycler, statusNotFound, statusNotSignal, actionID)
+            Log.d("TAG", "onCreate: click")
         }
 
     }
@@ -206,15 +187,92 @@ class SearchActivity : AppCompatActivity() {
     }
 
     fun clearButtonVisibility(s: CharSequence?): Int {
-        return if(s.isNullOrEmpty()){
+        return if (s.isNullOrEmpty()) {
             View.GONE
         } else {
             View.VISIBLE
         }
     }
 
-    fun hideKeyboard(){
+    fun hideKeyboard() {
         val imm = getSystemService(INPUT_METHOD_SERVICE) as InputMethodManager
         imm.hideSoftInputFromWindow(currentFocus?.windowToken, 0)
+    }
+
+    fun requestServer(
+        editTextSearch: EditText,
+        recycler: RecyclerView,
+        statusNotFound: LinearLayout,
+        statusNotSignal: LinearLayout,
+        actionId: Int
+    ): Boolean {
+
+        Log.d("TAG", "requestServer: зашли в метод")
+
+        Log.d("TAG", "requestServer: начало запроса")
+
+        recycler.visibility = View.VISIBLE
+        statusNotFound.visibility = View.GONE
+        statusNotSignal.visibility = View.GONE
+
+        if (actionId == EditorInfo.IME_ACTION_DONE) {
+            hideKeyboard()     // Скрыть клавиатуру
+            editTextSearch.clearFocus()       // Убрать фокус с поля ввода
+
+            if (editTextSearch.text.isNotEmpty()) {
+                // Вызов API при нажатии кнопки
+                iTunesApi.searchSongs(editTextSearch.text.toString()).enqueue(object :
+                    Callback<TrackResponse> {
+                    @SuppressLint("NotifyDataSetChanged")
+                    override fun onResponse(
+                        call: Call<TrackResponse>,
+                        response: Response<TrackResponse>
+                    ) {
+                        if (response.code() == 200) { // Если успешный ответ
+                            tracks.clear() // Очистка старого списка
+
+                            // Добавление новых данных
+                            if (response.body()?.results?.isNotEmpty() == true) {
+                                tracks.addAll(response.body()?.results!!)
+                                recycler.adapter?.notifyDataSetChanged() // Обновление списка
+                            }
+
+                            Log.d(
+                                "TAG",
+                                "onResponse: how many results: ${response.body()?.resultCount}"
+                            )
+
+                            // Показать/скрыть сообщение в зависимости от результатов
+                            if (tracks.isEmpty()) {
+                                Log.d("TAG", "onResponse: пусто")
+
+                                recycler.visibility = View.GONE
+                                statusNotFound.visibility = View.VISIBLE
+                            }
+                        } else {
+                            // Обработка ошибки HTTP
+
+                            recycler.visibility = View.GONE
+                            statusNotSignal.visibility = View.VISIBLE
+                            Log.d("TAG", "onResponse: Серверная ошибка не 200-ОК")
+                        }
+                    }
+
+                    override fun onFailure(call: Call<TrackResponse>, t: Throwable) {
+                        // Обработка сетевой ошибки
+
+                        recycler.visibility = View.GONE
+                        statusNotSignal.visibility = View.VISIBLE
+
+                        Log.d("TAG", "onFailure: Сетевая ошибка")
+                    }
+                })
+            }
+
+            return true
+        }
+
+        Log.d("TAG", "requestServer: вышли из метода")
+        return false
     }
 }
