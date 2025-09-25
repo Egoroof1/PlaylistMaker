@@ -29,9 +29,6 @@ class TrackAdapter(
             nameTrack.text = track.trackName
             artistName.text = track.artistName
 
-//            val minutes = track.trackTimeMillis / 60000
-//            val seconds = track.trackTimeMillis / 1000 % 60
-//            timeTrack.text = String.format("%d:%02d", minutes, seconds)
             timeTrack.text = SimpleDateFormat("mm:ss", Locale.getDefault()).format(track.trackTimeMillis)
 
             Glide.with(itemView)
