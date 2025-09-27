@@ -43,6 +43,8 @@
             android:textSize="@dimen/sp_16"
             android:lines="1"
             android:maxLength="40"
+            android:imeOptions="actionDone"
+            android:singleLine="true"
             android:textColor="@color/color_edittext_text"/>
 
         <ImageView
@@ -62,6 +64,76 @@
         android:layout_height="match_parent"
         android:layout_marginTop="@dimen/dp_16"
         android:layout_marginBottom="@dimen/dp_5"
+        android:visibility="visible"
         app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"/>
+
+    <!--    error not found-->
+    <LinearLayout
+        android:id="@+id/search_error_not_found"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:gravity="center"
+        android:layout_marginTop="102dp"
+        android:orientation="vertical"
+        android:visibility="gone">
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:srcCompat="@drawable/ic_not_found" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/dp_16"
+            android:text="Ничего не нашлось"
+            android:textSize="19sp"
+            android:fontFamily="@font/ys_display_medium"
+            android:textColor="@color/string"/>
+
+    </LinearLayout>
+
+    <!--    error not signal-->
+    <LinearLayout
+        android:id="@+id/search_error_not_signal"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:gravity="center"
+        android:layout_marginTop="102dp"
+        android:orientation="vertical"
+        android:visibility="gone">
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:srcCompat="@drawable/ic_not_signal" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/dp_16"
+            android:layout_marginHorizontal="@dimen/dp_24"
+            android:gravity="center"
+            android:text="Проблемы со связью\n\nЗагрузка не удалась. проверьте подключение к интернету"
+            android:textSize="19sp"
+            android:fontFamily="@font/ys_display_medium"
+            android:textColor="@color/string"/>
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_error_update"
+            style="@style/btn_main"
+            android:backgroundTint="@color/string"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="24dp"
+            android:text="Обновить"
+            android:textColor="@color/btn_update_text"
+            android:textSize="14sp"
+            android:textAllCaps="false"
+            app:cornerRadius="20dp"/>
+
+    </LinearLayout>
 
 </LinearLayout>
