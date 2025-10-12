@@ -39,7 +39,8 @@ class SettingsActivity : AppCompatActivity() {
         swIsBlackTheme.isChecked = MyShared.getTheme()
 
         swIsBlackTheme.setOnCheckedChangeListener { _, isChecked ->
-//            applyTheme(isChecked)
+            MyShared.saveTheme(isChecked)
+            MyShared.applyTheme()
         }
 
         btnBack.setNavigationOnClickListener { finish() }
@@ -75,12 +76,4 @@ class SettingsActivity : AppCompatActivity() {
         startActivity(agreementIntent)
 
     }
-
-//    private fun applyTheme(isDarkTheme: Boolean) {
-//        if (isDarkTheme) {
-//            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
-//        } else {
-//            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
-//        }
-//    }
 }

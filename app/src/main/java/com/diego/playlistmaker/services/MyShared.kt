@@ -16,7 +16,18 @@ object MyShared {
 
     fun init(context: Context) {
         // Используем applicationContext чтобы избежать утечек памяти
-        sharedPrefs = context.applicationContext.getSharedPreferences(NAME_FILE_KEY, Context.MODE_PRIVATE)
+        sharedPrefs =
+            context.applicationContext.getSharedPreferences(NAME_FILE_KEY, Context.MODE_PRIVATE)
+        // Определяем системную тему
+        val nightModeFlags =
+            context.resources.configuration.uiMode and android.content.res.Configuration.UI_MODE_NIGHT_MASK
+        if(!sharedPrefs.contains(KEY_THEME)){
+            if (nightModeFlags == android.content.res.Configuration.UI_MODE_NIGHT_YES) {
+                saveTheme(true)
+            } else {
+                saveTheme(false)
+            }
+        }
     }
 
     fun saveTheme(isDarkTheme: Boolean) {
@@ -25,12 +36,7 @@ object MyShared {
         }
     }
 
-    fun getTheme(): Boolean =
-        if(sharedPrefs.contains(KEY_THEME)){
-            sharedPrefs.getBoolean(KEY_THEME, false)
-        } else {
-            false
-        }
+    fun getTheme(): Boolean = sharedPrefs.getBoolean(KEY_THEME, false)
 
     fun saveHistory(history: List<Track>) {
         val json = Gson().toJson(history)
@@ -61,10 +67,8 @@ object MyShared {
     fun applyTheme() {
         val isDarkTheme = getTheme()
         val themeMode = if (isDarkTheme) {
-            saveTheme(true)
             AppCompatDelegate.MODE_NIGHT_YES
         } else {
-            saveTheme(false)
             AppCompatDelegate.MODE_NIGHT_NO
         }
         AppCompatDelegate.setDefaultNightMode(themeMode)
