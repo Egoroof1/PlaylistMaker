@@ -31,5 +31,6 @@
     <string name="trable_signal">Проблемы со связью\n\nЗагрузка не удалась. проверьте подключение к интернету</string>
     <string name="update">Обновить</string>
     <string name="not_found">Ничего не нашлось</string>
+    <string name="you_search">Вы искали</string>
 
 </resources>
