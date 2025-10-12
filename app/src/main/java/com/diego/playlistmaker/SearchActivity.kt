@@ -46,6 +46,8 @@ class SearchActivity : AppCompatActivity() {
     private val tracks = mutableListOf<Track>()
     private var currentEditText: String = CURRENT_TEXT
 
+    private lateinit var historyTracks: MutableList<Track>
+
     companion object {
         const val CURRENT_TEXT = ""
         const val KEY_CURRENT_TEXT = "current_text"
@@ -68,6 +70,42 @@ class SearchActivity : AppCompatActivity() {
 
         val recycler = findViewById<RecyclerView>(R.id.recycler_tracks)
         recycler.adapter = TrackAdapter(tracks)
+
+        val statusNotFound = findViewById<LinearLayout>(R.id.search_error_not_found)
+        val statusNotSignal = findViewById<LinearLayout>(R.id.search_error_not_signal)
+        val btnUpdate = findViewById<MaterialButton>(R.id.btn_error_update)
+
+        historyTracks = mutableListOf()
+        historyTracks.addAll(
+            listOf(
+                Track("Yesterday", "The Beatles", 250000, "https://"),
+                Track("Yesterday", "The Beatles", 250000, "https://"),
+                Track("Yesterday", "The Beatles", 250000, "https://"),
+                Track("Yesterday", "The Beatles", 250000, "https://"),
+                Track("Yesterday", "The Beatles", 250000, "https://"),
+                Track("Yesterday", "The Beatles", 250000, "https://"),
+                Track("Yesterday", "The Beatles", 250000, "https://"),
+                Track("Yesterday", "The Beatles", 250000, "https://"),
+                Track("Yesterday", "The Beatles", 250000, "https://"),
+                Track("Yesterday", "The Beatles", 250000, "https://"),
+                Track("Yesterday", "The Beatles", 250000, "https://"),
+                Track("Yesterday", "The Beatles", 250000, "https://"),
+                Track("Yesterday", "The Beatles", 250000, "https://")
+            )
+        )
+
+        val searchHistory = findViewById<LinearLayout>(R.id.search_history)
+        val recyclerHistory = findViewById<RecyclerView>(R.id.recycler_history)
+        recyclerHistory.viewTreeObserver.addOnGlobalLayoutListener {
+            val maxHeight = 600 // максимальная высота в пикселях
+            if (recyclerHistory.height > maxHeight) {
+                recyclerHistory.layoutParams.height = maxHeight
+                recyclerHistory.requestLayout()
+            }
+        }
+
+        recyclerHistory.adapter = TrackAdapter(historyTracks)
+
 
         btnBack.setNavigationOnClickListener { finish() }
 
@@ -106,9 +144,6 @@ class SearchActivity : AppCompatActivity() {
 
         editTextSearch.addTextChangedListener(simpleTextWatcher)
 
-        val statusNotFound = findViewById<LinearLayout>(R.id.search_error_not_found)
-        val statusNotSignal = findViewById<LinearLayout>(R.id.search_error_not_signal)
-        val btnUpdate = findViewById<MaterialButton>(R.id.btn_error_update)
 
         // Обработчик клавиатуры (кнопка "Готово")
         editTextSearch.setOnEditorActionListener { _, actionId, _ ->
