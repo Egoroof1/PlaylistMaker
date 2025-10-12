@@ -15,6 +15,8 @@ import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.isEmpty
+import androidx.core.view.isNotEmpty
 import androidx.core.view.isVisible
 import androidx.recyclerview.widget.RecyclerView
 import com.diego.playlistmaker.adapters.TrackAdapter
@@ -78,18 +80,18 @@ class SearchActivity : AppCompatActivity() {
         historyTracks = mutableListOf()
         historyTracks.addAll(
             listOf(
-                Track("Yesterday", "The Beatles", 250000, "https://"),
-                Track("Yesterday", "The Beatles", 250000, "https://"),
-                Track("Yesterday", "The Beatles", 250000, "https://"),
-                Track("Yesterday", "The Beatles", 250000, "https://"),
-                Track("Yesterday", "The Beatles", 250000, "https://"),
-                Track("Yesterday", "The Beatles", 250000, "https://"),
-                Track("Yesterday", "The Beatles", 250000, "https://"),
-                Track("Yesterday", "The Beatles", 250000, "https://"),
-                Track("Yesterday", "The Beatles", 250000, "https://"),
-                Track("Yesterday", "The Beatles", 250000, "https://"),
-                Track("Yesterday", "The Beatles", 250000, "https://"),
-                Track("Yesterday", "The Beatles", 250000, "https://"),
+//                Track("Yesterday", "The Beatles", 250000, "https://"),
+//                Track("Yesterday", "The Beatles", 250000, "https://"),
+//                Track("Yesterday", "The Beatles", 250000, "https://"),
+//                Track("Yesterday", "The Beatles", 250000, "https://"),
+//                Track("Yesterday", "The Beatles", 250000, "https://"),
+//                Track("Yesterday", "The Beatles", 250000, "https://"),
+//                Track("Yesterday", "The Beatles", 250000, "https://"),
+//                Track("Yesterday", "The Beatles", 250000, "https://"),
+//                Track("Yesterday", "The Beatles", 250000, "https://"),
+//                Track("Yesterday", "The Beatles", 250000, "https://"),
+//                Track("Yesterday", "The Beatles", 250000, "https://"),
+//                Track("Yesterday", "The Beatles", 250000, "https://"),
                 Track("Yesterday", "The Beatles", 250000, "https://")
             )
         )
@@ -97,11 +99,17 @@ class SearchActivity : AppCompatActivity() {
         val searchHistory = findViewById<LinearLayout>(R.id.search_history)
         val recyclerHistory = findViewById<RecyclerView>(R.id.recycler_history)
         recyclerHistory.viewTreeObserver.addOnGlobalLayoutListener {
-            val maxHeight = 600 // максимальная высота в пикселях
+            val maxHeight = 800 // максимальная высота в пикселях
             if (recyclerHistory.height > maxHeight) {
                 recyclerHistory.layoutParams.height = maxHeight
                 recyclerHistory.requestLayout()
             }
+        }
+
+        if (historyTracks.isNotEmpty()){
+            searchHistory.isVisible = true
+        } else {
+            searchHistory.isVisible = false
         }
 
         recyclerHistory.adapter = TrackAdapter(historyTracks)
@@ -115,6 +123,10 @@ class SearchActivity : AppCompatActivity() {
             editTextSearch.clearFocus()
             tracks.clear() // очищаем список
             recycler.adapter?.notifyDataSetChanged() // Обновление списка
+            recycler.isVisible = false
+            statusNotFound.isVisible = false
+            statusNotSignal.isVisible = false
+            searchHistory.isVisible = true
         }
 
         val simpleTextWatcher = object : TextWatcher {
@@ -153,13 +165,14 @@ class SearchActivity : AppCompatActivity() {
                 recycler,
                 statusNotFound,
                 statusNotSignal,
+                searchHistory,
                 actionID
             )
         }
 
         // кнопка обновления
         btnUpdate.setOnClickListener {
-            requestServer(editTextSearch, recycler, statusNotFound, statusNotSignal, actionID)
+            requestServer(editTextSearch, recycler, statusNotFound, statusNotSignal, searchHistory, actionID)
             Log.d("TAG", "onCreate: click")
         }
 
@@ -194,6 +207,7 @@ class SearchActivity : AppCompatActivity() {
         recycler: RecyclerView,
         statusNotFound: LinearLayout,
         statusNotSignal: LinearLayout,
+        searchHistory: LinearLayout,
         actionId: Int
     ): Boolean {
 
@@ -201,9 +215,10 @@ class SearchActivity : AppCompatActivity() {
 
         Log.d("TAG", "requestServer: начало запроса")
 
-        recycler.isVisible = true
+        recycler.isVisible = false
         statusNotFound.isVisible = false
         statusNotSignal.isVisible = false
+
 
         if (actionId == EditorInfo.IME_ACTION_DONE) {
             hideKeyboard()     // Скрыть клавиатуру
@@ -219,6 +234,9 @@ class SearchActivity : AppCompatActivity() {
                         response: Response<TrackResponse>
                     ) {
                         if (response.code() == 200) { // Если успешный ответ
+                            searchHistory.isVisible = false
+                            recycler.isVisible = true
+
                             tracks.clear() // Очистка старого списка
 
                             // Добавление новых данных
@@ -237,12 +255,14 @@ class SearchActivity : AppCompatActivity() {
                                 Log.d("TAG", "onResponse: пусто")
 
                                 recycler.isVisible = false
+                                searchHistory.isVisible = false
                                 statusNotFound.isVisible = true
                             }
                         } else {
                             // Обработка ошибки HTTP
 
                             recycler.isVisible = false
+                            searchHistory.isVisible = false
                             statusNotSignal.isVisible = true
                             Log.d("TAG", "onResponse: Серверная ошибка не 200-ОК")
                         }
@@ -252,6 +272,7 @@ class SearchActivity : AppCompatActivity() {
                         // Обработка сетевой ошибки
 
                         recycler.isVisible = false
+                        searchHistory.isVisible = false
                         statusNotSignal.isVisible = true
 
                         Log.d("TAG", "onFailure: Сетевая ошибка")
