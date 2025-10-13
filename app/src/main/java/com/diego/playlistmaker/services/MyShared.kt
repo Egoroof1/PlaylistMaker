@@ -11,8 +11,8 @@ object MyShared {
     private const val NAME_FILE_KEY = "settings"
     private const val KEY_THEME = "theme"
     private const val KEY_HISTORY = "history"
-
     private lateinit var sharedPrefs: SharedPreferences
+    private val gson = Gson()
 
     fun init(context: Context) {
         // Используем applicationContext чтобы избежать утечек памяти
@@ -39,7 +39,7 @@ object MyShared {
     fun getTheme(): Boolean = sharedPrefs.getBoolean(KEY_THEME, false)
 
     fun saveHistory(history: List<Track>) {
-        val json = Gson().toJson(history)
+        val json = gson.toJson(history)
         sharedPrefs.edit {
             putString(KEY_HISTORY, json)
         }

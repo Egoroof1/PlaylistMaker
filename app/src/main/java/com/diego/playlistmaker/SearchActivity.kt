@@ -35,7 +35,6 @@ class SearchActivity : AppCompatActivity() {
     companion object {
         const val CURRENT_TEXT = ""
         const val KEY_CURRENT_TEXT = "current_text"
-        private const val MAX_HISTORY_HEIGHT = 1200
         private const val BASE_URL = "https://itunes.apple.com"
     }
 
@@ -116,8 +115,6 @@ class SearchActivity : AppCompatActivity() {
         recyclerHistory.adapter = TrackAdapter(historyTracks) {track ->
             onTrackClicked(track)
         }
-
-        setupRecyclerHistoryHeight()
     }
 
     /**
@@ -135,29 +132,18 @@ class SearchActivity : AppCompatActivity() {
 
     @SuppressLint("NotifyDataSetChanged")
     private fun savaToHistory(track: Track){
-        if (historyTracks.size >= 10){
-            historyTracks.removeAt(historyTracks.lastIndex)
-        }
         if (historyTracks.contains(track)) {
             historyTracks.remove(track)
+        }
+
+        if (historyTracks.size >= 10){
+            historyTracks.removeAt(historyTracks.lastIndex)
         }
 
         historyTracks.add(0, track)
         MyShared.saveHistory(historyTracks)
 
         recyclerHistory.adapter?.notifyDataSetChanged()
-    }
-
-    /**
-     * Устанавливает максимальную высоту для RecyclerView истории поиска
-     */
-    private fun setupRecyclerHistoryHeight() {
-        recyclerHistory.viewTreeObserver.addOnGlobalLayoutListener {
-            if (recyclerHistory.height > MAX_HISTORY_HEIGHT) {
-                recyclerHistory.layoutParams.height = MAX_HISTORY_HEIGHT
-                recyclerHistory.requestLayout()
-            }
-        }
     }
 
     /**
@@ -172,7 +158,9 @@ class SearchActivity : AppCompatActivity() {
         btnClearHistory.setOnClickListener {
             historyTracks.clear()
             MyShared.clearHistory()
-            Log.d("TAG", "setupClickListeners: remove history: $historyTracks")
+
+            recyclerHistory.layoutParams.height = RecyclerView.LayoutParams.WRAP_CONTENT
+
             recyclerHistory.adapter?.notifyDataSetChanged()
             updateHistoryVisibility()
         }
@@ -205,6 +193,11 @@ class SearchActivity : AppCompatActivity() {
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
                 btnClear.visibility = clearButtonVisibility(s)
                 currentEditText = s.toString()
+                if (!historyTracks.isNullOrEmpty()) {
+                    showHistory()
+                } else {
+                    hideHistory()
+                }
             }
         })
     }
@@ -226,7 +219,7 @@ class SearchActivity : AppCompatActivity() {
         hideKeyboard()
         editTextSearch.clearFocus()
         clearSearchResults()
-        showHistory()
+//        showHistory()
     }
 
     /**
