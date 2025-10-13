@@ -46,7 +46,7 @@ object MyShared {
     }
 
     fun getHistory(): List<Track> {
-        val json = sharedPrefs.getString(KEY_HISTORY, null)
+        val json = sharedPrefs.getString(KEY_HISTORY, "[]")
         return if (json.isNullOrEmpty()) {
             emptyList()
         } else {

@@ -21,6 +21,7 @@ import com.diego.playlistmaker.adapters.TrackAdapter
 import com.diego.playlistmaker.models.Track
 import com.diego.playlistmaker.models.TrackResponse
 import com.diego.playlistmaker.services.ITunesApi
+import com.diego.playlistmaker.services.MyShared
 import com.google.android.material.appbar.MaterialToolbar
 import com.google.android.material.button.MaterialButton
 import retrofit2.Call
@@ -34,7 +35,7 @@ class SearchActivity : AppCompatActivity() {
     companion object {
         const val CURRENT_TEXT = ""
         const val KEY_CURRENT_TEXT = "current_text"
-        private const val MAX_HISTORY_HEIGHT = 800
+        private const val MAX_HISTORY_HEIGHT = 1200
         private const val BASE_URL = "https://itunes.apple.com"
     }
 
@@ -52,7 +53,7 @@ class SearchActivity : AppCompatActivity() {
     // Views
     private lateinit var editTextSearch: EditText
     private lateinit var btnClear: ImageView
-    private lateinit var recycler: RecyclerView
+    private lateinit var recyclerTracks: RecyclerView
     private lateinit var statusNotFound: LinearLayout
     private lateinit var statusNotSignal: LinearLayout
     private lateinit var searchHistory: LinearLayout
@@ -71,6 +72,8 @@ class SearchActivity : AppCompatActivity() {
         setupClickListeners()
         setupTextWatcher()
         setupHistory()
+
+        Log.d("TAG", "onCreate: saved list history: $historyTracks")
     }
 
     /**
@@ -94,7 +97,7 @@ class SearchActivity : AppCompatActivity() {
 
         editTextSearch = findViewById(R.id.editTextSearch)
         btnClear = findViewById(R.id.ic_clearEditText)
-        recycler = findViewById(R.id.recycler_tracks)
+        recyclerTracks = findViewById(R.id.recycler_tracks)
         statusNotFound = findViewById(R.id.search_error_not_found)
         statusNotSignal = findViewById(R.id.search_error_not_signal)
         btnUpdate = findViewById(R.id.btn_error_update)
@@ -107,10 +110,42 @@ class SearchActivity : AppCompatActivity() {
      * Настраивает адаптеры для RecyclerView и ограничение высоты истории
      */
     private fun setupAdapters() {
-        recycler.adapter = TrackAdapter(tracks)
-        recyclerHistory.adapter = TrackAdapter(historyTracks)
+        recyclerTracks.adapter = TrackAdapter(tracks) { track ->
+            onTrackClicked(track)
+        }
+        recyclerHistory.adapter = TrackAdapter(historyTracks) {track ->
+            onTrackClicked(track)
+        }
 
         setupRecyclerHistoryHeight()
+    }
+
+    /**
+     * Обрабатывает клик по треку
+     */
+    private fun onTrackClicked(track: Track) {
+        Log.d("TAG", "onTrackClicked: ${track.info()}")
+
+        //Сохраняем в историю
+        savaToHistory(track)
+
+        // Переходим на PlayerActivity
+//        startActivity(PlayerActivity.newIntent(this, track))
+    }
+
+    @SuppressLint("NotifyDataSetChanged")
+    private fun savaToHistory(track: Track){
+        if (historyTracks.size >= 10){
+            historyTracks.removeAt(historyTracks.lastIndex)
+        }
+        if (historyTracks.contains(track)) {
+            historyTracks.remove(track)
+        }
+
+        historyTracks.add(0, track)
+        MyShared.saveHistory(historyTracks)
+
+        recyclerHistory.adapter?.notifyDataSetChanged()
     }
 
     /**
@@ -136,6 +171,8 @@ class SearchActivity : AppCompatActivity() {
         // Очистка истории поиска
         btnClearHistory.setOnClickListener {
             historyTracks.clear()
+            MyShared.clearHistory()
+            Log.d("TAG", "setupClickListeners: remove history: $historyTracks")
             recyclerHistory.adapter?.notifyDataSetChanged()
             updateHistoryVisibility()
         }
@@ -176,8 +213,8 @@ class SearchActivity : AppCompatActivity() {
      * Инициализирует историю поиска (заглушка для демонстрации)
      */
     private fun setupHistory() {
-        // Заглушка для демонстрации
-        historyTracks.addAll(listOf(Track("Yesterday", "The Beatles", 250000, "https://")))
+        historyTracks.addAll(MyShared.getHistory())
+
         updateHistoryVisibility()
     }
 
@@ -198,8 +235,8 @@ class SearchActivity : AppCompatActivity() {
     @SuppressLint("NotifyDataSetChanged")
     private fun clearSearchResults() {
         tracks.clear()
-        recycler.adapter?.notifyDataSetChanged()
-        recycler.isVisible = false
+        recyclerTracks.adapter?.notifyDataSetChanged()
+        recyclerTracks.isVisible = false
         statusNotFound.isVisible = false
         statusNotSignal.isVisible = false
     }
@@ -254,7 +291,7 @@ class SearchActivity : AppCompatActivity() {
         response.body()?.results?.let { results ->
             if (results.isNotEmpty()) {
                 tracks.addAll(results)
-                recycler.adapter?.notifyDataSetChanged()
+                recyclerTracks.adapter?.notifyDataSetChanged()
                 Log.d("TAG", "onResponse: how many results: ${response.body()?.resultCount}")
             } else {
                 showNotFound()
@@ -276,7 +313,7 @@ class SearchActivity : AppCompatActivity() {
      * Показывает состояние загрузки (скрывает все остальные элементы)
      */
     private fun showLoadingState() {
-        recycler.isVisible = false
+        recyclerTracks.isVisible = false
         statusNotFound.isVisible = false
         statusNotSignal.isVisible = false
     }
@@ -285,21 +322,21 @@ class SearchActivity : AppCompatActivity() {
      * Показывает результаты поиска
      */
     private fun showSearchResults() {
-        recycler.isVisible = true
+        recyclerTracks.isVisible = true
     }
 
     /**
      * Скрывает результаты поиска
      */
     private fun hideSearchResults() {
-        recycler.isVisible = false
+        recyclerTracks.isVisible = false
     }
 
     /**
      * Показывает сообщение "Ничего не найдено"
      */
     private fun showNotFound() {
-        recycler.isVisible = false
+        recyclerTracks.isVisible = false
         statusNotFound.isVisible = true
         Log.d("TAG", "onResponse: пусто")
     }
