@@ -8,7 +8,9 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.net.toUri
+import com.diego.playlistmaker.services.MyShared
 import com.google.android.material.appbar.MaterialToolbar
+import com.google.android.material.switchmaterial.SwitchMaterial
 
 class SettingsActivity : AppCompatActivity() {
 
@@ -25,11 +27,21 @@ class SettingsActivity : AppCompatActivity() {
         setupClickListeners()
     }
 
+
     private fun setupClickListeners() {
         val btnBack = findViewById<MaterialToolbar>(R.id.toolbar)
         val btnShare = findViewById<TextView>(R.id.btn_search)
         val btnSupport = findViewById<TextView>(R.id.btn_support)
         val btnAgreement = findViewById<TextView>(R.id.btn_agreement)
+        val swIsBlackTheme = findViewById<SwitchMaterial>(R.id.sw_isBlackTheme)
+
+        // Устанавливаем состояние переключателя в соответствии с сохраненной темой
+        swIsBlackTheme.isChecked = MyShared.getTheme()
+
+        swIsBlackTheme.setOnCheckedChangeListener { _, isChecked ->
+            MyShared.saveTheme(isChecked)
+            MyShared.applyTheme()
+        }
 
         btnBack.setNavigationOnClickListener { finish() }
         btnShare.setOnClickListener { shareApp() }

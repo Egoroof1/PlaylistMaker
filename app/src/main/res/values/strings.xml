@@ -28,8 +28,10 @@
     <string name="arrow_forward">arrow_forward</string>
     <string name="track_cover">track cover</string>
     <string name="space">/ /</string>
-    <string name="trable_signal">Проблемы со связью\n\nЗагрузка не удалась. проверьте подключение к интернету</string>
+    <string name="problems_signal">Проблемы со связью\n\nЗагрузка не удалась. проверьте подключение к интернету</string>
     <string name="update">Обновить</string>
     <string name="not_found">Ничего не нашлось</string>
+    <string name="you_search">Вы искали</string>
+    <string name="clear_history">Очистить историю</string>
 
 </resources>

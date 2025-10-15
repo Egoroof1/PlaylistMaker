@@ -15,17 +15,33 @@ import java.text.SimpleDateFormat
 import java.util.Locale
 
 class TrackAdapter(
-    private val tracks: List<Track>
+    private val tracks: List<Track>,
+    private val onItemClick: (Track) -> Unit //CallBack
 ) : RecyclerView.Adapter<TrackAdapter.TrackHolder>() {
 
-    class TrackHolder(item: View): RecyclerView.ViewHolder(item) {
+    class TrackHolder(
+        item: View,
+        private val onTrackClick: (Track) -> Unit // Передаём callback в Holder
+    ): RecyclerView.ViewHolder(item) {
 
         private val nameTrack: TextView = item.findViewById(R.id.name_track)
         private val artistName: TextView = item.findViewById(R.id.artist_name)
         private val timeTrack: TextView = item.findViewById(R.id.time_track)
         private val image: ImageView = item.findViewById(R.id.image)
+        private var currentTrack: Track? = null
+
+        init {
+            // Добавляем обработчик клика на весь элемент
+            itemView.setOnClickListener {
+                currentTrack?.let { track ->
+                    onTrackClick(track)
+                }
+            }
+        }
 
         fun bind(track: Track){
+            currentTrack = track
+
             nameTrack.text = track.trackName
             artistName.text = track.artistName
 
@@ -52,7 +68,7 @@ class TrackAdapter(
         viewType: Int
     ): TrackHolder {
         val view = LayoutInflater.from(parent.context).inflate(R.layout.fragment_track, parent, false)
-        return TrackHolder(view)
+        return TrackHolder(view, onItemClick)
     }
 
     override fun onBindViewHolder(
