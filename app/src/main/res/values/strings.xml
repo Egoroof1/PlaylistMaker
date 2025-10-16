@@ -33,5 +33,7 @@
     <string name="not_found">Ничего не нашлось</string>
     <string name="you_search">Вы искали</string>
     <string name="clear_history">Очистить историю</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
 
 </resources>
