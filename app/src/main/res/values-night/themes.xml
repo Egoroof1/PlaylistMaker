@@ -14,7 +14,4 @@
     <color name="color_edittext_hint">#1A1B22</color>
     <color name="form">#ffffff</color>
     <color name="btn_update_text">#1A1B22</color>
-
-
-    <color name="btn_playlist_add_like">#FFFFFF</color>
 </resources>

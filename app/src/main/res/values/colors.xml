@@ -15,6 +15,4 @@
     <color name="form">#E6E8EB</color>
     <color name="color_edittext_text">#1A1B22</color>
     <color name="btn_update_text">#FFFFFF</color>
-
-    <color name="btn_playlist_add_like">#1A1B22</color>
 </resources>
