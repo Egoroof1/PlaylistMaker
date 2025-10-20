@@ -1,6 +1,7 @@
 package com.diego.playlistmaker
 
 import android.annotation.SuppressLint
+import android.content.Intent
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
@@ -127,7 +128,9 @@ class SearchActivity : AppCompatActivity() {
         savaToHistory(track)
 
         // Переходим на PlayerActivity
-//        startActivity(PlayerActivity.newIntent(this, track))
+        MyShared.saveCurrentTrack(track)
+        Log.d("TAG", "onTrackClicked: Track is saved: ${MyShared.getCurrentTrack()}")
+        startActivity(Intent(this, PlayerActivity::class.java))
     }
 
     @SuppressLint("NotifyDataSetChanged")
@@ -219,7 +222,6 @@ class SearchActivity : AppCompatActivity() {
         hideKeyboard()
         editTextSearch.clearFocus()
         clearSearchResults()
-//        showHistory()
     }
 
     /**

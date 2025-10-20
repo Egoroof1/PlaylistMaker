@@ -2,6 +2,7 @@ package com.diego.playlistmaker.services
 
 import android.content.Context
 import android.content.SharedPreferences
+import android.util.Log
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.content.edit
 import com.diego.playlistmaker.models.Track
@@ -11,6 +12,8 @@ object MyShared {
     private const val NAME_FILE_KEY = "settings"
     private const val KEY_THEME = "theme"
     private const val KEY_HISTORY = "history"
+
+    private const val KEY_CURRENT_TRACK = "current_track"
     private lateinit var sharedPrefs: SharedPreferences
     private val gson = Gson()
 
@@ -26,6 +29,27 @@ object MyShared {
                 saveTheme(true)
             } else {
                 saveTheme(false)
+            }
+        }
+    }
+
+    fun saveCurrentTrack(track: Track) {
+        val json = gson.toJson(track)
+        sharedPrefs.edit {
+            putString(KEY_CURRENT_TRACK, json)
+        }
+    }
+
+    fun getCurrentTrack(): Track? {
+        val json = sharedPrefs.getString(KEY_CURRENT_TRACK, "")
+        return if (json.isNullOrEmpty()) {
+            null
+        } else {
+            try {
+                gson.fromJson(json, Track::class.java)
+            } catch (e: Exception) {
+                Log.d("TAG", "getCurrentTrack: ERROR $e")
+                null
             }
         }
     }
@@ -53,6 +77,7 @@ object MyShared {
             try {
                 Gson().fromJson(json, Array<Track>::class.java).toList()
             } catch (e: Exception) {
+                Log.d("TAG", "getHistory: ERROR $e")
                 emptyList()
             }
         }
