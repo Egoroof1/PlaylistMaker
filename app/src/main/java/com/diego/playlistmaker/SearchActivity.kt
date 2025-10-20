@@ -128,7 +128,8 @@ class SearchActivity : AppCompatActivity() {
         savaToHistory(track)
 
         // Переходим на PlayerActivity
-//        startActivity(PlayerActivity.newIntent(this, track))
+        MyShared.saveCurrentTrack(track)
+        Log.d("TAG", "onTrackClicked: Track is saved: ${MyShared.getCurrentTrack()}")
         startActivity(Intent(this, PlayerActivity::class.java))
     }
 
