@@ -222,7 +222,6 @@ class SearchActivity : AppCompatActivity() {
         hideKeyboard()
         editTextSearch.clearFocus()
         clearSearchResults()
-//        showHistory()
     }
 
     /**

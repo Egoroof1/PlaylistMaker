@@ -41,7 +41,7 @@ object MyShared {
     }
 
     fun getCurrentTrack(): Track? {
-        val json = sharedPrefs.getString(KEY_CURRENT_TRACK, null)
+        val json = sharedPrefs.getString(KEY_CURRENT_TRACK, "")
         return if (json.isNullOrEmpty()) {
             null
         } else {
