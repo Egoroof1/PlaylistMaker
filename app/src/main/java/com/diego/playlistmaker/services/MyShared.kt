@@ -33,27 +33,6 @@ object MyShared {
         }
     }
 
-    fun saveCurrentTrack(track: Track) {
-        val json = gson.toJson(track)
-        sharedPrefs.edit {
-            putString(KEY_CURRENT_TRACK, json)
-        }
-    }
-
-    fun getCurrentTrack(): Track? {
-        val json = sharedPrefs.getString(KEY_CURRENT_TRACK, "")
-        return if (json.isNullOrEmpty()) {
-            null
-        } else {
-            try {
-                gson.fromJson(json, Track::class.java)
-            } catch (e: Exception) {
-                Log.d("TAG", "getCurrentTrack: ERROR $e")
-                null
-            }
-        }
-    }
-
     fun saveTheme(isDarkTheme: Boolean) {
         sharedPrefs.edit {
             putBoolean(KEY_THEME, isDarkTheme)

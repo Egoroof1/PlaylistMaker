@@ -1,5 +1,6 @@
 package com.diego.playlistmaker
 
+import android.os.Build
 import android.os.Bundle
 import android.util.TypedValue
 import android.view.View
@@ -7,17 +8,19 @@ import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
+import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.resource.bitmap.RoundedCorners
-import com.diego.playlistmaker.services.MyShared
+import com.diego.playlistmaker.models.Track
 import com.google.android.material.appbar.MaterialToolbar
 import java.text.SimpleDateFormat
 import java.util.Locale
 
 class PlayerActivity : AppCompatActivity() {
+    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
@@ -28,6 +31,18 @@ class PlayerActivity : AppCompatActivity() {
             insets
         }
 
+        val currentTrack = intent.getParcelableExtra("TRACK_EXTRA", Track::class.java)
+
+        if (currentTrack != null) {
+            setupPlayerUI(currentTrack)
+        } else {
+            Toast.makeText(this, "Ошибка загрузки трека", Toast.LENGTH_SHORT).show()
+            finish()
+        }
+
+    }
+
+    private fun setupPlayerUI(currentTrack: Track) {
         val image = findViewById<ImageView>(R.id.image)
         val trackName = findViewById<TextView>(R.id.player_track_name)
         val artistName = findViewById<TextView>(R.id.player_artist_name)
@@ -38,35 +53,29 @@ class PlayerActivity : AppCompatActivity() {
         val trackGenre = findViewById<TextView>(R.id.player_track_genre)
         val trackCountry = findViewById<TextView>(R.id.player_track_country)
 
-        val toolbar = findViewById<MaterialToolbar>(R.id.toolbar_player)
-        toolbar.setNavigationOnClickListener { finish() }
+        // Настройка toolbar
+        findViewById<MaterialToolbar>(R.id.toolbar_player).setNavigationOnClickListener { finish() }
 
-        val currentTrack = MyShared.getCurrentTrack()
+        // Заполнение данных
+        Glide.with(image)
+            .load(currentTrack.artworkUrl100.replaceAfterLast("/", "512x512.jpg"))
+            .centerCrop()
+            .placeholder(R.drawable.placeholder)
+            .error(currentTrack.artworkUrl100)
+            .transform(RoundedCorners(dpToPx(8f, image)))
+            .into(image)
 
-        if (currentTrack != null) {
-            Glide.with(image)
-                .load(currentTrack.artworkUrl100.replaceAfterLast("/", "512x512.jpg"))
-                .centerCrop()
-                .placeholder(R.drawable.placeholder)
-                .error(currentTrack.artworkUrl100) //Обработка отсутствия качества 512
-                .transform(RoundedCorners(dpToPx(8f, image)))
-                .into(image)
-
-            trackName.text = currentTrack.trackName
-            artistName.text = currentTrack.artistName
-            trackCurrentTime.text = SimpleDateFormat("mm:ss", Locale.getDefault()).format(currentTrack.trackTimeMillis)
-            trackTimeMillis.text = SimpleDateFormat("mm:ss", Locale.getDefault()).format(currentTrack.trackTimeMillis)
-            trackAlbumName.text = currentTrack.collectionName
-            trackYear.text = currentTrack.releaseDate.split("-")[0]
-            trackGenre.text = currentTrack.primaryGenreName
-            trackCountry.text = currentTrack.country
-        } else {
-            Toast.makeText(this, "Ошибка загрузки трека", Toast.LENGTH_SHORT).show()
-            finish()
-        }
-
-
+        trackName.text = currentTrack.trackName
+        artistName.text = currentTrack.artistName
+        trackCurrentTime.text = SimpleDateFormat("mm:ss", Locale.getDefault()).format(currentTrack.trackTimeMillis)
+        trackTimeMillis.text = SimpleDateFormat("mm:ss", Locale.getDefault()).format(currentTrack.trackTimeMillis)
+        trackAlbumName.text = currentTrack.collectionName
+        val dateSplit = currentTrack.releaseDate.split("-")
+        trackYear.text = dateSplit.firstOrNull() ?: ""
+        trackGenre.text = currentTrack.primaryGenreName
+        trackCountry.text = currentTrack.country
     }
+
     private fun dpToPx(dp: Float, context: View): Int {
         return TypedValue.applyDimension(
             TypedValue.COMPLEX_UNIT_DIP,

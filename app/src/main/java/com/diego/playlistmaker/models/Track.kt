@@ -1,7 +1,11 @@
 package com.diego.playlistmaker.models
 
+import android.os.Parcelable
+import kotlinx.parcelize.Parcelize
+
 // модель трека
 
+@Parcelize
 data class Track(
     val trackId: Int,
     val trackName: String,
@@ -12,12 +16,8 @@ data class Track(
     val country: String,
     val trackTimeMillis: Long,
     val artworkUrl100: String
-) {
-    fun info(): String{
-        return "Track(trackId=$trackId, trackName='$trackName', artistName='$artistName', " +
-                "collectionName='$collectionName', releaseDate='$releaseDate', " +
-                "primaryGenreName='$primaryGenreName', country='$country', trackTimeMillis=$trackTimeMillis"
-    }
+) : Parcelable {
+
 }
 // модель ответа от API
 class TrackResponse(

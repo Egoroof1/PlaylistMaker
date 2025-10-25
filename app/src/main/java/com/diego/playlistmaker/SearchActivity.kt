@@ -122,15 +122,19 @@ class SearchActivity : AppCompatActivity() {
      * Обрабатывает клик по треку
      */
     private fun onTrackClicked(track: Track) {
-        Log.d("TAG", "onTrackClicked: ${track.info()}")
+        Log.d("TAG", "onTrackClicked: $track")
 
         //Сохраняем в историю
         savaToHistory(track)
 
         // Переходим на PlayerActivity
-        MyShared.saveCurrentTrack(track)
-        Log.d("TAG", "onTrackClicked: Track is saved: ${MyShared.getCurrentTrack()}")
-        startActivity(Intent(this, PlayerActivity::class.java))
+        val intent = Intent(this, PlayerActivity::class.java).apply {
+            putExtra("TRACK_EXTRA", track)
+        }
+        startActivity(intent)
+//        MyShared.saveCurrentTrack(track)
+//        Log.d("TAG", "onTrackClicked: Track is saved: ${MyShared.getCurrentTrack()}")
+//        startActivity(Intent(this, PlayerActivity::class.java))
     }
 
     @SuppressLint("NotifyDataSetChanged")
