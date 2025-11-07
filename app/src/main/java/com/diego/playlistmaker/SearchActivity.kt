@@ -12,6 +12,7 @@ import android.view.inputmethod.InputMethodManager
 import android.widget.EditText
 import android.widget.ImageView
 import android.widget.LinearLayout
+import android.widget.ProgressBar
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
@@ -51,6 +52,7 @@ class SearchActivity : AppCompatActivity() {
     private var currentEditText: String = CURRENT_TEXT
 
     // Views
+    private lateinit var progressBar: ProgressBar
     private lateinit var editTextSearch: EditText
     private lateinit var btnClear: ImageView
     private lateinit var recyclerTracks: RecyclerView
@@ -104,6 +106,7 @@ class SearchActivity : AppCompatActivity() {
         searchHistory = findViewById(R.id.search_history)
         btnClearHistory = findViewById(R.id.btn_clear_history)
         recyclerHistory = findViewById(R.id.recycler_history)
+        progressBar = findViewById(R.id.progress_bar)
     }
 
     /**
@@ -132,9 +135,6 @@ class SearchActivity : AppCompatActivity() {
             putExtra("TRACK_EXTRA", track)
         }
         startActivity(intent)
-//        MyShared.saveCurrentTrack(track)
-//        Log.d("TAG", "onTrackClicked: Track is saved: ${MyShared.getCurrentTrack()}")
-//        startActivity(Intent(this, PlayerActivity::class.java))
     }
 
     @SuppressLint("NotifyDataSetChanged")
@@ -210,7 +210,7 @@ class SearchActivity : AppCompatActivity() {
     }
 
     /**
-     * Инициализирует историю поиска (заглушка для демонстрации)
+     * Инициализирует историю поиска
      */
     private fun setupHistory() {
         historyTracks.addAll(MyShared.getHistory())
@@ -284,6 +284,7 @@ class SearchActivity : AppCompatActivity() {
     private fun handleSuccessResponse(response: Response<TrackResponse>) {
         hideHistory()
         showSearchResults()
+        progressBar.isVisible = false
 
         tracks.clear()
 
@@ -302,6 +303,7 @@ class SearchActivity : AppCompatActivity() {
      * Обрабатывает ошибку при запросе к API (сетевая или серверная ошибка)
      */
     private fun handleErrorResponse() {
+        progressBar.isVisible = false
         hideSearchResults()
         hideHistory()
         statusNotSignal.isVisible = true
@@ -312,6 +314,8 @@ class SearchActivity : AppCompatActivity() {
      * Показывает состояние загрузки (скрывает все остальные элементы)
      */
     private fun showLoadingState() {
+        progressBar.isVisible = true
+        searchHistory.isVisible = false
         recyclerTracks.isVisible = false
         statusNotFound.isVisible = false
         statusNotSignal.isVisible = false

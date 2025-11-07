@@ -165,7 +165,8 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:layout_marginTop="20dp"
-            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager" />
+            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+            tools:ignore="InefficientWeight" />
 
 
         <com.google.android.material.button.MaterialButton
@@ -184,5 +185,14 @@
             app:cornerRadius="20dp"/>
 
     </LinearLayout>
+
+    <ProgressBar
+        android:id="@+id/progress_bar"
+        android:layout_width="44dp"
+        android:layout_height="44dp"
+        android:layout_marginTop="140dp"
+        android:layout_gravity="center_horizontal"
+        android:indeterminateTint="#3772E7"
+        android:visibility="gone"/>
 
 </LinearLayout>
