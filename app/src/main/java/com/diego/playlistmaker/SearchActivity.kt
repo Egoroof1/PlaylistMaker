@@ -3,6 +3,8 @@ package com.diego.playlistmaker
 import android.annotation.SuppressLint
 import android.content.Intent
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.text.Editable
 import android.text.TextWatcher
 import android.util.Log
@@ -38,12 +40,16 @@ class SearchActivity : AppCompatActivity() {
         const val CURRENT_TEXT = ""
         const val KEY_CURRENT_TEXT = "current_text"
         private const val BASE_URL = "https://itunes.apple.com"
+
+        private const val SEARCH_DEBOUNCE_DELAY = 2000L
     }
 
     private val retrofit = Retrofit.Builder()
         .baseUrl(BASE_URL)
         .addConverterFactory(GsonConverterFactory.create())
         .build()
+
+    private var myHandler: Handler? = null
 
     private val iTunesApi = retrofit.create(ITunesApi::class.java)
 
@@ -96,6 +102,8 @@ class SearchActivity : AppCompatActivity() {
     private fun initViews() {
         // Настройка кнопки назад в toolbar
         findViewById<MaterialToolbar>(R.id.toolbar).setNavigationOnClickListener { finish() }
+
+        myHandler = Handler(Looper.getMainLooper())
 
         editTextSearch = findViewById(R.id.editTextSearch)
         btnClear = findViewById(R.id.ic_clearEditText)
@@ -192,9 +200,32 @@ class SearchActivity : AppCompatActivity() {
     /**
      * Настраивает отслеживание изменений текста в поле поиска
      */
+
+    // !!!!!!БАГ!!!! -> Когда начинаю стирать после того как сработает NotFound or NotSignal снизу появляется история
+    // возможное решени, от сервира приходит код и в зависимости от кода не показывать историю
     private fun setupTextWatcher() {
         editTextSearch.addTextChangedListener(object : TextWatcher {
-            override fun afterTextChanged(s: Editable?) = Unit
+            override fun afterTextChanged(s: Editable?){
+                // тут запускаем
+                if (s.toString().isEmpty()){
+                    Log.d("TAG", "++")
+                    //тут нужно удалить задачу из списка
+                    myHandler?.removeCallbacksAndMessages(null)
+                } else {
+                    // тут запускаем новый поток
+                    myHandler?.removeCallbacksAndMessages(null)
+
+                    myHandler?.postDelayed(
+                        {
+                            Log.d("TAG", "run: delay")
+
+                            performSearch()
+                        },
+                        SEARCH_DEBOUNCE_DELAY
+                    )
+
+                }
+            }
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) = Unit
 
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
@@ -401,5 +432,10 @@ class SearchActivity : AppCompatActivity() {
     private fun hideKeyboard() {
         val imm = getSystemService(INPUT_METHOD_SERVICE) as InputMethodManager
         imm.hideSoftInputFromWindow(currentFocus?.windowToken, 0)
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        myHandler?.removeCallbacksAndMessages(null)
     }
 }
