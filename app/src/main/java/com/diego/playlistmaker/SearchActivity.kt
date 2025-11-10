@@ -49,6 +49,8 @@ class SearchActivity : AppCompatActivity() {
         .addConverterFactory(GsonConverterFactory.create())
         .build()
 
+    private var serverCode = 200
+
     private var myHandler: Handler? = null
 
     private val iTunesApi = retrofit.create(ITunesApi::class.java)
@@ -200,9 +202,6 @@ class SearchActivity : AppCompatActivity() {
     /**
      * Настраивает отслеживание изменений текста в поле поиска
      */
-
-    // !!!!!!БАГ!!!! -> Когда начинаю стирать после того как сработает NotFound or NotSignal снизу появляется история
-    // возможное решени, от сервира приходит код и в зависимости от кода не показывать историю
     private fun setupTextWatcher() {
         editTextSearch.addTextChangedListener(object : TextWatcher {
             override fun afterTextChanged(s: Editable?){
@@ -211,18 +210,25 @@ class SearchActivity : AppCompatActivity() {
                     Log.d("TAG", "++")
                     //тут нужно удалить задачу из списка
                     myHandler?.removeCallbacksAndMessages(null)
+
+                    showHistory()
+                    hideSearchResults()
+                    clearSearchResults()
                 } else {
                     // тут запускаем новый поток
                     myHandler?.removeCallbacksAndMessages(null)
 
-                    myHandler?.postDelayed(
-                        {
-                            Log.d("TAG", "run: delay")
+                    if (serverCode == 200){
+                        myHandler?.postDelayed(
+                            {
+                                Log.d("TAG", "run: delay")
 
-                            performSearch()
-                        },
-                        SEARCH_DEBOUNCE_DELAY
-                    )
+                                performSearch()
+                            },
+                            SEARCH_DEBOUNCE_DELAY
+                        )
+                    }
+
 
                 }
             }
@@ -231,7 +237,7 @@ class SearchActivity : AppCompatActivity() {
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
                 btnClear.visibility = clearButtonVisibility(s)
                 currentEditText = s.toString()
-                if (!historyTracks.isNullOrEmpty()) {
+                if (historyTracks.isEmpty()) {
                     showHistory()
                 } else {
                     hideHistory()
@@ -293,6 +299,7 @@ class SearchActivity : AppCompatActivity() {
         iTunesApi.searchSongs(query).enqueue(object : Callback<TrackResponse> {
             @SuppressLint("NotifyDataSetChanged")
             override fun onResponse(call: Call<TrackResponse>, response: Response<TrackResponse>) {
+                serverCode = response.code()
                 if (response.isSuccessful && response.code() == 200) {
                     handleSuccessResponse(response)
                 } else {
