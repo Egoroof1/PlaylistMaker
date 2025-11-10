@@ -135,10 +135,12 @@ class SearchActivity : AppCompatActivity() {
      * Обрабатывает клик по треку
      */
     private fun onTrackClicked(track: Track) {
+
+
         Log.d("TAG", "onTrackClicked: $track")
 
         //Сохраняем в историю
-        savaToHistory(track)
+        saveToHistory(track)
 
         // Переходим на PlayerActivity
         val intent = Intent(this, PlayerActivity::class.java).apply {
@@ -148,7 +150,7 @@ class SearchActivity : AppCompatActivity() {
     }
 
     @SuppressLint("NotifyDataSetChanged")
-    private fun savaToHistory(track: Track){
+    private fun saveToHistory(track: Track){
         if (historyTracks.contains(track)) {
             historyTracks.remove(track)
         }
@@ -211,7 +213,9 @@ class SearchActivity : AppCompatActivity() {
                     //тут нужно удалить задачу из списка
                     myHandler?.removeCallbacksAndMessages(null)
 
-                    showHistory()
+                    if (historyTracks.isNotEmpty()) {
+                        showHistory()
+                    }
                     hideSearchResults()
                     clearSearchResults()
                 } else {
@@ -238,7 +242,9 @@ class SearchActivity : AppCompatActivity() {
                 btnClear.visibility = clearButtonVisibility(s)
                 currentEditText = s.toString()
                 if (historyTracks.isEmpty()) {
-                    showHistory()
+                    if (!historyTracks.isEmpty()){
+                        showHistory()
+                    }
                 } else {
                     hideHistory()
                 }
