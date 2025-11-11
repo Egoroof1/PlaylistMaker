@@ -205,6 +205,7 @@ class SearchActivity : AppCompatActivity() {
         // Обработка нажатия кнопки "Готово" на клавиатуре
         editTextSearch.setOnEditorActionListener { _, actionId, _ ->
             if (actionId == EditorInfo.IME_ACTION_DONE) {
+                myHandler?.removeCallbacksAndMessages(null)
                 performSearch()
                 true
             } else {
