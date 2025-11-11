@@ -42,6 +42,7 @@ class SearchActivity : AppCompatActivity() {
         private const val BASE_URL = "https://itunes.apple.com"
 
         private const val SEARCH_DEBOUNCE_DELAY = 2000L
+        private const val ANTY_DOUBLE_CLICK = 500L
     }
 
     private val retrofit = Retrofit.Builder()
@@ -50,6 +51,8 @@ class SearchActivity : AppCompatActivity() {
         .build()
 
     private var serverCode = 200
+
+    private var isClicked = false
 
     private var myHandler: Handler? = null
 
@@ -134,19 +137,28 @@ class SearchActivity : AppCompatActivity() {
     /**
      * Обрабатывает клик по треку
      */
+    @Synchronized
     private fun onTrackClicked(track: Track) {
 
+        if (!isClicked){
+            isClicked = true
+            myHandler?.postDelayed(
+                { isClicked = false },
+                ANTY_DOUBLE_CLICK
+            )
 
-        Log.d("TAG", "onTrackClicked: $track")
+            //Сохраняем в историю
+            saveToHistory(track)
 
-        //Сохраняем в историю
-        saveToHistory(track)
+            // Переходим на PlayerActivity
+            val intent = Intent(this, PlayerActivity::class.java).apply {
+                putExtra("TRACK_EXTRA", track)
+            }
+            startActivity(intent)
 
-        // Переходим на PlayerActivity
-        val intent = Intent(this, PlayerActivity::class.java).apply {
-            putExtra("TRACK_EXTRA", track)
+            Log.d("TAG", "onTrackClicked: $track")
+
         }
-        startActivity(intent)
     }
 
     @SuppressLint("NotifyDataSetChanged")
