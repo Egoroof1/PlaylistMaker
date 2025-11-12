@@ -38,6 +38,7 @@ class PlayerActivity : AppCompatActivity() {
 
     private var handler: Handler? = null
 
+    private var trackTimer: Int = 0
     private lateinit var image: ImageView
     private lateinit var trackName: TextView
     private lateinit var artistName: TextView
@@ -85,6 +86,8 @@ class PlayerActivity : AppCompatActivity() {
         trackCountry = findViewById(R.id.player_track_country)
         btnPlayerPlay = findViewById(R.id.btn_player_play)
 
+        trackTimer = mediaPlayer.currentPosition
+
         // Настройка toolbar
         findViewById<MaterialToolbar>(R.id.toolbar_player).setNavigationOnClickListener { finish() }
 
@@ -99,9 +102,8 @@ class PlayerActivity : AppCompatActivity() {
 
         trackName.text = currentTrack.trackName
         artistName.text = currentTrack.artistName
-        trackCurrentTime.text = mediaPlayer.currentPosition.toString()
-        trackTimeMillis.text =
-            SimpleDateFormat("mm:ss", Locale.getDefault()).format(currentTrack.trackTimeMillis)
+        trackCurrentTime.text = getTrackTimer(trackTimer)
+        trackTimeMillis.text = SimpleDateFormat("mm:ss", Locale.getDefault()).format(currentTrack.trackTimeMillis)
         trackAlbumName.text = currentTrack.collectionName
         val dateSplit = currentTrack.releaseDate.split("-")
         trackYear.text = dateSplit.firstOrNull() ?: ""
@@ -139,13 +141,41 @@ class PlayerActivity : AppCompatActivity() {
         mediaPlayer.setOnCompletionListener {
             playerState = STATE_PREPARED
             btnPlayerPlay.setImageResource(R.drawable.ic_btn_play)
+            trackCurrentTime.text = "00:00"
+            trackTimer = 0
         }
     }
 
+    private fun startTimer(){
+
+        handler?.post(
+            createUpdateTimerTrack()
+        )
+    }
+
+    private fun createUpdateTimerTrack(): Runnable {
+        return object : Runnable {
+            override fun run() {
+                if (playerState == STATE_PLAYING) {
+                    // Если всё ещё отсчитываем секунды —
+                    // обновляем UI и снова планируем задачу
+//                    trackCurrentTime.text = getTrackTimer(mediaPlayer.currentPosition)
+                    // Мне не нравится как отробатывает первая секунда (↑)
+                    // В (↓) тоже не нравится, но работает стабильнее
+                    trackCurrentTime.text = getTrackTimer((trackTimer++)*1000)
+
+                    handler?.postDelayed(this, 1000L)
+                }
+            }
+
+        }
+    }
     private fun startPlayer() {
         mediaPlayer.start()
         btnPlayerPlay.setImageResource(R.drawable.ic_btn_pause)
         playerState = STATE_PLAYING
+
+        startTimer()
     }
 
     private fun pausePlayer() {
@@ -162,5 +192,9 @@ class PlayerActivity : AppCompatActivity() {
     override fun onDestroy() {
         super.onDestroy()
         mediaPlayer.release()
+    }
+
+    private fun getTrackTimer(time: Int): String{
+        return SimpleDateFormat("mm:ss", Locale.getDefault()).format(time)
     }
 }
