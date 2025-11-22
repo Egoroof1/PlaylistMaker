@@ -36,15 +36,6 @@ import retrofit2.converter.gson.GsonConverterFactory
 
 class SearchActivity : AppCompatActivity() {
 
-    companion object {
-        const val CURRENT_TEXT = ""
-        const val KEY_CURRENT_TEXT = "current_text"
-        private const val BASE_URL = "https://itunes.apple.com"
-
-        private const val SEARCH_DEBOUNCE_DELAY = 2000L
-        private const val ANTY_DOUBLE_CLICK = 500L
-    }
-
     private val retrofit = Retrofit.Builder()
         .baseUrl(BASE_URL)
         .addConverterFactory(GsonConverterFactory.create())
@@ -137,7 +128,6 @@ class SearchActivity : AppCompatActivity() {
     /**
      * Обрабатывает клик по треку
      */
-    @Synchronized
     private fun onTrackClicked(track: Track) {
 
         if (!isClicked){
@@ -463,5 +453,14 @@ class SearchActivity : AppCompatActivity() {
     override fun onDestroy() {
         super.onDestroy()
         myHandler?.removeCallbacksAndMessages(null)
+    }
+
+    companion object {
+        const val CURRENT_TEXT = ""
+        const val KEY_CURRENT_TEXT = "current_text"
+        private const val BASE_URL = "https://itunes.apple.com"
+
+        private const val SEARCH_DEBOUNCE_DELAY = 2000L
+        private const val ANTY_DOUBLE_CLICK = 500L
     }
 }

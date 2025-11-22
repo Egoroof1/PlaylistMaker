@@ -43,5 +43,6 @@
     <string name="add_to_media_library">add to media library</string>
     <string name="play_start">play/start</string>
     <string name="like">like</string>
+    <string name="_00_00">00:00</string>
 
 </resources>

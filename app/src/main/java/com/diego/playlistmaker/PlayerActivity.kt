@@ -22,16 +22,11 @@ import com.bumptech.glide.load.resource.bitmap.RoundedCorners
 import com.diego.playlistmaker.models.Track
 import com.google.android.material.appbar.MaterialToolbar
 import java.text.SimpleDateFormat
+import java.time.LocalTime
+import java.time.format.DateTimeFormatter
 import java.util.Locale
 
 class PlayerActivity : AppCompatActivity() {
-
-    companion object {
-        private const val STATE_DEFAULT = 0
-        private const val STATE_PREPARED = 1
-        private const val STATE_PLAYING = 2
-        private const val STATE_PAUSED = 3
-    }
 
     private val mediaPlayer = MediaPlayer()
     private var playerState = STATE_DEFAULT
@@ -141,7 +136,7 @@ class PlayerActivity : AppCompatActivity() {
         mediaPlayer.setOnCompletionListener {
             playerState = STATE_PREPARED
             btnPlayerPlay.setImageResource(R.drawable.ic_btn_play)
-            trackCurrentTime.text = "00:00"
+            trackCurrentTime.text = getString(R.string._00_00)
             trackTimer = 0
         }
     }
@@ -159,12 +154,11 @@ class PlayerActivity : AppCompatActivity() {
                 if (playerState == STATE_PLAYING) {
                     // Если всё ещё отсчитываем секунды —
                     // обновляем UI и снова планируем задачу
-//                    trackCurrentTime.text = getTrackTimer(mediaPlayer.currentPosition)
-                    // Мне не нравится как отробатывает первая секунда (↑)
-                    // В (↓) тоже не нравится, но работает стабильнее
-                    trackCurrentTime.text = getTrackTimer((trackTimer++)*1000)
+                    val currentPositionTrackToMillis = LocalTime.ofSecondOfDay((mediaPlayer.currentPosition/1000).toLong())
+                        .format(DateTimeFormatter.ofPattern("mm:ss"))
+                    trackCurrentTime.text = currentPositionTrackToMillis
 
-                    handler?.postDelayed(this, 1000L)
+                    handler?.postDelayed(this, 500L)
                 }
             }
 
@@ -196,5 +190,12 @@ class PlayerActivity : AppCompatActivity() {
 
     private fun getTrackTimer(time: Int): String{
         return SimpleDateFormat("mm:ss", Locale.getDefault()).format(time)
+    }
+
+    companion object {
+        private const val STATE_DEFAULT = 0
+        private const val STATE_PREPARED = 1
+        private const val STATE_PLAYING = 2
+        private const val STATE_PAUSED = 3
     }
 }
