@@ -3,6 +3,8 @@ package com.diego.playlistmaker
 import android.annotation.SuppressLint
 import android.content.Intent
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.text.Editable
 import android.text.TextWatcher
 import android.util.Log
@@ -12,6 +14,7 @@ import android.view.inputmethod.InputMethodManager
 import android.widget.EditText
 import android.widget.ImageView
 import android.widget.LinearLayout
+import android.widget.ProgressBar
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
@@ -33,16 +36,16 @@ import retrofit2.converter.gson.GsonConverterFactory
 
 class SearchActivity : AppCompatActivity() {
 
-    companion object {
-        const val CURRENT_TEXT = ""
-        const val KEY_CURRENT_TEXT = "current_text"
-        private const val BASE_URL = "https://itunes.apple.com"
-    }
-
     private val retrofit = Retrofit.Builder()
         .baseUrl(BASE_URL)
         .addConverterFactory(GsonConverterFactory.create())
         .build()
+
+    private var serverCode = 200
+
+    private var isClicked = false
+
+    private var myHandler: Handler? = null
 
     private val iTunesApi = retrofit.create(ITunesApi::class.java)
 
@@ -51,6 +54,7 @@ class SearchActivity : AppCompatActivity() {
     private var currentEditText: String = CURRENT_TEXT
 
     // Views
+    private lateinit var progressBar: ProgressBar
     private lateinit var editTextSearch: EditText
     private lateinit var btnClear: ImageView
     private lateinit var recyclerTracks: RecyclerView
@@ -95,6 +99,8 @@ class SearchActivity : AppCompatActivity() {
         // Настройка кнопки назад в toolbar
         findViewById<MaterialToolbar>(R.id.toolbar).setNavigationOnClickListener { finish() }
 
+        myHandler = Handler(Looper.getMainLooper())
+
         editTextSearch = findViewById(R.id.editTextSearch)
         btnClear = findViewById(R.id.ic_clearEditText)
         recyclerTracks = findViewById(R.id.recycler_tracks)
@@ -104,6 +110,7 @@ class SearchActivity : AppCompatActivity() {
         searchHistory = findViewById(R.id.search_history)
         btnClearHistory = findViewById(R.id.btn_clear_history)
         recyclerHistory = findViewById(R.id.recycler_history)
+        progressBar = findViewById(R.id.progress_bar)
     }
 
     /**
@@ -122,23 +129,30 @@ class SearchActivity : AppCompatActivity() {
      * Обрабатывает клик по треку
      */
     private fun onTrackClicked(track: Track) {
-        Log.d("TAG", "onTrackClicked: $track")
 
-        //Сохраняем в историю
-        savaToHistory(track)
+        if (!isClicked){
+            isClicked = true
+            myHandler?.postDelayed(
+                { isClicked = false },
+                ANTY_DOUBLE_CLICK
+            )
 
-        // Переходим на PlayerActivity
-        val intent = Intent(this, PlayerActivity::class.java).apply {
-            putExtra("TRACK_EXTRA", track)
+            //Сохраняем в историю
+            saveToHistory(track)
+
+            // Переходим на PlayerActivity
+            val intent = Intent(this, PlayerActivity::class.java).apply {
+                putExtra("TRACK_EXTRA", track)
+            }
+            startActivity(intent)
+
+            Log.d("TAG", "onTrackClicked: $track")
+
         }
-        startActivity(intent)
-//        MyShared.saveCurrentTrack(track)
-//        Log.d("TAG", "onTrackClicked: Track is saved: ${MyShared.getCurrentTrack()}")
-//        startActivity(Intent(this, PlayerActivity::class.java))
     }
 
     @SuppressLint("NotifyDataSetChanged")
-    private fun savaToHistory(track: Track){
+    private fun saveToHistory(track: Track){
         if (historyTracks.contains(track)) {
             historyTracks.remove(track)
         }
@@ -181,6 +195,7 @@ class SearchActivity : AppCompatActivity() {
         // Обработка нажатия кнопки "Готово" на клавиатуре
         editTextSearch.setOnEditorActionListener { _, actionId, _ ->
             if (actionId == EditorInfo.IME_ACTION_DONE) {
+                myHandler?.removeCallbacksAndMessages(null)
                 performSearch()
                 true
             } else {
@@ -194,14 +209,45 @@ class SearchActivity : AppCompatActivity() {
      */
     private fun setupTextWatcher() {
         editTextSearch.addTextChangedListener(object : TextWatcher {
-            override fun afterTextChanged(s: Editable?) = Unit
+            override fun afterTextChanged(s: Editable?){
+                // тут запускаем
+                if (s.toString().isEmpty()){
+                    Log.d("TAG", "++")
+                    //тут нужно удалить задачу из списка
+                    myHandler?.removeCallbacksAndMessages(null)
+
+                    if (historyTracks.isNotEmpty()) {
+                        showHistory()
+                    }
+                    hideSearchResults()
+                    clearSearchResults()
+                } else {
+                    // тут запускаем новый поток
+                    myHandler?.removeCallbacksAndMessages(null)
+
+                    if (serverCode == 200){
+                        myHandler?.postDelayed(
+                            {
+                                Log.d("TAG", "run: delay")
+
+                                performSearch()
+                            },
+                            SEARCH_DEBOUNCE_DELAY
+                        )
+                    }
+
+
+                }
+            }
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) = Unit
 
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
                 btnClear.visibility = clearButtonVisibility(s)
                 currentEditText = s.toString()
-                if (!historyTracks.isNullOrEmpty()) {
-                    showHistory()
+                if (historyTracks.isEmpty()) {
+                    if (!historyTracks.isEmpty()){
+                        showHistory()
+                    }
                 } else {
                     hideHistory()
                 }
@@ -210,7 +256,7 @@ class SearchActivity : AppCompatActivity() {
     }
 
     /**
-     * Инициализирует историю поиска (заглушка для демонстрации)
+     * Инициализирует историю поиска
      */
     private fun setupHistory() {
         historyTracks.addAll(MyShared.getHistory())
@@ -262,6 +308,7 @@ class SearchActivity : AppCompatActivity() {
         iTunesApi.searchSongs(query).enqueue(object : Callback<TrackResponse> {
             @SuppressLint("NotifyDataSetChanged")
             override fun onResponse(call: Call<TrackResponse>, response: Response<TrackResponse>) {
+                serverCode = response.code()
                 if (response.isSuccessful && response.code() == 200) {
                     handleSuccessResponse(response)
                 } else {
@@ -284,6 +331,7 @@ class SearchActivity : AppCompatActivity() {
     private fun handleSuccessResponse(response: Response<TrackResponse>) {
         hideHistory()
         showSearchResults()
+        progressBar.isVisible = false
 
         tracks.clear()
 
@@ -302,6 +350,7 @@ class SearchActivity : AppCompatActivity() {
      * Обрабатывает ошибку при запросе к API (сетевая или серверная ошибка)
      */
     private fun handleErrorResponse() {
+        progressBar.isVisible = false
         hideSearchResults()
         hideHistory()
         statusNotSignal.isVisible = true
@@ -312,6 +361,8 @@ class SearchActivity : AppCompatActivity() {
      * Показывает состояние загрузки (скрывает все остальные элементы)
      */
     private fun showLoadingState() {
+        progressBar.isVisible = true
+        searchHistory.isVisible = false
         recyclerTracks.isVisible = false
         statusNotFound.isVisible = false
         statusNotSignal.isVisible = false
@@ -397,5 +448,19 @@ class SearchActivity : AppCompatActivity() {
     private fun hideKeyboard() {
         val imm = getSystemService(INPUT_METHOD_SERVICE) as InputMethodManager
         imm.hideSoftInputFromWindow(currentFocus?.windowToken, 0)
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        myHandler?.removeCallbacksAndMessages(null)
+    }
+
+    companion object {
+        const val CURRENT_TEXT = ""
+        const val KEY_CURRENT_TEXT = "current_text"
+        private const val BASE_URL = "https://itunes.apple.com"
+
+        private const val SEARCH_DEBOUNCE_DELAY = 2000L
+        private const val ANTY_DOUBLE_CLICK = 500L
     }
 }

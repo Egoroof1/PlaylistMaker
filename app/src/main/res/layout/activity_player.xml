@@ -181,8 +181,7 @@
                     app:layout_constraintBaseline_toBaselineOf="@id/textView6"
                     app:layout_constraintEnd_toEndOf="@+id/player_track_time2"
                     app:layout_constraintStart_toEndOf="@+id/textView6"
-                    tools:text="USA
-            app:layout_constraintVerticasdfsdfsdfsdfdsfdf" />
+                    tools:text="USA app:layout_constraintVerticasdfsdfsdfsdfdsfdf" />
 
                 <!--    Name values    -->
 
