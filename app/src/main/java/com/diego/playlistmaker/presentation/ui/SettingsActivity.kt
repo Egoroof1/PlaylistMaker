@@ -1,4 +1,4 @@
-package com.diego.playlistmaker
+package com.diego.playlistmaker.presentation.ui
 
 import android.content.Intent
 import android.os.Bundle
@@ -8,11 +8,20 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.net.toUri
-import com.diego.playlistmaker.services.MyShared
+import com.diego.playlistmaker.R
+import com.diego.playlistmaker.domain.Creator
+import com.diego.playlistmaker.domain.usecases.ApplyThemeUseCase
+import com.diego.playlistmaker.domain.usecases.GetThemeUseCase
+import com.diego.playlistmaker.domain.usecases.SaveThemeUseCase
 import com.google.android.material.appbar.MaterialToolbar
 import com.google.android.material.switchmaterial.SwitchMaterial
 
 class SettingsActivity : AppCompatActivity() {
+
+
+    private lateinit var getThemeUseCase: GetThemeUseCase
+    private lateinit var saveThemeUseCase: SaveThemeUseCase
+    private lateinit var applyThemeUseCase: ApplyThemeUseCase
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -24,9 +33,15 @@ class SettingsActivity : AppCompatActivity() {
             insets
         }
 
+        initUseCases()
         setupClickListeners()
     }
 
+    private fun initUseCases() {
+        getThemeUseCase = Creator.provideGetThemeUseCase(this)
+        saveThemeUseCase = Creator.provideSaveThemeUseCase(this)
+        applyThemeUseCase = Creator.provideApplyThemeUseCase(this)
+    }
 
     private fun setupClickListeners() {
         val btnBack = findViewById<MaterialToolbar>(R.id.toolbar)
@@ -36,11 +51,11 @@ class SettingsActivity : AppCompatActivity() {
         val swIsBlackTheme = findViewById<SwitchMaterial>(R.id.sw_isBlackTheme)
 
         // Устанавливаем состояние переключателя в соответствии с сохраненной темой
-        swIsBlackTheme.isChecked = MyShared.getTheme()
+        swIsBlackTheme.isChecked = getThemeUseCase.execute()
 
         swIsBlackTheme.setOnCheckedChangeListener { _, isChecked ->
-            MyShared.saveTheme(isChecked)
-            MyShared.applyTheme()
+            saveThemeUseCase.execute(isChecked)
+            applyThemeUseCase.execute()
         }
 
         btnBack.setNavigationOnClickListener { finish() }

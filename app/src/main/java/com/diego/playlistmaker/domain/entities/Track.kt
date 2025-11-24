@@ -1,4 +1,4 @@
-package com.diego.playlistmaker.models
+package com.diego.playlistmaker.domain.entities
 
 import android.os.Parcelable
 import kotlinx.parcelize.Parcelize
@@ -17,11 +17,4 @@ data class Track(
     val trackTimeMillis: Long,
     val artworkUrl100: String,
     val previewUrl: String
-) : Parcelable {
-
-}
-// модель ответа от API
-class TrackResponse(
-    val resultCount: Int,         // количество результатов
-    val results: List<Track>       // список песен
-)
+) : Parcelable

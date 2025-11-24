@@ -1,4 +1,4 @@
-package com.diego.playlistmaker
+package com.diego.playlistmaker.presentation.ui
 
 import android.annotation.SuppressLint
 import android.content.Intent
@@ -21,34 +21,22 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.isVisible
 import androidx.recyclerview.widget.RecyclerView
-import com.diego.playlistmaker.adapters.TrackAdapter
-import com.diego.playlistmaker.models.Track
-import com.diego.playlistmaker.models.TrackResponse
-import com.diego.playlistmaker.services.ITunesApi
-import com.diego.playlistmaker.services.MyShared
+import com.diego.playlistmaker.R
+import com.diego.playlistmaker.presentation.ui.adapters.TrackAdapter
+import com.diego.playlistmaker.domain.entities.Track
+import com.diego.playlistmaker.domain.Creator
+import com.diego.playlistmaker.domain.api.TracksInteractor
 import com.google.android.material.appbar.MaterialToolbar
 import com.google.android.material.button.MaterialButton
-import retrofit2.Call
-import retrofit2.Callback
-import retrofit2.Response
-import retrofit2.Retrofit
-import retrofit2.converter.gson.GsonConverterFactory
 
 class SearchActivity : AppCompatActivity() {
-
-    private val retrofit = Retrofit.Builder()
-        .baseUrl(BASE_URL)
-        .addConverterFactory(GsonConverterFactory.create())
-        .build()
-
+    private val interactor = Creator.provideTracksInteractor()
+    private val getHistoryUseCase by lazy { Creator.provideGetHistoryUseCase(this) }
+    private val saveToHistoryUseCase by lazy { Creator.provideSaveToHistoryUseCase(this) }
+    private val clearHistoryUseCase by lazy { Creator.provideClearHistoryUseCase(this) }
     private var serverCode = 200
-
     private var isClicked = false
-
     private var myHandler: Handler? = null
-
-    private val iTunesApi = retrofit.create(ITunesApi::class.java)
-
     private val tracks = mutableListOf<Track>()
     private val historyTracks = mutableListOf<Track>()
     private var currentEditText: String = CURRENT_TEXT
@@ -153,18 +141,16 @@ class SearchActivity : AppCompatActivity() {
 
     @SuppressLint("NotifyDataSetChanged")
     private fun saveToHistory(track: Track){
-        if (historyTracks.contains(track)) {
-            historyTracks.remove(track)
-        }
+        saveToHistoryUseCase.execute(track, historyTracks)
 
-        if (historyTracks.size >= 10){
-            historyTracks.removeAt(historyTracks.lastIndex)
-        }
-
-        historyTracks.add(0, track)
-        MyShared.saveHistory(historyTracks)
+        // ОБНОВЛЯЕМ локальный список и UI
+        historyTracks.clear()
+        historyTracks.addAll(getHistoryUseCase.execute()) // Загружаем актуальную историю
 
         recyclerHistory.adapter?.notifyDataSetChanged()
+        updateHistoryVisibility()
+
+        Log.d("TAG", "saveToHistory: history updated, size: ${historyTracks.size}")
     }
 
     /**
@@ -173,12 +159,15 @@ class SearchActivity : AppCompatActivity() {
     @SuppressLint("NotifyDataSetChanged")
     private fun setupClickListeners() {
         // Очистка поля поиска
-        btnClear.setOnClickListener { clearSearch() }
+        btnClear.setOnClickListener {
+            clearSearch()
+            progressBar.isVisible = false
+        }
 
         // Очистка истории поиска
         btnClearHistory.setOnClickListener {
             historyTracks.clear()
-            MyShared.clearHistory()
+            clearHistoryUseCase.execute()
 
             recyclerHistory.layoutParams.height = RecyclerView.LayoutParams.WRAP_CONTENT
 
@@ -221,6 +210,7 @@ class SearchActivity : AppCompatActivity() {
                     }
                     hideSearchResults()
                     clearSearchResults()
+                    progressBar.isVisible = false
                 } else {
                     // тут запускаем новый поток
                     myHandler?.removeCallbacksAndMessages(null)
@@ -259,8 +249,7 @@ class SearchActivity : AppCompatActivity() {
      * Инициализирует историю поиска
      */
     private fun setupHistory() {
-        historyTracks.addAll(MyShared.getHistory())
-
+        historyTracks.addAll(getHistoryUseCase.execute())
         updateHistoryVisibility()
     }
 
@@ -305,57 +294,47 @@ class SearchActivity : AppCompatActivity() {
     private fun searchTracks(query: String) {
         showLoadingState()
 
-        iTunesApi.searchSongs(query).enqueue(object : Callback<TrackResponse> {
+        interactor.searchTracks(query, object : TracksInteractor.TracksConsumer {
             @SuppressLint("NotifyDataSetChanged")
-            override fun onResponse(call: Call<TrackResponse>, response: Response<TrackResponse>) {
-                serverCode = response.code()
-                if (response.isSuccessful && response.code() == 200) {
-                    handleSuccessResponse(response)
-                } else {
-                    handleErrorResponse()
+            override fun onSuccess(foundTracks: List<Track>) {
+                runOnUiThread {
+                    hideHistory()
+                    showSearchResults()
+                    progressBar.isVisible = false
+
+                    tracks.clear()
+                    tracks.addAll(foundTracks)
+                    recyclerTracks.adapter?.notifyDataSetChanged()
+                    Log.d("TAG", "onSuccess: found ${foundTracks.size} tracks")
                 }
             }
 
-            override fun onFailure(call: Call<TrackResponse>, t: Throwable) {
-                handleErrorResponse()
-                Log.d("TAG", "onFailure: Сетевая ошибка")
+            override fun onError(errorMessage: String) {
+                runOnUiThread {
+                    progressBar.isVisible = false
+                    hideSearchResults()
+                    hideHistory()
+
+                    when (errorMessage) {
+                        "NOT_FOUND" -> {
+                            // ЛОГИКА ДЛЯ "НИЧЕГО НЕ НАЙДЕНО"
+                            statusNotFound.isVisible = true
+                            statusNotSignal.isVisible = false
+                            Log.d("TAG", "onError: Nothing found")
+                        }
+                        "NETWORK_ERROR" -> {
+                            // ЛОГИКА ДЛЯ "ПРОБЛЕМЫ СО СВЯЗЬЮ"
+                            statusNotSignal.isVisible = true
+                            statusNotFound.isVisible = false
+                            Log.d("TAG", "onError: Network error")
+                        }
+                    }
+                }
             }
         })
     }
 
-    /**
-     * Обрабатывает успешный ответ от API
-     * @param response Ответ от сервера с данными треков
-     */
-    @SuppressLint("NotifyDataSetChanged")
-    private fun handleSuccessResponse(response: Response<TrackResponse>) {
-        hideHistory()
-        showSearchResults()
-        progressBar.isVisible = false
 
-        tracks.clear()
-
-        response.body()?.results?.let { results ->
-            if (results.isNotEmpty()) {
-                tracks.addAll(results)
-                recyclerTracks.adapter?.notifyDataSetChanged()
-                Log.d("TAG", "onResponse: how many results: ${response.body()?.resultCount}")
-            } else {
-                showNotFound()
-            }
-        } ?: showNotFound()
-    }
-
-    /**
-     * Обрабатывает ошибку при запросе к API (сетевая или серверная ошибка)
-     */
-    private fun handleErrorResponse() {
-        progressBar.isVisible = false
-        hideSearchResults()
-        hideHistory()
-        statusNotSignal.isVisible = true
-        Log.d("TAG", "onResponse: Серверная ошибка не 200-ОК")
-    }
 
     /**
      * Показывает состояние загрузки (скрывает все остальные элементы)
@@ -380,15 +359,6 @@ class SearchActivity : AppCompatActivity() {
      */
     private fun hideSearchResults() {
         recyclerTracks.isVisible = false
-    }
-
-    /**
-     * Показывает сообщение "Ничего не найдено"
-     */
-    private fun showNotFound() {
-        recyclerTracks.isVisible = false
-        statusNotFound.isVisible = true
-        Log.d("TAG", "onResponse: пусто")
     }
 
     /**
@@ -458,7 +428,6 @@ class SearchActivity : AppCompatActivity() {
     companion object {
         const val CURRENT_TEXT = ""
         const val KEY_CURRENT_TEXT = "current_text"
-        private const val BASE_URL = "https://itunes.apple.com"
 
         private const val SEARCH_DEBOUNCE_DELAY = 2000L
         private const val ANTY_DOUBLE_CLICK = 500L
