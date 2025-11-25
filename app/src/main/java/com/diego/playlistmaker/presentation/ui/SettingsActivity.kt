@@ -1,4 +1,4 @@
-package com.diego.playlistmaker
+package com.diego.playlistmaker.presentation.ui
 
 import android.content.Intent
 import android.os.Bundle
@@ -8,7 +8,8 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.net.toUri
-import com.diego.playlistmaker.services.MyShared
+import com.diego.playlistmaker.R
+import com.diego.playlistmaker.data.local.MyShared
 import com.google.android.material.appbar.MaterialToolbar
 import com.google.android.material.switchmaterial.SwitchMaterial
 
@@ -51,7 +52,7 @@ class SettingsActivity : AppCompatActivity() {
 
     private fun shareApp() {
         val shareIntent = Intent(Intent.ACTION_SEND).apply {
-            type = "text/plain"
+            Intent.setType = "text/plain"
             putExtra(Intent.EXTRA_TEXT, getString(R.string.practicum_ru))
         }
 
@@ -60,7 +61,7 @@ class SettingsActivity : AppCompatActivity() {
 
     private fun contactSupport() {
         val shareIntent = Intent(Intent.ACTION_SENDTO).apply {
-            data = "mailto:".toUri()
+            Intent.setData = "mailto:".toUri()
             putExtra(Intent.EXTRA_EMAIL, arrayOf(getString(R.string.email_developers)))
             putExtra(Intent.EXTRA_SUBJECT, getString(R.string.subject_to_email))
             putExtra(Intent.EXTRA_TEXT, getString(R.string.message_to_email))

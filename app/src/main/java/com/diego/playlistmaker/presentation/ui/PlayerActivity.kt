@@ -1,4 +1,4 @@
-package com.diego.playlistmaker
+package com.diego.playlistmaker.presentation.ui
 
 import android.media.MediaPlayer
 import android.os.Build
@@ -19,7 +19,8 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.resource.bitmap.RoundedCorners
-import com.diego.playlistmaker.models.Track
+import com.diego.playlistmaker.R
+import com.diego.playlistmaker.domain.entity.Track
 import com.google.android.material.appbar.MaterialToolbar
 import java.text.SimpleDateFormat
 import java.time.LocalTime
