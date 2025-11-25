@@ -1,19 +1,18 @@
-package com.diego.playlistmaker.services
+package com.diego.playlistmaker.data.local
 
 import android.content.Context
 import android.content.SharedPreferences
+import android.content.res.Configuration
 import android.util.Log
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.content.edit
-import com.diego.playlistmaker.models.Track
+import com.diego.playlistmaker.domain.entity.Track
 import com.google.gson.Gson
 
 object MyShared {
     private const val NAME_FILE_KEY = "settings"
     private const val KEY_THEME = "theme"
     private const val KEY_HISTORY = "history"
-
-    private const val KEY_CURRENT_TRACK = "current_track"
     private lateinit var sharedPrefs: SharedPreferences
     private val gson = Gson()
 
@@ -23,9 +22,9 @@ object MyShared {
             context.applicationContext.getSharedPreferences(NAME_FILE_KEY, Context.MODE_PRIVATE)
         // Определяем системную тему
         val nightModeFlags =
-            context.resources.configuration.uiMode and android.content.res.Configuration.UI_MODE_NIGHT_MASK
+            context.resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK
         if(!sharedPrefs.contains(KEY_THEME)){
-            if (nightModeFlags == android.content.res.Configuration.UI_MODE_NIGHT_YES) {
+            if (nightModeFlags == Configuration.UI_MODE_NIGHT_YES) {
                 saveTheme(true)
             } else {
                 saveTheme(false)
