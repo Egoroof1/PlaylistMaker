@@ -1,4 +1,4 @@
-package com.diego.playlistmaker.domain.searchActv.models
+package com.diego.playlistmaker.domain.models
 
 import android.os.Parcelable
 import kotlinx.parcelize.Parcelize
@@ -20,8 +20,3 @@ data class Track(
 ) : Parcelable {
 
 }
-// модель ответа от API
-class TrackResponse(
-    val resultCount: Int,         // количество результатов
-    val results: List<Track>       // список песен
-)

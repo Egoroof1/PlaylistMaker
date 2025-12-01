@@ -14,19 +14,19 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.MaterialComponents.DayNight.NoActionBar">
         <activity
-            android:name=".presentation.ui.PlayerActivity"
+            android:name=".ui.PlayerActivity"
             android:exported="false" />
         <activity
-            android:name=".presentation.ui.MediaActivity"
+            android:name=".ui.MediaActivity"
             android:exported="false" />
         <activity
-            android:name=".presentation.ui.SearchActivity"
+            android:name=".ui.SearchActivity"
             android:exported="false" />
         <activity
-            android:name=".presentation.ui.SettingsActivity"
+            android:name=".ui.SettingsActivity"
             android:exported="false" />
         <activity
-            android:name=".presentation.ui.MainActivity"
+            android:name=".ui.MainActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

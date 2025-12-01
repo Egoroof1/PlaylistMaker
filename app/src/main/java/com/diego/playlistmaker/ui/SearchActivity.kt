@@ -1,4 +1,4 @@
-package com.diego.playlistmaker.presentation.ui
+package com.diego.playlistmaker.ui
 
 import android.annotation.SuppressLint
 import android.content.Intent
@@ -15,38 +15,27 @@ import android.widget.EditText
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.ProgressBar
+import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.isVisible
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.RecyclerView
 import com.diego.playlistmaker.R
-import com.diego.playlistmaker.creator.Creator
-import com.diego.playlistmaker.domain.searchActv.models.Track
-import com.diego.playlistmaker.domain.searchActv.models.TrackResponse
+import com.diego.playlistmaker.Creator
+import com.diego.playlistmaker.domain.models.Track
 import com.diego.playlistmaker.domain.searchActv.use_case.ClearTrackHistoryUseCase
 import com.diego.playlistmaker.domain.searchActv.use_case.GetTracksHistoryUseCase
 import com.diego.playlistmaker.domain.searchActv.use_case.SaveTrackHistoryUseCase
-import com.diego.playlistmaker.services.ITunesApi
+import com.diego.playlistmaker.domain.models.UserRequestParam
+import com.diego.playlistmaker.domain.searchActv.use_case.SearchTracksWebUseCase
 import com.google.android.material.appbar.MaterialToolbar
 import com.google.android.material.button.MaterialButton
-import retrofit2.Call
-import retrofit2.Callback
-import retrofit2.Response
-import retrofit2.Retrofit
-import retrofit2.converter.gson.GsonConverterFactory
+import kotlinx.coroutines.launch
 
 class SearchActivity : AppCompatActivity() {
-
-    private lateinit var getTracksHistoryUseCase: GetTracksHistoryUseCase
-    private lateinit var saveTrackHistoryUseCase: SaveTrackHistoryUseCase
-    private lateinit var clearTrackHistoryUseCase: ClearTrackHistoryUseCase
-
-    private val retrofit = Retrofit.Builder()
-        .baseUrl(BASE_URL)
-        .addConverterFactory(GsonConverterFactory.create())
-        .build()
 
     private var serverCode = 200
 
@@ -54,11 +43,15 @@ class SearchActivity : AppCompatActivity() {
 
     private var myHandler: Handler? = null
 
-    private val iTunesApi = retrofit.create(ITunesApi::class.java)
-
     private val tracks = mutableListOf<Track>()
     private val historyTracks = mutableListOf<Track>()
     private var currentEditText: String = CURRENT_TEXT
+
+    //use_case
+    private lateinit var getTracksHistoryUseCase: GetTracksHistoryUseCase
+    private lateinit var saveTrackHistoryUseCase: SaveTrackHistoryUseCase
+    private lateinit var clearTrackHistoryUseCase: ClearTrackHistoryUseCase
+    private lateinit var searchTracksWebUseCase: SearchTracksWebUseCase
 
     // Views
     private lateinit var progressBar: ProgressBar
@@ -83,6 +76,7 @@ class SearchActivity : AppCompatActivity() {
         getTracksHistoryUseCase = Creator.provideGetTracksHistoryUseCase(this)
         saveTrackHistoryUseCase = Creator.provideSaveTrackHistoryUseCase(this)
         clearTrackHistoryUseCase = Creator.provideClearTrackHistoryUseCase(this)
+        searchTracksWebUseCase = Creator.provideSearchTracksUseCase()
 
         initViews()
         setupAdapters()
@@ -315,58 +309,58 @@ class SearchActivity : AppCompatActivity() {
     private fun searchTracks(query: String) {
         showLoadingState()
 
-        iTunesApi.searchSongs(query).enqueue(object : Callback<TrackResponse> {
-            @SuppressLint("NotifyDataSetChanged")
-            override fun onResponse(call: Call<TrackResponse>, response: Response<TrackResponse>) {
-                serverCode = response.code()
-                if (response.isSuccessful && response.code() == 200) {
-                    handleSuccessResponse(response)
-                } else {
-                    handleErrorResponse()
+        lifecycleScope.launch {
+            try {
+                val tracks = searchTracksWebUseCase.execute(UserRequestParam(query))
+                handleSearchResult(tracks)
+            } catch (e: Exception) {
+                // Обрабатываем разные типы ошибок
+                val errorMessage = when {
+                    e.message?.contains("Network error") == true -> "Проверьте подключение к интернету"
+                    e.message?.contains("Server error") == true -> "Ошибка сервера, попробуйте позже"
+                    else -> "Произошла ошибка при поиске: ${e.message}"
                 }
+                handleErrorResponse(errorMessage)
             }
-
-            override fun onFailure(call: Call<TrackResponse>, t: Throwable) {
-                handleErrorResponse()
-            }
-        })
+        }
     }
 
     /**
-     * Обрабатывает успешный ответ от API
-     * @param response Ответ от сервера с данными треков
+     * Обрабатывает результат поиска
      */
     @SuppressLint("NotifyDataSetChanged")
-    private fun handleSuccessResponse(response: Response<TrackResponse>) {
-
-        if (editTextSearch.text.isNotEmpty()){
+    private fun handleSearchResult(tracks: List<Track>) {
+        if (editTextSearch.text.isNotEmpty()) {
             hideHistory()
             showSearchResults()
         }
+
         progressBar.isVisible = false
 
-        tracks.clear()
+        this.tracks.clear()
 
-        response.body()?.results?.let { results ->
-            if (results.isNotEmpty()) {
-                tracks.addAll(results)
-                recyclerTracks.adapter?.notifyDataSetChanged()
-                Log.d("TAG", "onResponse: how many results: ${response.body()?.resultCount}")
-            } else {
-                showNotFound()
-            }
-        } ?: showNotFound()
+        if (tracks.isNotEmpty()) {
+            this.tracks.addAll(tracks)
+            recyclerTracks.adapter?.notifyDataSetChanged()
+
+            Log.d("TAG", "Search results: ${tracks.size} tracks")
+        } else {
+            showNotFound()
+            Log.d("TAG", "handleSearchResult: else")
+        }
     }
 
     /**
-     * Обрабатывает ошибку при запросе к API (сетевая или серверная ошибка)
+     * Обрабатывает ошибку при запросе к API
      */
-    private fun handleErrorResponse() {
+    private fun handleErrorResponse(errorMessage: String) {
         progressBar.isVisible = false
         hideSearchResults()
         hideHistory()
         statusNotSignal.isVisible = true
-        Log.d("TAG", "onResponse: Серверная ошибка не 200-ОК")
+        // Можно показать Toast с ошибкой
+        Toast.makeText(this, errorMessage, Toast.LENGTH_SHORT).show()
+        Log.d("TAG", "Search error: $errorMessage")
     }
 
     /**
@@ -472,7 +466,6 @@ class SearchActivity : AppCompatActivity() {
     companion object {
         const val CURRENT_TEXT = ""
         const val KEY_CURRENT_TEXT = "current_text"
-        private const val BASE_URL = "https://itunes.apple.com"
 
         private const val SEARCH_DEBOUNCE_DELAY = 2000L
         private const val ANTY_DOUBLE_CLICK = 500L

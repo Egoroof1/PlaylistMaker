@@ -1,4 +1,4 @@
-package com.diego.playlistmaker.presentation.ui
+package com.diego.playlistmaker.ui
 
 import android.content.Intent
 import android.os.Bundle

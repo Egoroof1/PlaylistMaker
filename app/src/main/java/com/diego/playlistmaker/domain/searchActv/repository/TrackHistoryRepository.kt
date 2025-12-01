@@ -1,6 +1,6 @@
 package com.diego.playlistmaker.domain.searchActv.repository
 
-import com.diego.playlistmaker.domain.searchActv.models.Track
+import com.diego.playlistmaker.domain.models.Track
 
 interface TrackHistoryRepository {
 
