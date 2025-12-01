@@ -1,4 +1,4 @@
-package com.diego.playlistmaker.models
+package com.diego.playlistmaker.domain.searchActv.models
 
 import android.os.Parcelable
 import kotlinx.parcelize.Parcelize

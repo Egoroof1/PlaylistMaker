@@ -1,4 +1,4 @@
-package com.diego.playlistmaker
+package com.diego.playlistmaker.presentation.ui
 
 import android.annotation.SuppressLint
 import android.content.Intent
@@ -21,11 +21,14 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.isVisible
 import androidx.recyclerview.widget.RecyclerView
-import com.diego.playlistmaker.adapters.TrackAdapter
-import com.diego.playlistmaker.models.Track
-import com.diego.playlistmaker.models.TrackResponse
+import com.diego.playlistmaker.R
+import com.diego.playlistmaker.creator.Creator
+import com.diego.playlistmaker.domain.searchActv.models.Track
+import com.diego.playlistmaker.domain.searchActv.models.TrackResponse
+import com.diego.playlistmaker.domain.searchActv.use_case.ClearTrackHistoryUseCase
+import com.diego.playlistmaker.domain.searchActv.use_case.GetTracksHistoryUseCase
+import com.diego.playlistmaker.domain.searchActv.use_case.SaveTrackHistoryUseCase
 import com.diego.playlistmaker.services.ITunesApi
-import com.diego.playlistmaker.services.MyShared
 import com.google.android.material.appbar.MaterialToolbar
 import com.google.android.material.button.MaterialButton
 import retrofit2.Call
@@ -35,6 +38,10 @@ import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 
 class SearchActivity : AppCompatActivity() {
+
+    private lateinit var getTracksHistoryUseCase: GetTracksHistoryUseCase
+    private lateinit var saveTrackHistoryUseCase: SaveTrackHistoryUseCase
+    private lateinit var clearTrackHistoryUseCase: ClearTrackHistoryUseCase
 
     private val retrofit = Retrofit.Builder()
         .baseUrl(BASE_URL)
@@ -71,13 +78,19 @@ class SearchActivity : AppCompatActivity() {
         enableEdgeToEdge()
         setContentView(R.layout.activity_search)
         setupWindowInsets()
+
+        // Инициализация use cases
+        getTracksHistoryUseCase = Creator.provideGetTracksHistoryUseCase(this)
+        saveTrackHistoryUseCase = Creator.provideSaveTrackHistoryUseCase(this)
+        clearTrackHistoryUseCase = Creator.provideClearTrackHistoryUseCase(this)
+
         initViews()
         setupAdapters()
         setupClickListeners()
         setupTextWatcher()
         setupHistory()
 
-        Log.d("TAG", "onCreate: saved list history: $historyTracks")
+        Log.d("TAG", "onCreate: saved list history: ${getTracksHistoryUseCase.execute()}")
     }
 
     /**
@@ -120,7 +133,9 @@ class SearchActivity : AppCompatActivity() {
         recyclerTracks.adapter = TrackAdapter(tracks) { track ->
             onTrackClicked(track)
         }
-        recyclerHistory.adapter = TrackAdapter(historyTracks) {track ->
+
+        recyclerHistory.adapter = TrackAdapter(historyTracks) { track ->
+            updateHistoryAdapter()
             onTrackClicked(track)
         }
     }
@@ -138,7 +153,10 @@ class SearchActivity : AppCompatActivity() {
             )
 
             //Сохраняем в историю
-            saveToHistory(track)
+            saveTrackHistoryUseCase.execute(track)
+
+            updateHistoryAdapter()
+
 
             // Переходим на PlayerActivity
             val intent = Intent(this, PlayerActivity::class.java).apply {
@@ -152,18 +170,10 @@ class SearchActivity : AppCompatActivity() {
     }
 
     @SuppressLint("NotifyDataSetChanged")
-    private fun saveToHistory(track: Track){
-        if (historyTracks.contains(track)) {
-            historyTracks.remove(track)
-        }
-
-        if (historyTracks.size >= 10){
-            historyTracks.removeAt(historyTracks.lastIndex)
-        }
-
-        historyTracks.add(0, track)
-        MyShared.saveHistory(historyTracks)
-
+    private fun updateHistoryAdapter() {
+        val updatedHistory = getTracksHistoryUseCase.execute()
+        historyTracks.clear()
+        historyTracks.addAll(updatedHistory)
         recyclerHistory.adapter?.notifyDataSetChanged()
     }
 
@@ -178,7 +188,7 @@ class SearchActivity : AppCompatActivity() {
         // Очистка истории поиска
         btnClearHistory.setOnClickListener {
             historyTracks.clear()
-            MyShared.clearHistory()
+            clearTrackHistoryUseCase.execute()
 
             recyclerHistory.layoutParams.height = RecyclerView.LayoutParams.WRAP_CONTENT
 
@@ -245,12 +255,11 @@ class SearchActivity : AppCompatActivity() {
                 btnClear.visibility = clearButtonVisibility(s)
                 currentEditText = s.toString()
                 if (historyTracks.isEmpty()) {
-                    if (!historyTracks.isEmpty()){
-                        showHistory()
-                    }
+                    showHistory()
                 } else {
                     hideHistory()
                 }
+                Log.d("TAG", "onTextChanged: ")
             }
         })
     }
@@ -259,7 +268,7 @@ class SearchActivity : AppCompatActivity() {
      * Инициализирует историю поиска
      */
     private fun setupHistory() {
-        historyTracks.addAll(MyShared.getHistory())
+        historyTracks.addAll(getTracksHistoryUseCase.execute())
 
         updateHistoryVisibility()
     }
@@ -268,6 +277,7 @@ class SearchActivity : AppCompatActivity() {
      * Очищает поле поиска, скрывает клавиатуру и показывает историю
      */
     private fun clearSearch() {
+        progressBar.isVisible = false
         editTextSearch.text.clear()
         hideKeyboard()
         editTextSearch.clearFocus()
@@ -318,7 +328,6 @@ class SearchActivity : AppCompatActivity() {
 
             override fun onFailure(call: Call<TrackResponse>, t: Throwable) {
                 handleErrorResponse()
-                Log.d("TAG", "onFailure: Сетевая ошибка")
             }
         })
     }
@@ -329,8 +338,11 @@ class SearchActivity : AppCompatActivity() {
      */
     @SuppressLint("NotifyDataSetChanged")
     private fun handleSuccessResponse(response: Response<TrackResponse>) {
-        hideHistory()
-        showSearchResults()
+
+        if (editTextSearch.text.isNotEmpty()){
+            hideHistory()
+            showSearchResults()
+        }
         progressBar.isVisible = false
 
         tracks.clear()
@@ -395,7 +407,9 @@ class SearchActivity : AppCompatActivity() {
      * Показывает историю поиска
      */
     private fun showHistory() {
-        searchHistory.isVisible = true
+        if (historyTracks.isNotEmpty()) {
+            searchHistory.isVisible = true
+        }
     }
 
     /**

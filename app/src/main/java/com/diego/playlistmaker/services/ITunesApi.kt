@@ -1,6 +1,6 @@
 package com.diego.playlistmaker.services
 
-import com.diego.playlistmaker.models.TrackResponse
+import com.diego.playlistmaker.domain.searchActv.models.TrackResponse
 import retrofit2.Call
 import retrofit2.http.GET
 import retrofit2.http.Query
