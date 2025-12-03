@@ -3,10 +3,14 @@ package com.diego.playlistmaker.domain.searchActv.use_case
 import com.diego.playlistmaker.domain.models.Track
 import com.diego.playlistmaker.domain.searchActv.repository.TrackHistoryRepository
 
-class SaveTrackHistoryUseCase(
+interface SaveTrackHistoryUseCase {
+    fun execute(track: Track): Boolean
+}
+
+class SaveTrackHistoryUseCaseImpl(
     private val repository: TrackHistoryRepository
-) {
-    fun execute(track: Track): Boolean{
+) : SaveTrackHistoryUseCase {
+    override fun execute(track: Track): Boolean {
 
         val currentHistory = repository.getTracksForHistory().toMutableList()
 
@@ -17,7 +21,7 @@ class SaveTrackHistoryUseCase(
         currentHistory.add(0, track)
 
         // Ограничиваем размер
-        if (currentHistory.size > 10){
+        if (currentHistory.size > 10) {
             currentHistory.removeAt(currentHistory.size - 1)
         }
 

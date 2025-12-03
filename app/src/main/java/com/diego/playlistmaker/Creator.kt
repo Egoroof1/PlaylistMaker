@@ -8,29 +8,29 @@ import com.diego.playlistmaker.data.network.repository.TrackWebRepositoryImpl
 import com.diego.playlistmaker.data.network.retrofit.RetrofitTrackWeb
 import com.diego.playlistmaker.domain.searchActv.repository.TrackHistoryRepository
 import com.diego.playlistmaker.domain.searchActv.repository.TrackWebRepository
-import com.diego.playlistmaker.domain.searchActv.use_case.ClearTrackHistoryUseCase
-import com.diego.playlistmaker.domain.searchActv.use_case.GetTracksHistoryUseCase
-import com.diego.playlistmaker.domain.searchActv.use_case.SaveTrackHistoryUseCase
-import com.diego.playlistmaker.domain.searchActv.use_case.SearchTracksWebUseCase
+import com.diego.playlistmaker.domain.searchActv.use_case.ClearTrackHistoryUseCaseImpl
+import com.diego.playlistmaker.domain.searchActv.use_case.GetTracksHistoryUseCaseImpl
+import com.diego.playlistmaker.domain.searchActv.use_case.SaveTrackHistoryUseCaseImpl
+import com.diego.playlistmaker.domain.searchActv.use_case.SearchTracksWebUseCaseImpl
 
 object Creator {
 
     // Use Cases для истории треков
-    fun provideGetTracksHistoryUseCase(context: Context): GetTracksHistoryUseCase {
-        return GetTracksHistoryUseCase(provideTrackHistoryRepository(context))
+    fun provideGetTracksHistoryUseCase(context: Context): GetTracksHistoryUseCaseImpl {
+        return GetTracksHistoryUseCaseImpl(provideTrackHistoryRepository(context))
     }
 
-    fun provideSaveTrackHistoryUseCase(context: Context): SaveTrackHistoryUseCase {
-        return SaveTrackHistoryUseCase(provideTrackHistoryRepository(context))
+    fun provideSaveTrackHistoryUseCase(context: Context): SaveTrackHistoryUseCaseImpl {
+        return SaveTrackHistoryUseCaseImpl(provideTrackHistoryRepository(context))
     }
 
-    fun provideClearTrackHistoryUseCase(context: Context): ClearTrackHistoryUseCase {
-        return ClearTrackHistoryUseCase(provideTrackHistoryRepository(context))
+    fun provideClearTrackHistoryUseCase(context: Context): ClearTrackHistoryUseCaseImpl {
+        return ClearTrackHistoryUseCaseImpl(provideTrackHistoryRepository(context))
     }
 
     // Use Cases для веб-поиска (заглушка)
-    fun provideSearchTracksUseCase(): SearchTracksWebUseCase {
-        return SearchTracksWebUseCase(provideTrackWebRepository())
+    fun provideSearchTracksUseCase(): SearchTracksWebUseCaseImpl {
+        return SearchTracksWebUseCaseImpl(provideTrackWebRepository())
     }
 
     // Репозитории

@@ -4,10 +4,14 @@ import com.diego.playlistmaker.domain.models.Track
 import com.diego.playlistmaker.domain.models.UserRequestParam
 import com.diego.playlistmaker.domain.searchActv.repository.TrackWebRepository
 
-class SearchTracksWebUseCase(
+interface SearchTracksWebUseCas {
+    suspend fun execute(query: UserRequestParam): List<Track>
+}
+
+class SearchTracksWebUseCaseImpl(
     private val repository: TrackWebRepository
-) {
-    suspend fun execute(query: UserRequestParam): List<Track> {
+) : SearchTracksWebUseCas {
+    override suspend fun execute(query: UserRequestParam): List<Track> {
         return repository.searchTracks(query)
     }
 }
