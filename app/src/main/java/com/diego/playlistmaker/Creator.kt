@@ -1,6 +1,6 @@
 package com.diego.playlistmaker
 
-import android.content.Context
+import android.app.Application
 import com.diego.playlistmaker.data.local_storage.repository.TrackHistoryRepositoryImpl
 import com.diego.playlistmaker.data.local_storage.shared_prefs.SharedPrefTrackStorage
 import com.diego.playlistmaker.data.network.TrackDtoRetrofit
@@ -15,17 +15,23 @@ import com.diego.playlistmaker.domain.searchActv.use_case.SearchTracksWebUseCase
 
 object Creator {
 
+    private lateinit var application: Application
+
+    fun initApplication(application: Application){
+        this.application = application
+    }
+
     // Use Cases для истории треков
-    fun provideGetTracksHistoryUseCase(context: Context): GetTracksHistoryUseCaseImpl {
-        return GetTracksHistoryUseCaseImpl(provideTrackHistoryRepository(context))
+    fun provideGetTracksHistoryUseCase(): GetTracksHistoryUseCaseImpl {
+        return GetTracksHistoryUseCaseImpl(provideTrackHistoryRepository())
     }
 
-    fun provideSaveTrackHistoryUseCase(context: Context): SaveTrackHistoryUseCaseImpl {
-        return SaveTrackHistoryUseCaseImpl(provideTrackHistoryRepository(context))
+    fun provideSaveTrackHistoryUseCase(): SaveTrackHistoryUseCaseImpl {
+        return SaveTrackHistoryUseCaseImpl(provideTrackHistoryRepository())
     }
 
-    fun provideClearTrackHistoryUseCase(context: Context): ClearTrackHistoryUseCaseImpl {
-        return ClearTrackHistoryUseCaseImpl(provideTrackHistoryRepository(context))
+    fun provideClearTrackHistoryUseCase(): ClearTrackHistoryUseCaseImpl {
+        return ClearTrackHistoryUseCaseImpl(provideTrackHistoryRepository())
     }
 
     // Use Cases для веб-поиска (заглушка)
@@ -34,8 +40,8 @@ object Creator {
     }
 
     // Репозитории
-    private fun provideTrackHistoryRepository(context: Context): TrackHistoryRepository {
-        return TrackHistoryRepositoryImpl(provideTrackDtoStorage(context))
+    private fun provideTrackHistoryRepository(): TrackHistoryRepository {
+        return TrackHistoryRepositoryImpl(provideTrackDtoStorage())
     }
 
     private fun provideTrackWebRepository(): TrackWebRepository {
@@ -48,7 +54,7 @@ object Creator {
     }
 
     // Storage
-    private fun provideTrackDtoStorage(context: Context): SharedPrefTrackStorage {
-        return SharedPrefTrackStorage(context)
+    private fun provideTrackDtoStorage(): SharedPrefTrackStorage {
+        return SharedPrefTrackStorage(application)
     }
 }

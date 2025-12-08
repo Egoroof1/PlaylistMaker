@@ -1,4 +1,4 @@
-package com.diego.playlistmaker.ui
+package com.diego.playlistmaker.ui.main
 
 import android.content.Intent
 import android.os.Bundle
@@ -8,6 +8,9 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import com.diego.playlistmaker.R
+import com.diego.playlistmaker.ui.media.MediaActivity
+import com.diego.playlistmaker.ui.search.SearchActivity
+import com.diego.playlistmaker.ui.settings.SettingsActivity
 
 class MainActivity : AppCompatActivity() {
 

@@ -1,4 +1,4 @@
-package com.diego.playlistmaker.ui
+package com.diego.playlistmaker.ui.player
 
 import android.media.MediaPlayer
 import android.os.Build

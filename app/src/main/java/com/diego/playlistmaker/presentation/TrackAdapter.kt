@@ -1,4 +1,4 @@
-package com.diego.playlistmaker.ui
+package com.diego.playlistmaker.presentation
 
 import android.util.TypedValue
 import android.view.LayoutInflater

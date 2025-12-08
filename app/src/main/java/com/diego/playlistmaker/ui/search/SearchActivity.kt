@@ -1,4 +1,4 @@
-package com.diego.playlistmaker.ui
+package com.diego.playlistmaker.ui.search
 
 import android.annotation.SuppressLint
 import android.content.Intent
@@ -22,14 +22,16 @@ import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.isVisible
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.RecyclerView
-import com.diego.playlistmaker.R
 import com.diego.playlistmaker.Creator
+import com.diego.playlistmaker.R
 import com.diego.playlistmaker.domain.models.Track
 import com.diego.playlistmaker.domain.models.UserRequestParam
 import com.diego.playlistmaker.domain.searchActv.use_case.ClearTrackHistoryUseCase
 import com.diego.playlistmaker.domain.searchActv.use_case.GetTracksHistoryUseCase
 import com.diego.playlistmaker.domain.searchActv.use_case.SaveTrackHistoryUseCase
 import com.diego.playlistmaker.domain.searchActv.use_case.SearchTracksWebUseCas
+import com.diego.playlistmaker.presentation.TrackAdapter
+import com.diego.playlistmaker.ui.player.PlayerActivity
 import com.google.android.material.appbar.MaterialToolbar
 import com.google.android.material.button.MaterialButton
 import kotlinx.coroutines.launch
@@ -89,9 +91,9 @@ class SearchActivity : AppCompatActivity() {
 
     private fun initUseCase(){
         // Инициализация use cases
-        getTracksHistoryUseCaseImpl = Creator.provideGetTracksHistoryUseCase(this)
-        saveTrackHistoryUseCaseImpl = Creator.provideSaveTrackHistoryUseCase(this)
-        clearTrackHistoryUseCaseImpl = Creator.provideClearTrackHistoryUseCase(this)
+        getTracksHistoryUseCaseImpl = Creator.provideGetTracksHistoryUseCase()
+        saveTrackHistoryUseCaseImpl = Creator.provideSaveTrackHistoryUseCase()
+        clearTrackHistoryUseCaseImpl = Creator.provideClearTrackHistoryUseCase()
         searchTracksWebUseCaseImpl = Creator.provideSearchTracksUseCase()
     }
 
