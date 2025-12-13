@@ -1,8 +1,9 @@
-package com.diego.playlistmaker
+package com.diego.playlistmaker.ui.media
 
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.constraintlayout.widget.ConstraintLayout
+import com.diego.playlistmaker.R
 
 class MediaActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {

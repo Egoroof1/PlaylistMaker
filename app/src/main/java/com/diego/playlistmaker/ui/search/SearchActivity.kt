@@ -1,4 +1,4 @@
-package com.diego.playlistmaker
+package com.diego.playlistmaker.ui.search
 
 import android.annotation.SuppressLint
 import android.content.Intent
@@ -7,7 +7,6 @@ import android.os.Handler
 import android.os.Looper
 import android.text.Editable
 import android.text.TextWatcher
-import android.util.Log
 import android.view.View
 import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputMethodManager
@@ -15,31 +14,29 @@ import android.widget.EditText
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.ProgressBar
+import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.isVisible
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.RecyclerView
-import com.diego.playlistmaker.adapters.TrackAdapter
-import com.diego.playlistmaker.models.Track
-import com.diego.playlistmaker.models.TrackResponse
-import com.diego.playlistmaker.services.ITunesApi
-import com.diego.playlistmaker.services.MyShared
+import com.diego.playlistmaker.Creator
+import com.diego.playlistmaker.R
+import com.diego.playlistmaker.domain.models.Track
+import com.diego.playlistmaker.domain.models.UserRequestParam
+import com.diego.playlistmaker.domain.searchActv.use_case.ClearTrackHistoryUseCase
+import com.diego.playlistmaker.domain.searchActv.use_case.GetTracksHistoryUseCase
+import com.diego.playlistmaker.domain.searchActv.use_case.SaveTrackHistoryUseCase
+import com.diego.playlistmaker.domain.searchActv.use_case.SearchTracksWebUseCas
+import com.diego.playlistmaker.presentation.TrackAdapter
+import com.diego.playlistmaker.ui.player.PlayerActivity
 import com.google.android.material.appbar.MaterialToolbar
 import com.google.android.material.button.MaterialButton
-import retrofit2.Call
-import retrofit2.Callback
-import retrofit2.Response
-import retrofit2.Retrofit
-import retrofit2.converter.gson.GsonConverterFactory
+import kotlinx.coroutines.launch
 
 class SearchActivity : AppCompatActivity() {
-
-    private val retrofit = Retrofit.Builder()
-        .baseUrl(BASE_URL)
-        .addConverterFactory(GsonConverterFactory.create())
-        .build()
 
     private var serverCode = 200
 
@@ -47,11 +44,15 @@ class SearchActivity : AppCompatActivity() {
 
     private var myHandler: Handler? = null
 
-    private val iTunesApi = retrofit.create(ITunesApi::class.java)
-
     private val tracks = mutableListOf<Track>()
     private val historyTracks = mutableListOf<Track>()
     private var currentEditText: String = CURRENT_TEXT
+
+    //use_case
+    private lateinit var getTracksHistoryUseCaseImpl: GetTracksHistoryUseCase
+    private lateinit var saveTrackHistoryUseCaseImpl: SaveTrackHistoryUseCase
+    private lateinit var clearTrackHistoryUseCaseImpl: ClearTrackHistoryUseCase
+    private lateinit var searchTracksWebUseCaseImpl: SearchTracksWebUseCas
 
     // Views
     private lateinit var progressBar: ProgressBar
@@ -71,18 +72,15 @@ class SearchActivity : AppCompatActivity() {
         enableEdgeToEdge()
         setContentView(R.layout.activity_search)
         setupWindowInsets()
+
+        initUseCase()
         initViews()
         setupAdapters()
         setupClickListeners()
         setupTextWatcher()
         setupHistory()
-
-        Log.d("TAG", "onCreate: saved list history: $historyTracks")
     }
 
-    /**
-     * Настраивает отступы для edge-to-edge режима (полноэкранный режим)
-     */
     private fun setupWindowInsets() {
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main_search)) { v, insets ->
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
@@ -91,9 +89,14 @@ class SearchActivity : AppCompatActivity() {
         }
     }
 
-    /**
-     * Инициализирует все View элементы из layout
-     */
+    private fun initUseCase(){
+        // Инициализация use cases
+        getTracksHistoryUseCaseImpl = Creator.provideGetTracksHistoryUseCase()
+        saveTrackHistoryUseCaseImpl = Creator.provideSaveTrackHistoryUseCase()
+        clearTrackHistoryUseCaseImpl = Creator.provideClearTrackHistoryUseCase()
+        searchTracksWebUseCaseImpl = Creator.provideSearchTracksUseCase()
+    }
+
     @SuppressLint("MissingInflatedId")
     private fun initViews() {
         // Настройка кнопки назад в toolbar
@@ -113,21 +116,17 @@ class SearchActivity : AppCompatActivity() {
         progressBar = findViewById(R.id.progress_bar)
     }
 
-    /**
-     * Настраивает адаптеры для RecyclerView и ограничение высоты истории
-     */
     private fun setupAdapters() {
         recyclerTracks.adapter = TrackAdapter(tracks) { track ->
             onTrackClicked(track)
         }
-        recyclerHistory.adapter = TrackAdapter(historyTracks) {track ->
+
+        recyclerHistory.adapter = TrackAdapter(historyTracks) { track ->
+            updateHistoryAdapter()
             onTrackClicked(track)
         }
     }
 
-    /**
-     * Обрабатывает клик по треку
-     */
     private fun onTrackClicked(track: Track) {
 
         if (!isClicked){
@@ -138,7 +137,9 @@ class SearchActivity : AppCompatActivity() {
             )
 
             //Сохраняем в историю
-            saveToHistory(track)
+            saveTrackHistoryUseCaseImpl.execute(track)
+
+            updateHistoryAdapter()
 
             // Переходим на PlayerActivity
             val intent = Intent(this, PlayerActivity::class.java).apply {
@@ -146,30 +147,17 @@ class SearchActivity : AppCompatActivity() {
             }
             startActivity(intent)
 
-            Log.d("TAG", "onTrackClicked: $track")
-
         }
     }
 
     @SuppressLint("NotifyDataSetChanged")
-    private fun saveToHistory(track: Track){
-        if (historyTracks.contains(track)) {
-            historyTracks.remove(track)
-        }
-
-        if (historyTracks.size >= 10){
-            historyTracks.removeAt(historyTracks.lastIndex)
-        }
-
-        historyTracks.add(0, track)
-        MyShared.saveHistory(historyTracks)
-
+    private fun updateHistoryAdapter() {
+        val updatedHistory = getTracksHistoryUseCaseImpl.execute()
+        historyTracks.clear()
+        historyTracks.addAll(updatedHistory)
         recyclerHistory.adapter?.notifyDataSetChanged()
     }
 
-    /**
-     * Настраивает все обработчики кликов для кнопок и полей ввода
-     */
     @SuppressLint("NotifyDataSetChanged")
     private fun setupClickListeners() {
         // Очистка поля поиска
@@ -178,7 +166,7 @@ class SearchActivity : AppCompatActivity() {
         // Очистка истории поиска
         btnClearHistory.setOnClickListener {
             historyTracks.clear()
-            MyShared.clearHistory()
+            clearTrackHistoryUseCaseImpl.execute()
 
             recyclerHistory.layoutParams.height = RecyclerView.LayoutParams.WRAP_CONTENT
 
@@ -189,7 +177,6 @@ class SearchActivity : AppCompatActivity() {
         // Повторный поиск при нажатии кнопки обновления
         btnUpdate.setOnClickListener {
             performSearch()
-            Log.d("TAG", "onCreate: click")
         }
 
         // Обработка нажатия кнопки "Готово" на клавиатуре
@@ -204,15 +191,11 @@ class SearchActivity : AppCompatActivity() {
         }
     }
 
-    /**
-     * Настраивает отслеживание изменений текста в поле поиска
-     */
     private fun setupTextWatcher() {
         editTextSearch.addTextChangedListener(object : TextWatcher {
             override fun afterTextChanged(s: Editable?){
                 // тут запускаем
                 if (s.toString().isEmpty()){
-                    Log.d("TAG", "++")
                     //тут нужно удалить задачу из списка
                     myHandler?.removeCallbacksAndMessages(null)
 
@@ -228,8 +211,6 @@ class SearchActivity : AppCompatActivity() {
                     if (serverCode == 200){
                         myHandler?.postDelayed(
                             {
-                                Log.d("TAG", "run: delay")
-
                                 performSearch()
                             },
                             SEARCH_DEBOUNCE_DELAY
@@ -245,9 +226,7 @@ class SearchActivity : AppCompatActivity() {
                 btnClear.visibility = clearButtonVisibility(s)
                 currentEditText = s.toString()
                 if (historyTracks.isEmpty()) {
-                    if (!historyTracks.isEmpty()){
-                        showHistory()
-                    }
+                    showHistory()
                 } else {
                     hideHistory()
                 }
@@ -255,28 +234,20 @@ class SearchActivity : AppCompatActivity() {
         })
     }
 
-    /**
-     * Инициализирует историю поиска
-     */
     private fun setupHistory() {
-        historyTracks.addAll(MyShared.getHistory())
+        historyTracks.addAll(getTracksHistoryUseCaseImpl.execute())
 
         updateHistoryVisibility()
     }
 
-    /**
-     * Очищает поле поиска, скрывает клавиатуру и показывает историю
-     */
     private fun clearSearch() {
+        progressBar.isVisible = false
         editTextSearch.text.clear()
         hideKeyboard()
         editTextSearch.clearFocus()
         clearSearchResults()
     }
 
-    /**
-     * Очищает результаты поиска и скрывает все статусные сообщения
-     */
     @SuppressLint("NotifyDataSetChanged")
     private fun clearSearchResults() {
         tracks.clear()
@@ -286,9 +257,6 @@ class SearchActivity : AppCompatActivity() {
         statusNotSignal.isVisible = false
     }
 
-    /**
-     * Выполняет поиск треков: скрывает клавиатуру и запускает запрос к API
-     */
     private fun performSearch() {
         hideKeyboard()
         editTextSearch.clearFocus()
@@ -298,68 +266,53 @@ class SearchActivity : AppCompatActivity() {
         }
     }
 
-    /**
-     * Выполняет запрос к iTunes API для поиска треков по запросу
-     * @param query Поисковый запрос
-     */
     private fun searchTracks(query: String) {
         showLoadingState()
 
-        iTunesApi.searchSongs(query).enqueue(object : Callback<TrackResponse> {
-            @SuppressLint("NotifyDataSetChanged")
-            override fun onResponse(call: Call<TrackResponse>, response: Response<TrackResponse>) {
-                serverCode = response.code()
-                if (response.isSuccessful && response.code() == 200) {
-                    handleSuccessResponse(response)
-                } else {
-                    handleErrorResponse()
+        lifecycleScope.launch {
+            try {
+                val tracks = searchTracksWebUseCaseImpl.execute(UserRequestParam(query))
+                handleSearchResult(tracks)
+            } catch (e: Exception) {
+                // Обрабатываем разные типы ошибок
+                val errorMessage = when {
+                    e.message?.contains("Network error") == true -> "Проверьте подключение к интернету"
+                    e.message?.contains("Server error") == true -> "Ошибка сервера, попробуйте позже"
+                    else -> "Произошла ошибка при поиске: ${e.message}"
                 }
+                handleErrorResponse(errorMessage)
             }
-
-            override fun onFailure(call: Call<TrackResponse>, t: Throwable) {
-                handleErrorResponse()
-                Log.d("TAG", "onFailure: Сетевая ошибка")
-            }
-        })
+        }
     }
 
-    /**
-     * Обрабатывает успешный ответ от API
-     * @param response Ответ от сервера с данными треков
-     */
     @SuppressLint("NotifyDataSetChanged")
-    private fun handleSuccessResponse(response: Response<TrackResponse>) {
-        hideHistory()
-        showSearchResults()
+    private fun handleSearchResult(tracks: List<Track>) {
+        if (editTextSearch.text.isNotEmpty()) {
+            hideHistory()
+            showSearchResults()
+        }
+
         progressBar.isVisible = false
 
-        tracks.clear()
+        this.tracks.clear()
 
-        response.body()?.results?.let { results ->
-            if (results.isNotEmpty()) {
-                tracks.addAll(results)
-                recyclerTracks.adapter?.notifyDataSetChanged()
-                Log.d("TAG", "onResponse: how many results: ${response.body()?.resultCount}")
-            } else {
-                showNotFound()
-            }
-        } ?: showNotFound()
+        if (tracks.isNotEmpty()) {
+            this.tracks.addAll(tracks)
+            recyclerTracks.adapter?.notifyDataSetChanged()
+        } else {
+            showNotFound()
+        }
     }
 
-    /**
-     * Обрабатывает ошибку при запросе к API (сетевая или серверная ошибка)
-     */
-    private fun handleErrorResponse() {
+    private fun handleErrorResponse(errorMessage: String) {
         progressBar.isVisible = false
         hideSearchResults()
         hideHistory()
         statusNotSignal.isVisible = true
-        Log.d("TAG", "onResponse: Серверная ошибка не 200-ОК")
+        // Показать Toast с ошибкой
+        Toast.makeText(this, errorMessage, Toast.LENGTH_SHORT).show()
     }
 
-    /**
-     * Показывает состояние загрузки (скрывает все остальные элементы)
-     */
     private fun showLoadingState() {
         progressBar.isVisible = true
         searchHistory.isVisible = false
@@ -368,72 +321,44 @@ class SearchActivity : AppCompatActivity() {
         statusNotSignal.isVisible = false
     }
 
-    /**
-     * Показывает результаты поиска
-     */
     private fun showSearchResults() {
         recyclerTracks.isVisible = true
     }
 
-    /**
-     * Скрывает результаты поиска
-     */
     private fun hideSearchResults() {
         recyclerTracks.isVisible = false
     }
 
-    /**
-     * Показывает сообщение "Ничего не найдено"
-     */
     private fun showNotFound() {
         recyclerTracks.isVisible = false
         statusNotFound.isVisible = true
-        Log.d("TAG", "onResponse: пусто")
     }
 
-    /**
-     * Показывает историю поиска
-     */
     private fun showHistory() {
-        searchHistory.isVisible = true
+        if (historyTracks.isNotEmpty()) {
+            searchHistory.isVisible = true
+        }
     }
 
-    /**
-     * Скрывает историю поиска
-     */
     private fun hideHistory() {
         searchHistory.isVisible = false
     }
 
-    /**
-     * Обновляет видимость истории поиска в зависимости от наличия данных
-     */
     private fun updateHistoryVisibility() {
         searchHistory.isVisible = historyTracks.isNotEmpty()
     }
 
-    /**
-     * Восстанавливает состояние активности после поворота экрана
-     */
     override fun onRestoreInstanceState(savedInstanceState: Bundle) {
         super.onRestoreInstanceState(savedInstanceState)
         currentEditText = savedInstanceState.getString(KEY_CURRENT_TEXT, currentEditText)
         editTextSearch.setText(currentEditText)
     }
 
-    /**
-     * Сохраняет состояние активности перед поворотом экрана или уничтожением
-     */
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
         outState.putString(KEY_CURRENT_TEXT, currentEditText)
     }
 
-    /**
-     * Определяет видимость кнопки очистки поля поиска
-     * @param s Текст из поля поиска
-     * @return Видимость кнопки (VISIBLE или GONE)
-     */
     private fun clearButtonVisibility(s: CharSequence?): Int {
         return if (s.isNullOrEmpty()) {
             View.GONE
@@ -442,9 +367,6 @@ class SearchActivity : AppCompatActivity() {
         }
     }
 
-    /**
-     * Скрывает клавиатуру
-     */
     private fun hideKeyboard() {
         val imm = getSystemService(INPUT_METHOD_SERVICE) as InputMethodManager
         imm.hideSoftInputFromWindow(currentFocus?.windowToken, 0)
@@ -458,7 +380,6 @@ class SearchActivity : AppCompatActivity() {
     companion object {
         const val CURRENT_TEXT = ""
         const val KEY_CURRENT_TEXT = "current_text"
-        private const val BASE_URL = "https://itunes.apple.com"
 
         private const val SEARCH_DEBOUNCE_DELAY = 2000L
         private const val ANTY_DOUBLE_CLICK = 500L
