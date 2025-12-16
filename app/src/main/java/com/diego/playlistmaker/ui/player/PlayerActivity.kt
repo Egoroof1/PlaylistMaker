@@ -1,15 +1,11 @@
 package com.diego.playlistmaker.ui.player
 
-import android.media.MediaPlayer
 import android.os.Build
 import android.os.Bundle
-import android.os.Handler
-import android.os.Looper
-import android.util.Log
-import android.util.TypedValue
 import android.view.View
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
+import androidx.activity.viewModels
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
@@ -20,19 +16,11 @@ import com.diego.playlistmaker.R
 import com.diego.playlistmaker.databinding.ActivityPlayerBinding
 import com.diego.playlistmaker.domain.models.Track
 import com.google.android.material.appbar.MaterialToolbar
-import java.text.SimpleDateFormat
-import java.time.LocalTime
-import java.time.format.DateTimeFormatter
-import java.util.Locale
+import android.util.TypedValue
 
 class PlayerActivity : AppCompatActivity() {
     private lateinit var binding: ActivityPlayerBinding
-    private val mediaPlayer = MediaPlayer()
-    private var playerState = STATE_DEFAULT
-
-    private var handler: Handler? = null
-
-    private var trackTimer: Int = 0
+    private val viewModel: PlayerViewModel by viewModels()
 
     @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -46,59 +34,97 @@ class PlayerActivity : AppCompatActivity() {
             insets
         }
 
-        handler = Handler(Looper.getMainLooper())
-
         val currentTrack = intent.getParcelableExtra("TRACK_EXTRA", Track::class.java)
 
         if (currentTrack != null) {
-            setupPlayerUI(currentTrack)
-            preparePlayer(currentTrack)
+            setupUI()
+            setupObservers()
+            viewModel.setTrack(currentTrack)
+            viewModel.preparePlayer(currentTrack.previewUrl)
         } else {
             Toast.makeText(this, "Ошибка загрузки трека", Toast.LENGTH_SHORT).show()
             finish()
         }
     }
 
-    private fun setupPlayerUI(currentTrack: Track) {
-
-        trackTimer = mediaPlayer.currentPosition
-
+    private fun setupUI() {
         // Настройка toolbar
         findViewById<MaterialToolbar>(R.id.toolbar_player).setNavigationOnClickListener { finish() }
 
-        // Заполнение данных
+        // Кнопка воспроизведения/паузы
+        binding.btnPlayerPlay.setOnClickListener {
+            viewModel.togglePlayPause()
+        }
+    }
+
+    private fun setupObservers() {
+        // Наблюдаем за информацией о треке
+        viewModel.trackInfo.observe(this) { trackInfo ->
+            if (trackInfo != null) {
+                updateTrackUI(trackInfo)
+            }
+        }
+
+        // Наблюдаем за состоянием плеера
+        viewModel.playerState.observe(this) { state ->
+            updatePlayerUI(state)
+        }
+
+        // Наблюдаем за текущей позицией трека
+        viewModel.currentPosition.observe(this) { position ->
+            binding.trackCurrentTime.text = viewModel.getFormattedTime(position)
+        }
+    }
+
+    private fun updateTrackUI(trackInfo: PlayerViewModel.TrackInfo) {
+        // Загрузка изображения
         Glide.with(binding.image)
-            .load(currentTrack.artworkUrl100.replaceAfterLast("/", "512x512.jpg"))
+            .load(trackInfo.artworkUrl)
             .centerCrop()
             .placeholder(R.drawable.placeholder)
-            .error(currentTrack.artworkUrl100)
+            .error(trackInfo.originalArtworkUrl)
             .transform(RoundedCorners(dpToPx(8f, binding.image)))
             .into(binding.image)
 
-            binding.apply{
-                playerTrackName.text = currentTrack.trackName
-                playerArtistName.text = currentTrack.artistName
-                trackCurrentTime.text = getTrackTimer(trackTimer)
-                trackTimeMillis.text = SimpleDateFormat(
-                    "mm:ss",
-                    Locale.getDefault()
-                ).format(currentTrack.trackTimeMillis)
-                trackAlbumName.text = currentTrack.collectionName
-                val dateSplit = currentTrack.releaseDate.split("-")
-                playerTrackYear.text = dateSplit.firstOrNull() ?: ""
-                playerTrackGenre.text = currentTrack.primaryGenreName
-                playerTrackCountry.text = currentTrack.country
+        // Установка текстовых полей
+        binding.apply {
+            playerTrackName.text = trackInfo.trackName
+            playerArtistName.text = trackInfo.artistName
+            trackTimeMillis.text = viewModel.getFormattedTime(trackInfo.trackTimeMillis.toInt())
+            trackAlbumName.text = trackInfo.albumName
+            playerTrackYear.text = trackInfo.releaseYear
+            playerTrackGenre.text = trackInfo.genre
+            playerTrackCountry.text = trackInfo.country
+        }
+    }
+
+    private fun updatePlayerUI(state: PlayerViewModel.PlayerState) {
+        when (state) {
+            PlayerViewModel.PlayerState.DEFAULT -> {
+                binding.btnPlayerPlay.setImageResource(R.drawable.ic_btn_play)
+                binding.btnPlayerPlay.isEnabled = false
+                binding.trackCurrentTime.text = getString(R.string._00_00)
             }
-
-        binding.btnPlayerPlay.setOnClickListener {
-            when (playerState) {
-                STATE_PLAYING -> {
-                    pausePlayer()
-                }
-
-                STATE_PREPARED, STATE_PAUSED -> {
-                    startPlayer()
-                }
+            PlayerViewModel.PlayerState.PREPARING -> {
+                binding.btnPlayerPlay.setImageResource(R.drawable.ic_btn_play)
+                binding.btnPlayerPlay.isEnabled = false
+            }
+            PlayerViewModel.PlayerState.PREPARED -> {
+                binding.btnPlayerPlay.setImageResource(R.drawable.ic_btn_play)
+                binding.btnPlayerPlay.isEnabled = true
+            }
+            PlayerViewModel.PlayerState.PLAYING -> {
+                binding.btnPlayerPlay.setImageResource(R.drawable.ic_btn_pause)
+                binding.btnPlayerPlay.isEnabled = true
+            }
+            PlayerViewModel.PlayerState.PAUSED -> {
+                binding.btnPlayerPlay.setImageResource(R.drawable.ic_btn_play)
+                binding.btnPlayerPlay.isEnabled = true
+            }
+            PlayerViewModel.PlayerState.ERROR -> {
+                binding.btnPlayerPlay.setImageResource(R.drawable.ic_btn_play)
+                binding.btnPlayerPlay.isEnabled = false
+                Toast.makeText(this, "Ошибка воспроизведения", Toast.LENGTH_SHORT).show()
             }
         }
     }
@@ -111,76 +137,13 @@ class PlayerActivity : AppCompatActivity() {
         ).toInt()
     }
 
-    private fun preparePlayer(currentTrack: Track) {
-        mediaPlayer.setDataSource(currentTrack.previewUrl)
-        mediaPlayer.prepareAsync()
-        mediaPlayer.setOnPreparedListener {
-            playerState = STATE_PREPARED
-            Log.d("TAG", "preparePlayer: reade")
-        }
-        mediaPlayer.setOnCompletionListener {
-            playerState = STATE_PREPARED
-            binding.btnPlayerPlay.setImageResource(R.drawable.ic_btn_play)
-            binding.trackCurrentTime.text = getString(R.string._00_00)
-            trackTimer = 0
-        }
-    }
-
-    private fun startTimer(){
-
-        handler?.post(
-            createUpdateTimerTrack()
-        )
-    }
-
-    private fun createUpdateTimerTrack(): Runnable {
-        return object : Runnable {
-            override fun run() {
-                if (playerState == STATE_PLAYING) {
-                    // Если всё ещё отсчитываем секунды —
-                    // обновляем UI и снова планируем задачу
-                    val currentPositionTrackToMillis = LocalTime.ofSecondOfDay((mediaPlayer.currentPosition/1000).toLong())
-                        .format(DateTimeFormatter.ofPattern("mm:ss"))
-                    binding.trackCurrentTime.text = currentPositionTrackToMillis
-
-                    handler?.postDelayed(this, 500L)
-                }
-            }
-
-        }
-    }
-    private fun startPlayer() {
-        mediaPlayer.start()
-        binding.btnPlayerPlay.setImageResource(R.drawable.ic_btn_pause)
-        playerState = STATE_PLAYING
-
-        startTimer()
-    }
-
-    private fun pausePlayer() {
-        mediaPlayer.pause()
-        binding.btnPlayerPlay.setImageResource(R.drawable.ic_btn_play)
-        playerState = STATE_PAUSED
-    }
-
     override fun onPause() {
         super.onPause()
-        pausePlayer()
+        viewModel.pause()
     }
 
     override fun onDestroy() {
         super.onDestroy()
-        mediaPlayer.release()
-    }
-
-    private fun getTrackTimer(time: Int): String{
-        return SimpleDateFormat("mm:ss", Locale.getDefault()).format(time)
-    }
-
-    companion object {
-        private const val STATE_DEFAULT = 0
-        private const val STATE_PREPARED = 1
-        private const val STATE_PLAYING = 2
-        private const val STATE_PAUSED = 3
+        // ViewModel очистит ресурсы автоматически в onCleared()
     }
 }
