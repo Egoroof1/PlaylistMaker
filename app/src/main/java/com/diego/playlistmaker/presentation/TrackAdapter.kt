@@ -4,12 +4,11 @@ import android.util.TypedValue
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ImageView
-import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.resource.bitmap.RoundedCorners
 import com.diego.playlistmaker.R
+import com.diego.playlistmaker.databinding.FragmentTrackBinding
 import com.diego.playlistmaker.domain.models.Track
 import java.text.SimpleDateFormat
 import java.util.Locale
@@ -20,19 +19,14 @@ class TrackAdapter(
 ) : RecyclerView.Adapter<TrackAdapter.TrackHolder>() {
 
     class TrackHolder(
-        item: View,
+        private val binding: FragmentTrackBinding,
         private val onTrackClick: (Track) -> Unit // Передаём callback в Holder
-    ): RecyclerView.ViewHolder(item) {
-
-        private val nameTrack: TextView = item.findViewById(R.id.name_track)
-        private val artistName: TextView = item.findViewById(R.id.artist_name)
-        private val timeTrack: TextView = item.findViewById(R.id.time_track)
-        private val image: ImageView = item.findViewById(R.id.image)
+    ): RecyclerView.ViewHolder(binding.root) {
         private var currentTrack: Track? = null
 
         init {
             // Добавляем обработчик клика на весь элемент
-            itemView.setOnClickListener {
+            binding.root.setOnClickListener {
                 currentTrack?.let { track ->
                     onTrackClick(track)
                 }
@@ -42,17 +36,17 @@ class TrackAdapter(
         fun bind(track: Track){
             currentTrack = track
 
-            nameTrack.text = track.trackName
-            artistName.text = track.artistName
+            binding.nameTrack.text = track.trackName
+            binding.artistName.text = track.artistName
 
-            timeTrack.text = SimpleDateFormat("mm:ss", Locale.getDefault()).format(track.trackTimeMillis)
+            binding.timeTrack.text = SimpleDateFormat("mm:ss", Locale.getDefault()).format(track.trackTimeMillis)
 
             Glide.with(itemView)
                 .load(track.artworkUrl100)
                 .centerCrop()
                 .placeholder(R.drawable.placeholder)
                 .transform(RoundedCorners(dpToPx(2f, itemView)))
-                .into(image)
+                .into(binding.image)
         }
 
         private fun dpToPx(dp: Float, context: View): Int {
@@ -62,14 +56,21 @@ class TrackAdapter(
                 context.resources.displayMetrics
             ).toInt()
         }
+
+        companion object {
+            fun from(parent: ViewGroup, onItemClick: (Track) -> Unit): TrackHolder {
+                val inflater = LayoutInflater.from(parent.context)
+                val binding = FragmentTrackBinding.inflate(inflater, parent, false)
+                return TrackHolder(binding, onItemClick)
+            }
+        }
     }
 
     override fun onCreateViewHolder(
         parent: ViewGroup,
         viewType: Int
     ): TrackHolder {
-        val view = LayoutInflater.from(parent.context).inflate(R.layout.fragment_track, parent, false)
-        return TrackHolder(view, onItemClick)
+        return TrackHolder.from(parent, onItemClick)
     }
 
     override fun onBindViewHolder(
