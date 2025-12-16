@@ -2,17 +2,16 @@ package com.diego.playlistmaker.ui.media
 
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
-import androidx.constraintlayout.widget.ConstraintLayout
-import com.diego.playlistmaker.R
+import com.diego.playlistmaker.databinding.ActivityMediaBinding
 
 class MediaActivity : AppCompatActivity() {
+    private lateinit var binding: ActivityMediaBinding
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_media)
+        binding = ActivityMediaBinding.inflate(layoutInflater)
+        setContentView(binding.root)
 
-        val main = findViewById<ConstraintLayout>(R.id.main)
-
-        main.setOnClickListener {
+        binding.media.setOnClickListener {
             finish()
         }
     }

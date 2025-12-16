@@ -2,7 +2,6 @@ package com.diego.playlistmaker.ui.settings
 
 import android.content.Intent
 import android.os.Bundle
-import android.widget.TextView
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.net.toUri
@@ -10,16 +9,17 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import com.diego.playlistmaker.R
 import com.diego.playlistmaker.config.MyShared
-import com.google.android.material.appbar.MaterialToolbar
-import com.google.android.material.switchmaterial.SwitchMaterial
+import com.diego.playlistmaker.databinding.ActivitySettingsBinding
 
 class SettingsActivity : AppCompatActivity() {
+    private lateinit var binding: ActivitySettingsBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        binding = ActivitySettingsBinding.inflate(layoutInflater)
         enableEdgeToEdge()
-        setContentView(R.layout.activity_settings)
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.settings)) { v, insets ->
+        setContentView(binding.root)
+        ViewCompat.setOnApplyWindowInsetsListener(binding.settings) { v, insets ->
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
             insets
@@ -30,24 +30,21 @@ class SettingsActivity : AppCompatActivity() {
 
 
     private fun setupClickListeners() {
-        val btnBack = findViewById<MaterialToolbar>(R.id.toolbar)
-        val btnShare = findViewById<TextView>(R.id.btn_search)
-        val btnSupport = findViewById<TextView>(R.id.btn_support)
-        val btnAgreement = findViewById<TextView>(R.id.btn_agreement)
-        val swIsBlackTheme = findViewById<SwitchMaterial>(R.id.sw_isBlackTheme)
 
         // Устанавливаем состояние переключателя в соответствии с сохраненной темой
-        swIsBlackTheme.isChecked = MyShared.getTheme()
+        binding.swIsBlackTheme.isChecked = MyShared.getTheme()
 
-        swIsBlackTheme.setOnCheckedChangeListener { _, isChecked ->
+        binding.swIsBlackTheme.setOnCheckedChangeListener { _, isChecked ->
             MyShared.saveTheme(isChecked)
             MyShared.applyTheme()
         }
 
-        btnBack.setNavigationOnClickListener { finish() }
-        btnShare.setOnClickListener { shareApp() }
-        btnSupport.setOnClickListener { contactSupport() }
-        btnAgreement.setOnClickListener { openAgreement() }
+        binding.apply {
+            toolbar.setNavigationOnClickListener { finish() }
+            btnSearch.setOnClickListener { shareApp() }
+            btnSupport.setOnClickListener { contactSupport() }
+            btnAgreement.setOnClickListener { openAgreement() }
+        }
     }
 
     private fun shareApp() {

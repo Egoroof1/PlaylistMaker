@@ -2,25 +2,26 @@ package com.diego.playlistmaker.ui.main
 
 import android.content.Intent
 import android.os.Bundle
-import android.widget.Button
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
-import com.diego.playlistmaker.R
+import com.diego.playlistmaker.databinding.ActivityMainBinding
 import com.diego.playlistmaker.ui.media.MediaActivity
 import com.diego.playlistmaker.ui.search.SearchActivity
 import com.diego.playlistmaker.ui.settings.SettingsActivity
 
 class MainActivity : AppCompatActivity() {
 
+    private lateinit var binding: ActivityMainBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {
 
         super.onCreate(savedInstanceState)
+        binding = ActivityMainBinding.inflate(layoutInflater)
         enableEdgeToEdge()
-        setContentView(R.layout.activity_main)
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
+        setContentView(binding.root)
+        ViewCompat.setOnApplyWindowInsetsListener(binding.main) { v, insets ->
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
             insets
@@ -30,19 +31,16 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun setupClickListeners(){
-        val btnSearch = findViewById<Button>(R.id.btn_search)
-        val btnMediaLibrary = findViewById<Button>(R.id.btn_media_library)
-        val btnSettings = findViewById<Button>(R.id.btn_settings)
 
-        btnSearch.setOnClickListener{
+        binding.btnSearch.setOnClickListener{
             startActivity(Intent(this, SearchActivity::class.java))
         }
 
-        btnMediaLibrary.setOnClickListener {
+        binding.btnMediaLibrary.setOnClickListener {
             startActivity(Intent(this, MediaActivity::class.java))
         }
 
-        btnSettings.setOnClickListener {
+        binding.btnSettings.setOnClickListener {
             startActivity(Intent(this, SettingsActivity::class.java))
         }
     }

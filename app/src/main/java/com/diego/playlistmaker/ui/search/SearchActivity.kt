@@ -10,10 +10,6 @@ import android.text.TextWatcher
 import android.view.View
 import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputMethodManager
-import android.widget.EditText
-import android.widget.ImageView
-import android.widget.LinearLayout
-import android.widget.ProgressBar
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
@@ -23,7 +19,7 @@ import androidx.core.view.isVisible
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.RecyclerView
 import com.diego.playlistmaker.Creator
-import com.diego.playlistmaker.R
+import com.diego.playlistmaker.databinding.ActivitySearchBinding
 import com.diego.playlistmaker.domain.models.Track
 import com.diego.playlistmaker.domain.models.UserRequestParam
 import com.diego.playlistmaker.domain.searchActv.use_case.ClearTrackHistoryUseCase
@@ -32,11 +28,11 @@ import com.diego.playlistmaker.domain.searchActv.use_case.SaveTrackHistoryUseCas
 import com.diego.playlistmaker.domain.searchActv.use_case.SearchTracksWebUseCas
 import com.diego.playlistmaker.presentation.TrackAdapter
 import com.diego.playlistmaker.ui.player.PlayerActivity
-import com.google.android.material.appbar.MaterialToolbar
-import com.google.android.material.button.MaterialButton
 import kotlinx.coroutines.launch
 
 class SearchActivity : AppCompatActivity() {
+
+    private lateinit var binding: ActivitySearchBinding
 
     private var serverCode = 200
 
@@ -54,23 +50,12 @@ class SearchActivity : AppCompatActivity() {
     private lateinit var clearTrackHistoryUseCaseImpl: ClearTrackHistoryUseCase
     private lateinit var searchTracksWebUseCaseImpl: SearchTracksWebUseCas
 
-    // Views
-    private lateinit var progressBar: ProgressBar
-    private lateinit var editTextSearch: EditText
-    private lateinit var btnClear: ImageView
-    private lateinit var recyclerTracks: RecyclerView
-    private lateinit var statusNotFound: LinearLayout
-    private lateinit var statusNotSignal: LinearLayout
-    private lateinit var searchHistory: LinearLayout
-    private lateinit var recyclerHistory: RecyclerView
-    private lateinit var btnUpdate: MaterialButton
-    private lateinit var btnClearHistory: MaterialButton
-
     @SuppressLint("MissingInflatedId", "NotifyDataSetChanged")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        binding = ActivitySearchBinding.inflate(layoutInflater)
         enableEdgeToEdge()
-        setContentView(R.layout.activity_search)
+        setContentView(binding.root)
         setupWindowInsets()
 
         initUseCase()
@@ -82,7 +67,7 @@ class SearchActivity : AppCompatActivity() {
     }
 
     private fun setupWindowInsets() {
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main_search)) { v, insets ->
+        ViewCompat.setOnApplyWindowInsetsListener(binding.mainSearch) { v, insets ->
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
             insets
@@ -99,31 +84,19 @@ class SearchActivity : AppCompatActivity() {
 
     @SuppressLint("MissingInflatedId")
     private fun initViews() {
-        // Настройка кнопки назад в toolbar
-        findViewById<MaterialToolbar>(R.id.toolbar).setNavigationOnClickListener { finish() }
-
         myHandler = Handler(Looper.getMainLooper())
-
-        editTextSearch = findViewById(R.id.editTextSearch)
-        btnClear = findViewById(R.id.ic_clearEditText)
-        recyclerTracks = findViewById(R.id.recycler_tracks)
-        statusNotFound = findViewById(R.id.search_error_not_found)
-        statusNotSignal = findViewById(R.id.search_error_not_signal)
-        btnUpdate = findViewById(R.id.btn_error_update)
-        searchHistory = findViewById(R.id.search_history)
-        btnClearHistory = findViewById(R.id.btn_clear_history)
-        recyclerHistory = findViewById(R.id.recycler_history)
-        progressBar = findViewById(R.id.progress_bar)
     }
 
     private fun setupAdapters() {
-        recyclerTracks.adapter = TrackAdapter(tracks) { track ->
-            onTrackClicked(track)
-        }
+        binding.apply {
+            recyclerTracks.adapter = TrackAdapter(tracks) { track ->
+                onTrackClicked(track)
+            }
 
-        recyclerHistory.adapter = TrackAdapter(historyTracks) { track ->
-            updateHistoryAdapter()
-            onTrackClicked(track)
+            recyclerHistory.adapter = TrackAdapter(historyTracks) { track ->
+                updateHistoryAdapter()
+                onTrackClicked(track)
+            }
         }
     }
 
@@ -155,44 +128,49 @@ class SearchActivity : AppCompatActivity() {
         val updatedHistory = getTracksHistoryUseCaseImpl.execute()
         historyTracks.clear()
         historyTracks.addAll(updatedHistory)
-        recyclerHistory.adapter?.notifyDataSetChanged()
+        binding.recyclerHistory.adapter?.notifyDataSetChanged()
     }
 
     @SuppressLint("NotifyDataSetChanged")
     private fun setupClickListeners() {
-        // Очистка поля поиска
-        btnClear.setOnClickListener { clearSearch() }
+        binding.apply{
+            // Настройка кнопки назад в toolbar
+            toolbar.setNavigationOnClickListener { finish() }
 
-        // Очистка истории поиска
-        btnClearHistory.setOnClickListener {
-            historyTracks.clear()
-            clearTrackHistoryUseCaseImpl.execute()
+            // Очистка поля поиска
+            icClearEditText.setOnClickListener { clearSearch() }
 
-            recyclerHistory.layoutParams.height = RecyclerView.LayoutParams.WRAP_CONTENT
+            // Очистка истории поиска
+            btnClearHistory.setOnClickListener {
+                historyTracks.clear()
+                clearTrackHistoryUseCaseImpl.execute()
 
-            recyclerHistory.adapter?.notifyDataSetChanged()
-            updateHistoryVisibility()
-        }
+                recyclerHistory.layoutParams.height = RecyclerView.LayoutParams.WRAP_CONTENT
 
-        // Повторный поиск при нажатии кнопки обновления
-        btnUpdate.setOnClickListener {
-            performSearch()
-        }
+                recyclerHistory.adapter?.notifyDataSetChanged()
+                updateHistoryVisibility()
+            }
 
-        // Обработка нажатия кнопки "Готово" на клавиатуре
-        editTextSearch.setOnEditorActionListener { _, actionId, _ ->
-            if (actionId == EditorInfo.IME_ACTION_DONE) {
-                myHandler?.removeCallbacksAndMessages(null)
+            // Повторный поиск при нажатии кнопки обновления
+            btnErrorUpdate.setOnClickListener {
                 performSearch()
-                true
-            } else {
-                false
+            }
+
+            // Обработка нажатия кнопки "Готово" на клавиатуре
+            editTextSearch.setOnEditorActionListener { _, actionId, _ ->
+                if (actionId == EditorInfo.IME_ACTION_DONE) {
+                    myHandler?.removeCallbacksAndMessages(null)
+                    performSearch()
+                    true
+                } else {
+                    false
+                }
             }
         }
     }
 
     private fun setupTextWatcher() {
-        editTextSearch.addTextChangedListener(object : TextWatcher {
+        binding.editTextSearch.addTextChangedListener(object : TextWatcher {
             override fun afterTextChanged(s: Editable?){
                 // тут запускаем
                 if (s.toString().isEmpty()){
@@ -223,7 +201,7 @@ class SearchActivity : AppCompatActivity() {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) = Unit
 
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-                btnClear.visibility = clearButtonVisibility(s)
+                binding.icClearEditText.visibility = clearButtonVisibility(s)
                 currentEditText = s.toString()
                 if (historyTracks.isEmpty()) {
                     showHistory()
@@ -241,28 +219,34 @@ class SearchActivity : AppCompatActivity() {
     }
 
     private fun clearSearch() {
-        progressBar.isVisible = false
-        editTextSearch.text.clear()
-        hideKeyboard()
-        editTextSearch.clearFocus()
-        clearSearchResults()
+        binding.apply{
+            progressBar.isVisible = false
+            editTextSearch.text.clear()
+            hideKeyboard()
+            editTextSearch.clearFocus()
+            clearSearchResults()
+        }
     }
 
     @SuppressLint("NotifyDataSetChanged")
     private fun clearSearchResults() {
         tracks.clear()
-        recyclerTracks.adapter?.notifyDataSetChanged()
-        recyclerTracks.isVisible = false
-        statusNotFound.isVisible = false
-        statusNotSignal.isVisible = false
+        binding.apply{
+            recyclerTracks.adapter?.notifyDataSetChanged()
+            recyclerTracks.isVisible = false
+            searchErrorNotFound.isVisible = false
+            searchErrorNotSignal.isVisible = false
+        }
     }
 
     private fun performSearch() {
         hideKeyboard()
-        editTextSearch.clearFocus()
+        binding.apply{
+            editTextSearch.clearFocus()
 
-        if (editTextSearch.text.isNotEmpty()) {
-            searchTracks(editTextSearch.text.toString())
+            if (editTextSearch.text.isNotEmpty()) {
+                searchTracks(editTextSearch.text.toString())
+            }
         }
     }
 
@@ -287,71 +271,73 @@ class SearchActivity : AppCompatActivity() {
 
     @SuppressLint("NotifyDataSetChanged")
     private fun handleSearchResult(tracks: List<Track>) {
-        if (editTextSearch.text.isNotEmpty()) {
+        if (binding.editTextSearch.text.isNotEmpty()) {
             hideHistory()
             showSearchResults()
         }
 
-        progressBar.isVisible = false
+        binding.progressBar.isVisible = false
 
         this.tracks.clear()
 
         if (tracks.isNotEmpty()) {
             this.tracks.addAll(tracks)
-            recyclerTracks.adapter?.notifyDataSetChanged()
+            binding.recyclerTracks.adapter?.notifyDataSetChanged()
         } else {
             showNotFound()
         }
     }
 
     private fun handleErrorResponse(errorMessage: String) {
-        progressBar.isVisible = false
+        binding.progressBar.isVisible = false
         hideSearchResults()
         hideHistory()
-        statusNotSignal.isVisible = true
+        binding.searchErrorNotSignal.isVisible = true
         // Показать Toast с ошибкой
         Toast.makeText(this, errorMessage, Toast.LENGTH_SHORT).show()
     }
 
     private fun showLoadingState() {
-        progressBar.isVisible = true
-        searchHistory.isVisible = false
-        recyclerTracks.isVisible = false
-        statusNotFound.isVisible = false
-        statusNotSignal.isVisible = false
+        binding.apply{
+            progressBar.isVisible = true
+            searchHistory.isVisible = false
+            recyclerTracks.isVisible = false
+            searchErrorNotFound.isVisible = false
+            searchErrorNotSignal.isVisible = false
+        }
     }
 
     private fun showSearchResults() {
-        recyclerTracks.isVisible = true
+        binding.recyclerTracks.isVisible = true
     }
 
     private fun hideSearchResults() {
-        recyclerTracks.isVisible = false
+        binding.recyclerTracks.isVisible = false
     }
 
     private fun showNotFound() {
-        recyclerTracks.isVisible = false
-        statusNotFound.isVisible = true
+        binding.recyclerTracks.isVisible = false
+        binding.searchErrorNotFound.isVisible = true
     }
 
     private fun showHistory() {
         if (historyTracks.isNotEmpty()) {
-            searchHistory.isVisible = true
+            binding.searchHistory.isVisible = true
         }
     }
 
     private fun hideHistory() {
-        searchHistory.isVisible = false
+        binding.searchHistory.isVisible = false
     }
 
     private fun updateHistoryVisibility() {
-        searchHistory.isVisible = historyTracks.isNotEmpty()
+        binding.searchHistory.isVisible = historyTracks.isNotEmpty()
     }
 
     override fun onRestoreInstanceState(savedInstanceState: Bundle) {
         super.onRestoreInstanceState(savedInstanceState)
         currentEditText = savedInstanceState.getString(KEY_CURRENT_TEXT, currentEditText)
-        editTextSearch.setText(currentEditText)
+        binding.editTextSearch.setText(currentEditText)
     }
 
     override fun onSaveInstanceState(outState: Bundle) {

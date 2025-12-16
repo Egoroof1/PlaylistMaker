@@ -8,9 +8,6 @@ import android.os.Looper
 import android.util.Log
 import android.util.TypedValue
 import android.view.View
-import android.widget.ImageButton
-import android.widget.ImageView
-import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.annotation.RequiresApi
@@ -20,6 +17,7 @@ import androidx.core.view.WindowInsetsCompat
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.resource.bitmap.RoundedCorners
 import com.diego.playlistmaker.R
+import com.diego.playlistmaker.databinding.ActivityPlayerBinding
 import com.diego.playlistmaker.domain.models.Track
 import com.google.android.material.appbar.MaterialToolbar
 import java.text.SimpleDateFormat
@@ -28,30 +26,21 @@ import java.time.format.DateTimeFormatter
 import java.util.Locale
 
 class PlayerActivity : AppCompatActivity() {
-
+    private lateinit var binding: ActivityPlayerBinding
     private val mediaPlayer = MediaPlayer()
     private var playerState = STATE_DEFAULT
 
     private var handler: Handler? = null
 
     private var trackTimer: Int = 0
-    private lateinit var image: ImageView
-    private lateinit var trackName: TextView
-    private lateinit var artistName: TextView
-    private lateinit var trackCurrentTime: TextView
-    private lateinit var trackTimeMillis: TextView
-    private lateinit var trackAlbumName: TextView
-    private lateinit var trackYear: TextView
-    private lateinit var trackGenre: TextView
-    private lateinit var trackCountry: TextView
-    private lateinit var btnPlayerPlay: ImageButton
 
     @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        binding = ActivityPlayerBinding.inflate(layoutInflater)
         enableEdgeToEdge()
-        setContentView(R.layout.activity_player)
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.player_activity)) { v, insets ->
+        setContentView(binding.root)
+        ViewCompat.setOnApplyWindowInsetsListener(binding.playerActivity) { v, insets ->
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
             insets
@@ -71,16 +60,6 @@ class PlayerActivity : AppCompatActivity() {
     }
 
     private fun setupPlayerUI(currentTrack: Track) {
-        image = findViewById(R.id.image)
-        trackName = findViewById(R.id.player_track_name)
-        artistName = findViewById(R.id.player_artist_name)
-        trackCurrentTime = findViewById(R.id.player_track_time)
-        trackTimeMillis = findViewById(R.id.player_track_time2)
-        trackAlbumName = findViewById(R.id.player_track_album_name)
-        trackYear = findViewById(R.id.player_track_year)
-        trackGenre = findViewById(R.id.player_track_genre)
-        trackCountry = findViewById(R.id.player_track_country)
-        btnPlayerPlay = findViewById(R.id.btn_player_play)
 
         trackTimer = mediaPlayer.currentPosition
 
@@ -88,25 +67,30 @@ class PlayerActivity : AppCompatActivity() {
         findViewById<MaterialToolbar>(R.id.toolbar_player).setNavigationOnClickListener { finish() }
 
         // Заполнение данных
-        Glide.with(image)
+        Glide.with(binding.image)
             .load(currentTrack.artworkUrl100.replaceAfterLast("/", "512x512.jpg"))
             .centerCrop()
             .placeholder(R.drawable.placeholder)
             .error(currentTrack.artworkUrl100)
-            .transform(RoundedCorners(dpToPx(8f, image)))
-            .into(image)
+            .transform(RoundedCorners(dpToPx(8f, binding.image)))
+            .into(binding.image)
 
-        trackName.text = currentTrack.trackName
-        artistName.text = currentTrack.artistName
-        trackCurrentTime.text = getTrackTimer(trackTimer)
-        trackTimeMillis.text = SimpleDateFormat("mm:ss", Locale.getDefault()).format(currentTrack.trackTimeMillis)
-        trackAlbumName.text = currentTrack.collectionName
-        val dateSplit = currentTrack.releaseDate.split("-")
-        trackYear.text = dateSplit.firstOrNull() ?: ""
-        trackGenre.text = currentTrack.primaryGenreName
-        trackCountry.text = currentTrack.country
+            binding.apply{
+                playerTrackName.text = currentTrack.trackName
+                playerArtistName.text = currentTrack.artistName
+                trackCurrentTime.text = getTrackTimer(trackTimer)
+                trackTimeMillis.text = SimpleDateFormat(
+                    "mm:ss",
+                    Locale.getDefault()
+                ).format(currentTrack.trackTimeMillis)
+                trackAlbumName.text = currentTrack.collectionName
+                val dateSplit = currentTrack.releaseDate.split("-")
+                playerTrackYear.text = dateSplit.firstOrNull() ?: ""
+                playerTrackGenre.text = currentTrack.primaryGenreName
+                playerTrackCountry.text = currentTrack.country
+            }
 
-        btnPlayerPlay.setOnClickListener {
+        binding.btnPlayerPlay.setOnClickListener {
             when (playerState) {
                 STATE_PLAYING -> {
                     pausePlayer()
@@ -136,8 +120,8 @@ class PlayerActivity : AppCompatActivity() {
         }
         mediaPlayer.setOnCompletionListener {
             playerState = STATE_PREPARED
-            btnPlayerPlay.setImageResource(R.drawable.ic_btn_play)
-            trackCurrentTime.text = getString(R.string._00_00)
+            binding.btnPlayerPlay.setImageResource(R.drawable.ic_btn_play)
+            binding.trackCurrentTime.text = getString(R.string._00_00)
             trackTimer = 0
         }
     }
@@ -157,7 +141,7 @@ class PlayerActivity : AppCompatActivity() {
                     // обновляем UI и снова планируем задачу
                     val currentPositionTrackToMillis = LocalTime.ofSecondOfDay((mediaPlayer.currentPosition/1000).toLong())
                         .format(DateTimeFormatter.ofPattern("mm:ss"))
-                    trackCurrentTime.text = currentPositionTrackToMillis
+                    binding.trackCurrentTime.text = currentPositionTrackToMillis
 
                     handler?.postDelayed(this, 500L)
                 }
@@ -167,7 +151,7 @@ class PlayerActivity : AppCompatActivity() {
     }
     private fun startPlayer() {
         mediaPlayer.start()
-        btnPlayerPlay.setImageResource(R.drawable.ic_btn_pause)
+        binding.btnPlayerPlay.setImageResource(R.drawable.ic_btn_pause)
         playerState = STATE_PLAYING
 
         startTimer()
@@ -175,7 +159,7 @@ class PlayerActivity : AppCompatActivity() {
 
     private fun pausePlayer() {
         mediaPlayer.pause()
-        btnPlayerPlay.setImageResource(R.drawable.ic_btn_play)
+        binding.btnPlayerPlay.setImageResource(R.drawable.ic_btn_play)
         playerState = STATE_PAUSED
     }
 
