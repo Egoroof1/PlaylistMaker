@@ -8,7 +8,7 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import com.diego.playlistmaker.databinding.ActivityMainBinding
 import com.diego.playlistmaker.MediaActivity
-import com.diego.playlistmaker.search.ui.SearchActivity
+import com.diego.playlistmaker.search.ui.activity.SearchActivity
 import com.diego.playlistmaker.settings.ui.activity.SettingsActivity
 
 class MainActivity : AppCompatActivity() {

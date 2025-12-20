@@ -14,7 +14,7 @@ import java.text.SimpleDateFormat
 import java.util.Locale
 
 class TrackAdapter(
-    private val tracks: List<Track>,
+    var tracks: List<Track>,
     private val onItemClick: (Track) -> Unit //CallBack
 ) : RecyclerView.Adapter<TrackAdapter.TrackHolder>() {
 
