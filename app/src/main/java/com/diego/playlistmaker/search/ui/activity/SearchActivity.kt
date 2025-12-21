@@ -5,8 +5,6 @@ import android.content.Intent
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
-import android.text.Editable
-import android.text.TextWatcher
 import android.view.View
 import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputMethodManager
@@ -17,6 +15,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.isVisible
+import androidx.core.widget.doOnTextChanged
 import androidx.recyclerview.widget.RecyclerView
 import com.diego.playlistmaker.databinding.ActivitySearchBinding
 import com.diego.playlistmaker.player.ui.PlayerActivity
@@ -137,8 +136,13 @@ class SearchActivity : AppCompatActivity() {
 
         // Кнопка "Готово" на клавиатуре
         binding.editTextSearch.setOnEditorActionListener { _, actionId, _ ->
-            if (actionId == EditorInfo.IME_ACTION_DONE) {
+            if (actionId == EditorInfo.IME_ACTION_SEARCH ||
+                actionId == EditorInfo.IME_ACTION_DONE) {
+
+                viewModel.cancelSearch()
+
                 myHandler?.removeCallbacksAndMessages(null)
+
                 performSearch()
                 true
             } else {
@@ -148,26 +152,15 @@ class SearchActivity : AppCompatActivity() {
     }
 
     private fun setupTextWatcher() {
-        binding.editTextSearch.addTextChangedListener(object : TextWatcher {
-            override fun afterTextChanged(s: Editable?) {
-                val text = s?.toString() ?: ""
+
+        binding.editTextSearch.doOnTextChanged {s,_,_,_ ->
+            binding.icClearEditText.visibility = clearButtonVisibility(s)
+            currentEditText = s?.toString() ?: ""
+
+            val text = s?.toString() ?: ""
                 viewModel.editTextChanged(text)
-            }
+        }
 
-            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) = Unit
-
-            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-                binding.icClearEditText.visibility = clearButtonVisibility(s)
-                currentEditText = s?.toString() ?: ""
-
-                // ТОЧНАЯ КОПИЯ ЛОГИКИ (даже если она странная)
-                if (historyTracks.isEmpty()) {
-                    showHistory()
-                } else {
-                    hideHistory()
-                }
-            }
-        })
     }
 
     private fun observeViewModel() {

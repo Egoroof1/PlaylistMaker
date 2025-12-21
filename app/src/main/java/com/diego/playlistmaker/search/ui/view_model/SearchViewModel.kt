@@ -168,17 +168,3 @@ class SearchViewModel(
         private const val SEARCH_DEBOUNCE_DELAY = 2000L
     }
 }
-
-// Точные состояния UI как в оригинале
-//sealed class SearchUiState {
-//    object ShowLoading : SearchUiState()
-//    object HideSearchResults : SearchUiState()
-//    object ShowSearchResults : SearchUiState()
-//    object ShowNotFound : SearchUiState()
-//    object HideHistory : SearchUiState()
-//    object ClearSearchResults : SearchUiState()
-//    object ClearHistory : SearchUiState()
-//    data class ShowHistory(val tracks: List<Track>) : SearchUiState()
-//    data class ShowSearchContent(val tracks: List<Track>) : SearchUiState()
-//    data class ShowError(val message: String) : SearchUiState()
-//}

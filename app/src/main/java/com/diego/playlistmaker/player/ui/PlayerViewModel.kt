@@ -1,7 +1,6 @@
 package com.diego.playlistmaker.player.ui
 
 import android.media.MediaPlayer
-import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -61,7 +60,6 @@ class PlayerViewModel : ViewModel() {
             setOnPreparedListener {
                 isPrepared = true
                 _playerState.postValue(PlayerState.PREPARED)
-                Log.d("PlayerViewModel", "MediaPlayer prepared")
             }
 
             setOnCompletionListener {
@@ -71,7 +69,6 @@ class PlayerViewModel : ViewModel() {
             }
 
             setOnErrorListener { _, what, extra ->
-                Log.e("PlayerViewModel", "MediaPlayer error: what=$what, extra=$extra")
                 _playerState.postValue(PlayerState.ERROR)
                 false
             }
@@ -102,6 +99,7 @@ class PlayerViewModel : ViewModel() {
         }
     }
 
+    //перемотка
     fun seekTo(position: Int) {
         if (isPrepared && position in 0..(mediaPlayer?.duration ?: 0)) {
             mediaPlayer?.seekTo(position)
@@ -139,7 +137,7 @@ class PlayerViewModel : ViewModel() {
         stopProgressTimer()
     }
 
-    private fun releasePlayer() {
+    fun releasePlayer() {
         stopProgressTimer()
         mediaPlayer?.release()
         mediaPlayer = null

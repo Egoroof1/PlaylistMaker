@@ -33,7 +33,7 @@ class PlayerActivity : AppCompatActivity() {
             insets
         }
 
-        val currentTrack = intent.getParcelableExtra("TRACK_EXTRA", Track::class.java)
+        val currentTrack = intent.getParcelableExtra(TRACK_EXTRA, Track::class.java)
 
         if (currentTrack != null) {
             setupUI()
@@ -104,26 +104,31 @@ class PlayerActivity : AppCompatActivity() {
                 binding.btnPlayerPlay.isEnabled = false
                 binding.trackCurrentTime.text = getString(R.string._00_00)
             }
+
             PlayerViewModel.PlayerState.PREPARING -> {
                 binding.btnPlayerPlay.setImageResource(R.drawable.ic_btn_play)
                 binding.btnPlayerPlay.isEnabled = false
             }
+
             PlayerViewModel.PlayerState.PREPARED -> {
                 binding.btnPlayerPlay.setImageResource(R.drawable.ic_btn_play)
                 binding.btnPlayerPlay.isEnabled = true
             }
+
             PlayerViewModel.PlayerState.PLAYING -> {
                 binding.btnPlayerPlay.setImageResource(R.drawable.ic_btn_pause)
                 binding.btnPlayerPlay.isEnabled = true
             }
+
             PlayerViewModel.PlayerState.PAUSED -> {
                 binding.btnPlayerPlay.setImageResource(R.drawable.ic_btn_play)
                 binding.btnPlayerPlay.isEnabled = true
             }
+
             PlayerViewModel.PlayerState.ERROR -> {
                 binding.btnPlayerPlay.setImageResource(R.drawable.ic_btn_play)
                 binding.btnPlayerPlay.isEnabled = false
-                Toast.makeText(this, "Ошибка воспроизведения", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, getString(R.string.replication_error), Toast.LENGTH_SHORT).show()
             }
         }
     }
@@ -143,6 +148,10 @@ class PlayerActivity : AppCompatActivity() {
 
     override fun onDestroy() {
         super.onDestroy()
-        // ViewModel очистит ресурсы автоматически в onCleared()
+        viewModel.releasePlayer()
+    }
+
+    companion object {
+        const val TRACK_EXTRA = "TRACK_EXTRA"
     }
 }
