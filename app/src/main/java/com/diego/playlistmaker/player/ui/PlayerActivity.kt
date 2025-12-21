@@ -15,7 +15,6 @@ import com.bumptech.glide.load.resource.bitmap.RoundedCorners
 import com.diego.playlistmaker.R
 import com.diego.playlistmaker.databinding.ActivityPlayerBinding
 import com.diego.playlistmaker.search.domain.models.Track
-import com.google.android.material.appbar.MaterialToolbar
 import android.util.TypedValue
 
 class PlayerActivity : AppCompatActivity() {
@@ -49,7 +48,7 @@ class PlayerActivity : AppCompatActivity() {
 
     private fun setupUI() {
         // Настройка toolbar
-        findViewById<MaterialToolbar>(R.id.toolbar_player).setNavigationOnClickListener { finish() }
+        binding.toolbarPlayer.setNavigationOnClickListener { finish() }
 
         // Кнопка воспроизведения/паузы
         binding.btnPlayerPlay.setOnClickListener {

@@ -1,4 +1,4 @@
-package com.diego.playlistmaker.main.ui
+package com.diego.playlistmaker.main.ui.activity
 
 import android.content.Intent
 import android.os.Bundle
@@ -6,8 +6,8 @@ import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
-import com.diego.playlistmaker.databinding.ActivityMainBinding
 import com.diego.playlistmaker.MediaActivity
+import com.diego.playlistmaker.databinding.ActivityMainBinding
 import com.diego.playlistmaker.search.ui.activity.SearchActivity
 import com.diego.playlistmaker.settings.ui.activity.SettingsActivity
 
