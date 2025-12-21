@@ -1,14 +1,14 @@
 package com.diego.playlistmaker.sharing.domain.impl
 
-import android.content.Context
 import com.diego.playlistmaker.R
 import com.diego.playlistmaker.sharing.domain.repository.ExternalNavigator
 import com.diego.playlistmaker.sharing.domain.repository.SharingInteractor
 import com.diego.playlistmaker.sharing.domain.model.EmailData
+import com.diego.playlistmaker.sharing.domain.repository.ResourceProvider
 
 class SharingInteractorImpl(
     private val externalNavigator: ExternalNavigator,
-    private val context: Context
+    private val resourceProvider: ResourceProvider
 ) : SharingInteractor {
     override fun shareApp() {
         externalNavigator.shareLink(getShareAppLink())
@@ -23,18 +23,18 @@ class SharingInteractorImpl(
     }
 
     private fun getShareAppLink(): String {
-        return context.getString(R.string.practicum_ru)
+        return resourceProvider.getString(R.string.practicum_ru)
     }
 
     private fun getSupportEmailData(): EmailData {
         return EmailData(
-            email = context.getString(R.string.email_developers),
-            subject = context.getString(R.string.subject_to_email),
-            message = context.getString(R.string.message_to_email)
+            email = resourceProvider.getString(R.string.email_developers),
+            subject = resourceProvider.getString(R.string.subject_to_email),
+            message = resourceProvider.getString(R.string.message_to_email)
         )
     }
 
     private fun getTermsLink(): String {
-        return context.getString(R.string.practicum_offer_ru)
+        return resourceProvider.getString(R.string.practicum_offer_ru)
     }
 }

@@ -17,9 +17,11 @@ import com.diego.playlistmaker.settings.data.impl.SettingsRepositoryImpl
 import com.diego.playlistmaker.settings.domain.impl.SettingsInteractorImpl
 import com.diego.playlistmaker.settings.domain.repository.SettingsInteractor
 import com.diego.playlistmaker.settings.domain.repository.SettingsRepository
+import com.diego.playlistmaker.sharing.data.impl.AndroidResourceProvider
 import com.diego.playlistmaker.sharing.data.impl.ExternalNavigatorImpl
 import com.diego.playlistmaker.sharing.domain.impl.SharingInteractorImpl
 import com.diego.playlistmaker.sharing.domain.repository.ExternalNavigator
+import com.diego.playlistmaker.sharing.domain.repository.ResourceProvider
 import com.diego.playlistmaker.sharing.domain.repository.SharingInteractor
 
 object Creator {
@@ -41,11 +43,18 @@ object Creator {
 
     // Sharing
     fun provideSharingInteractor(): SharingInteractor {
-        return SharingInteractorImpl(provideExternalNavigator(), provideContext())
+        return SharingInteractorImpl(
+            provideExternalNavigator(),
+            provideResourceProvider()
+        )
     }
 
     private fun provideExternalNavigator(): ExternalNavigator {
         return ExternalNavigatorImpl(provideContext())
+    }
+
+    private fun provideResourceProvider(): ResourceProvider {
+        return AndroidResourceProvider(provideContext())
     }
 
     private fun provideContext(): Context = application.applicationContext
