@@ -4,18 +4,10 @@ import com.diego.playlistmaker.search.data.models.TrackDto
 import com.diego.playlistmaker.search.data.models.UserRequestParamDto
 import com.diego.playlistmaker.search.data.network.TrackDtoRetrofit
 import com.diego.playlistmaker.search.data.network.api.ITunesApi
-import retrofit2.Retrofit
-import retrofit2.converter.gson.GsonConverterFactory
 
-class RetrofitTrackWeb : TrackDtoRetrofit {
-
-    private val iTunesApi: ITunesApi by lazy {
-        Retrofit.Builder()
-            .baseUrl(BASE_URL)
-            .addConverterFactory(GsonConverterFactory.create())
-            .build()
-            .create(ITunesApi::class.java)
-    }
+class RetrofitTrackWeb(
+    private val iTunesApi: ITunesApi
+) : TrackDtoRetrofit {
 
     override suspend fun search(query: UserRequestParamDto): Result<List<TrackDto>> {
         return try {
@@ -29,9 +21,5 @@ class RetrofitTrackWeb : TrackDtoRetrofit {
         } catch (e: Exception) {
             Result.failure(Exception("Network error: ${e.message}"))
         }
-    }
-
-    companion object {
-        private const val BASE_URL = "https://itunes.apple.com"
     }
 }

@@ -10,7 +10,6 @@ import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputMethodManager
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
-import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
@@ -23,7 +22,7 @@ import com.diego.playlistmaker.search.domain.models.Track
 import com.diego.playlistmaker.search.presentation.TrackAdapter
 import com.diego.playlistmaker.search.ui.view_model.SearchState
 import com.diego.playlistmaker.search.ui.view_model.SearchViewModel
-import com.diego.playlistmaker.search.ui.view_model.SearchViewModelFactory
+import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class SearchActivity : AppCompatActivity() {
 
@@ -32,7 +31,7 @@ class SearchActivity : AppCompatActivity() {
     private var myHandler: Handler? = null
     private var currentEditText: String = CURRENT_TEXT
 
-    private val viewModel: SearchViewModel by viewModels { SearchViewModelFactory() }
+    private val viewModel: SearchViewModel by viewModel()
 
     // Адаптеры как в оригинале
     private val tracks = mutableListOf<Track>()

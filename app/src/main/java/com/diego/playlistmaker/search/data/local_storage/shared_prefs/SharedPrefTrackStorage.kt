@@ -7,7 +7,10 @@ import com.diego.playlistmaker.search.data.local_storage.TrackDtoStorage
 import com.google.gson.Gson
 import androidx.core.content.edit
 
-class SharedPrefTrackStorage(context: Context) : TrackDtoStorage {
+class SharedPrefTrackStorage(
+    private val context: Context,
+    private val gson: Gson
+) : TrackDtoStorage {
 
     private val sharedPrefs: SharedPreferences by lazy {
         context.getSharedPreferences("history_settings", Context.MODE_PRIVATE)
@@ -37,6 +40,5 @@ class SharedPrefTrackStorage(context: Context) : TrackDtoStorage {
 
     companion object {
         private const val KEY_HISTORY = "history"
-        private val gson = Gson()
     }
 }
