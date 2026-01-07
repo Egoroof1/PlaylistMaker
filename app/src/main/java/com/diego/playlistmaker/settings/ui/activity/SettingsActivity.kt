@@ -3,25 +3,19 @@ package com.diego.playlistmaker.settings.ui.activity
 import android.os.Bundle
 import android.util.Log
 import androidx.activity.enableEdgeToEdge
-import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.lifecycle.Observer
-import com.diego.playlistmaker.creator.Creator
 import com.diego.playlistmaker.databinding.ActivitySettingsBinding
 import com.diego.playlistmaker.settings.ui.view_model.SettingsViewModel
-import com.diego.playlistmaker.settings.ui.view_model.SettingsViewModelFactory
+import org.koin.androidx.viewmodel.ext.android.viewModel // Импорт Koin
 
 class SettingsActivity : AppCompatActivity() {
     private lateinit var binding: ActivitySettingsBinding
 
-    private val viewModel: SettingsViewModel by viewModels {
-        SettingsViewModelFactory(
-            sharingInteractor = Creator.provideSharingInteractor(),
-            settingsInteractor = Creator.provideSettingsInteractor()
-        )
-    }
+    // МЕНЯЕМ: получаем ViewModel через Koin (убираем фабрику)
+    private val viewModel: SettingsViewModel by viewModel()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
