@@ -8,8 +8,6 @@ import android.view.ViewGroup
 import com.diego.playlistmaker.databinding.FragmentPlayListsBinding
 
 class PlayListsFragment : Fragment() {
-
-    val fragmentPlayList = "FragmentPlayList"
     private var _binding: FragmentPlayListsBinding? = null
     private val binding get() = _binding!!
 
@@ -25,9 +23,6 @@ class PlayListsFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         _binding = FragmentPlayListsBinding.inflate(inflater, container, false)
-
-        // Исправляем возвращаемое значение
-        binding.textView.text = fragmentPlayList
 
         return binding.root
     }

@@ -9,8 +9,6 @@ import com.diego.playlistmaker.databinding.FragmentTracksBinding
 
 class TracksFragment : Fragment() {
 
-    private val fragmentTracks = "Fragment Tracks"
-
     private var _binding: FragmentTracksBinding? = null
     private val binding get() = _binding!!
 
@@ -28,7 +26,7 @@ class TracksFragment : Fragment() {
     ): View? {
         _binding = FragmentTracksBinding.inflate(inflater, container, false)
 
-        binding.textView.text = fragmentTracks
+
 
         return binding.root
     }

@@ -64,6 +64,9 @@
 
         <!-- ВЫРАВНИВАНИЕ ВКЛАДОК -->
         <item name="tabGravity">fill</item>
+
+        <!-- ШИРИНА ИНДИКАТОРА: false = под текстом, true = на всю ширину вкладки -->
+        <item name="tabIndicatorFullWidth">false</item>
     </style>
 
     <!-- СТИЛЬ ТЕКСТА ДЛЯ ВКЛАДОК -->

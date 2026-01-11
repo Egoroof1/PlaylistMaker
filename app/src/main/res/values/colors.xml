@@ -20,4 +20,6 @@
 
     <!-- ЦВЕТ ФОНА TABLAYOUT -->
     <color name="tablayout_background">#FFFFFFFF</color> <!-- ФОН: белый -->
+
+    <color name="str_media_fragment">#000000</color>
 </resources>
