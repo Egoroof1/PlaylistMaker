@@ -33,7 +33,6 @@ class SearchActivity : AppCompatActivity() {
 
     private val viewModel: SearchViewModel by viewModel()
 
-    // Адаптеры как в оригинале
     private val tracks = mutableListOf<Track>()
     private val historyTracks = mutableListOf<Track>()
 

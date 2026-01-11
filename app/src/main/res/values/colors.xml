@@ -17,4 +17,7 @@
     <color name="btn_update_text">#FFFFFF</color>
 
     <color name="btn_playlist_add_like">#1A1B22</color>
+
+    <!-- ЦВЕТ ФОНА TABLAYOUT -->
+    <color name="tablayout_background">#FFFFFFFF</color> <!-- ФОН: белый -->
 </resources>
