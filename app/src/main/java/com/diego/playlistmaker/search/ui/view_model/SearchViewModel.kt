@@ -56,7 +56,9 @@ class SearchViewModel(
             _isLoading.value = false // Сбрасываем loading при новом вводе
 
             searchJob = coroutineScope.launch {
+
                 delay(SEARCH_DEBOUNCE_DELAY)
+
                 performSearch(text)
             }
         }
@@ -70,6 +72,7 @@ class SearchViewModel(
 
         coroutineScope.launch(Dispatchers.IO) {
             try {
+
                 val tracks = searchTracksUseCase.execute(UserRequestParam(query))
 
                 coroutineScope.launch(Dispatchers.Main) {
@@ -116,7 +119,7 @@ class SearchViewModel(
     }
 
     private fun updateHistoryVisibility() {
-        // Показываем историю если она не пустая (как в оригинале)
+        // Показываем историю если она не пустая
         if (currentHistory.isNotEmpty()) {
             _searchState.value = SearchState.ShowHistory(currentHistory)
         } else {

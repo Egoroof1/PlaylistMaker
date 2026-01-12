@@ -49,5 +49,7 @@
 
     <string name="tracks">Избранные треки</string>
     <string name="playlists">Плейлисты</string>
+    <string name="your_library_is_empty">Ваша библиотека пуста</string>
+    <string name="playlist_list_is_empty">Новый плайлист</string>
 
 </resources>

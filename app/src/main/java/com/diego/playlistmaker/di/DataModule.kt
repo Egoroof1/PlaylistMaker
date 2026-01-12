@@ -39,4 +39,8 @@ val dataModule = module {
     single<TrackDtoRetrofit> {
         RetrofitTrackWeb(get())
     }
+
+    single {
+        androidContext().getSharedPreferences("media_settings", Context.MODE_PRIVATE)
+    }
 }

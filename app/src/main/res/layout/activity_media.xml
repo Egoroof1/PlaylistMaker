@@ -7,7 +7,7 @@
     android:background="@color/bg_activity"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".media.MediaActivity">
+    tools:context=".media.ui.activity.MediaActivity">
 
     <com.google.android.material.appbar.MaterialToolbar
         android:id="@+id/toolbar"

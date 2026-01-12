@@ -1,17 +1,20 @@
-package com.diego.playlistmaker.media
+package com.diego.playlistmaker.media.ui.activity
 
 import android.os.Bundle
 import androidx.activity.enableEdgeToEdge
+import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import com.diego.playlistmaker.R
 import com.diego.playlistmaker.databinding.ActivityMediaBinding
 import com.diego.playlistmaker.media.presentation.PagerAdapter
+import com.diego.playlistmaker.media.ui.view_model.MediaViewModel
 import com.google.android.material.tabs.TabLayoutMediator
 
 class MediaActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMediaBinding
+    private val viewModel: MediaViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -29,6 +32,7 @@ class MediaActivity : AppCompatActivity() {
         }
 
         setupViewPager()
+        observeViewModel()
     }
 
     private fun setupViewPager() {
@@ -43,6 +47,14 @@ class MediaActivity : AppCompatActivity() {
                 else -> ""
             }
         }.attach()
+    }
+
+    private fun observeViewModel() {
+        // Здесь можно добавить observer'ы для LiveData из ViewModel
+        // Например:
+        // viewModel.someLiveData.observe(this) { data ->
+        //     // Обновить UI на основе данных
+        // }
     }
 
 }
