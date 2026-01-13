@@ -27,7 +27,7 @@ class MediaActivity : AppCompatActivity() {
             insets
         }
 
-        binding.toolbar.setOnClickListener {
+        binding.toolbar.setNavigationOnClickListener {
             finish()
         }
 
