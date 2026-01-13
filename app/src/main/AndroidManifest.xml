@@ -17,7 +17,7 @@
             android:name=".player.ui.PlayerActivity"
             android:exported="false" />
         <activity
-            android:name=".MediaActivity"
+            android:name=".media.ui.activity.MediaActivity"
             android:exported="false" />
         <activity
             android:name=".search.ui.activity.SearchActivity"

@@ -33,7 +33,6 @@ class SearchActivity : AppCompatActivity() {
 
     private val viewModel: SearchViewModel by viewModel()
 
-    // Адаптеры как в оригинале
     private val tracks = mutableListOf<Track>()
     private val historyTracks = mutableListOf<Track>()
 
@@ -115,7 +114,7 @@ class SearchActivity : AppCompatActivity() {
         // Очистка поля поиска
         binding.icClearEditText.setOnClickListener { clearSearch() }
 
-        // Очистка истории поиска (ТОЧНО как в оригинале)
+        // Очистка истории поиска
         binding.btnClearHistory.setOnClickListener {
             historyTracks.clear()
             viewModel.clearHistory()

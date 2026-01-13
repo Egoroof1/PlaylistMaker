@@ -17,4 +17,6 @@
 
 
     <color name="btn_playlist_add_like">#FFFFFF</color>
+
+    <color name="str_media_fragment">#ffffff</color>
 </resources>
