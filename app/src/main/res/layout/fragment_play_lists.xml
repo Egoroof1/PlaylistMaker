@@ -40,7 +40,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
         android:fontFamily="@font/ys_display_medium"
-        android:text="Вы не создали\nни одного плейлиста"
+        android:text="@string/play_list_empty"
         android:gravity="center_horizontal"
         android:textColor="@color/str_media_fragment"
         android:textFontWeight="400"
