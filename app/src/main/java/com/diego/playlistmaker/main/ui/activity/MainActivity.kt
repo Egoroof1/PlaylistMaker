@@ -6,7 +6,6 @@ import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
-import com.diego.playlistmaker.media.ui.activity.MediaActivity
 import com.diego.playlistmaker.databinding.ActivityMainBinding
 import com.diego.playlistmaker.search.ui.activity.SearchActivity
 import com.diego.playlistmaker.settings.ui.activity.SettingsActivity
@@ -34,10 +33,6 @@ class MainActivity : AppCompatActivity() {
 
         binding.btnSearch.setOnClickListener{
             startActivity(Intent(this, SearchActivity::class.java))
-        }
-
-        binding.btnMediaLibrary.setOnClickListener {
-            startActivity(Intent(this, MediaActivity::class.java))
         }
 
         binding.btnSettings.setOnClickListener {

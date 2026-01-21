@@ -14,10 +14,16 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.MaterialComponents.DayNight.NoActionBar">
         <activity
-            android:name=".player.ui.PlayerActivity"
-            android:exported="false" />
+            android:name=".main.ui.root.RootActivity"
+            android:exported="true" >
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
         <activity
-            android:name=".media.ui.activity.MediaActivity"
+            android:name=".player.ui.PlayerActivity"
             android:exported="false" />
         <activity
             android:name=".search.ui.activity.SearchActivity"
@@ -27,12 +33,7 @@
             android:exported="false" />
         <activity
             android:name=".main.ui.activity.MainActivity"
-            android:exported="true">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
+            android:exported="false">
         </activity>
     </application>
 
