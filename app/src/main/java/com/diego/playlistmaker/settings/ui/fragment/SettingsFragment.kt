@@ -1,41 +1,47 @@
-package com.diego.playlistmaker.settings.ui.activity
+package com.diego.playlistmaker.settings.ui.fragment
 
 import android.os.Bundle
 import android.util.Log
-import androidx.activity.enableEdgeToEdge
-import androidx.appcompat.app.AppCompatActivity
-import androidx.core.view.ViewCompat
-import androidx.core.view.WindowInsetsCompat
+import androidx.fragment.app.Fragment
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
 import androidx.lifecycle.Observer
-import com.diego.playlistmaker.databinding.ActivitySettingsBinding
+import com.diego.playlistmaker.databinding.FragmentSettingsBinding
 import com.diego.playlistmaker.settings.ui.view_model.SettingsViewModel
-import org.koin.androidx.viewmodel.ext.android.viewModel // Импорт Koin
+import org.koin.androidx.viewmodel.ext.android.viewModel
+import kotlin.getValue
 
-class SettingsActivity : AppCompatActivity() {
-    private lateinit var binding: ActivitySettingsBinding
+class SettingsFragment : Fragment() {
+    private var _binding: FragmentSettingsBinding? = null
+    private val binding get() = _binding!!
 
-    // МЕНЯЕМ: получаем ViewModel через Koin (убираем фабрику)
     private val viewModel: SettingsViewModel by viewModel()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        binding = ActivitySettingsBinding.inflate(layoutInflater)
-        enableEdgeToEdge()
-        setContentView(binding.root)
-        ViewCompat.setOnApplyWindowInsetsListener(binding.settings) { v, insets ->
-            val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
-            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
-            insets
+        arguments?.let {
+
         }
+    }
+
+    override fun onCreateView(
+        inflater: LayoutInflater, container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
+        _binding = FragmentSettingsBinding.inflate(inflater, container, false)
+        return binding.root
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
 
         setupClickListeners()
         observeViewModel()
-
-        Log.d("SettingsActivity", "Activity created")
     }
 
     private fun observeViewModel() {
-        viewModel.themeSettings.observe(this, Observer { themeSettings ->
+        viewModel.themeSettings.observe(viewLifecycleOwner, Observer { themeSettings ->
             Log.d("SettingsActivity", "Theme changed: ${themeSettings.isDarkTheme}")
             binding.swIsBlackTheme.isChecked = themeSettings.isDarkTheme
         })
@@ -43,7 +49,7 @@ class SettingsActivity : AppCompatActivity() {
 
     private fun setupClickListeners() {
         // Устанавливаем начальное состояние переключателя из ViewModel
-        viewModel.themeSettings.observe(this) { themeSettings ->
+        viewModel.themeSettings.observe(viewLifecycleOwner) { themeSettings ->
             binding.swIsBlackTheme.isChecked = themeSettings.isDarkTheme
         }
 
@@ -55,7 +61,7 @@ class SettingsActivity : AppCompatActivity() {
         binding.apply {
             toolbar.setNavigationOnClickListener {
                 Log.d("SettingsActivity", "Back button clicked")
-                finish()
+                parentFragmentManager.popBackStack()
             }
             btnSearch.setOnClickListener {
                 Log.d("SettingsActivity", "Share button clicked")
@@ -70,5 +76,15 @@ class SettingsActivity : AppCompatActivity() {
                 viewModel.openAgreement()
             }
         }
+    }
+
+    companion object {
+        @JvmStatic
+        fun newInstance(param1: String, param2: String) =
+            SettingsFragment().apply {
+                arguments = Bundle().apply {
+
+                }
+            }
     }
 }
