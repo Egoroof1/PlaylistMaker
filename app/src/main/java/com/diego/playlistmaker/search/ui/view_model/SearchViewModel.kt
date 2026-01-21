@@ -1,5 +1,6 @@
 package com.diego.playlistmaker.search.ui.view_model
 
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -65,6 +66,8 @@ class SearchViewModel(
     }
 
     fun performSearch(query: String) {
+
+        Log.d("TAG", "performSearch: search go")
         if (query != lastSearchQuery) return
 
         _isLoading.value = true

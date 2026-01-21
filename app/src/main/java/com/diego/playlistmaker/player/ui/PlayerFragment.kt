@@ -1,54 +1,62 @@
 package com.diego.playlistmaker.player.ui
 
-import android.os.Build
 import android.os.Bundle
+import android.util.TypedValue
+import androidx.fragment.app.Fragment
+import android.view.LayoutInflater
 import android.view.View
+import android.view.ViewGroup
 import android.widget.Toast
-import androidx.activity.enableEdgeToEdge
-import androidx.annotation.RequiresApi
-import androidx.appcompat.app.AppCompatActivity
-import androidx.core.view.ViewCompat
-import androidx.core.view.WindowInsetsCompat
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.resource.bitmap.RoundedCorners
 import com.diego.playlistmaker.R
-import com.diego.playlistmaker.databinding.ActivityPlayerBinding
+import com.diego.playlistmaker.databinding.FragmentPlayerBinding
 import com.diego.playlistmaker.search.domain.models.Track
-import android.util.TypedValue
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
-class PlayerActivity : AppCompatActivity() {
-    private lateinit var binding: ActivityPlayerBinding
+class PlayerFragment : Fragment() {
+
+    private var _binding: FragmentPlayerBinding? = null
+    private val binding get() = _binding!!
+
     private val viewModel: PlayerViewModel by viewModel()
 
-    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
+    private var currentTrack: Track? = null
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        binding = ActivityPlayerBinding.inflate(layoutInflater)
-        enableEdgeToEdge()
-        setContentView(binding.root)
-        ViewCompat.setOnApplyWindowInsetsListener(binding.playerActivity) { v, insets ->
-            val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
-            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
-            insets
-        }
+        // Получаем трек из аргументов
+        currentTrack = arguments?.getParcelable(TRACK_EXTRA)
+    }
 
-        val currentTrack = intent.getParcelableExtra(TRACK_EXTRA, Track::class.java)
+    override fun onCreateView(
+        inflater: LayoutInflater, container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
+        _binding = FragmentPlayerBinding.inflate(inflater, container, false)
+        return binding.root
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
 
         if (currentTrack != null) {
             setupUI()
             setupObservers()
-            viewModel.setTrack(currentTrack)
-            viewModel.preparePlayer(currentTrack.previewUrl)
+            viewModel.setTrack(currentTrack!!)
+            viewModel.preparePlayer(currentTrack!!.previewUrl)
         } else {
-            Toast.makeText(this, "Ошибка загрузки трека", Toast.LENGTH_SHORT).show()
-            finish()
+            Toast.makeText(requireContext(), "Ошибка загрузки трека", Toast.LENGTH_SHORT).show()
+            // Возвращаемся назад
+            parentFragmentManager.popBackStack()
         }
     }
 
     private fun setupUI() {
-        // Настройка toolbar
-        binding.toolbarPlayer.setNavigationOnClickListener { finish() }
+        // Настройка toolbar - возврат назад
+        binding.toolbarPlayer.setNavigationOnClickListener {
+            parentFragmentManager.popBackStack()
+        }
 
         // Кнопка воспроизведения/паузы
         binding.btnPlayerPlay.setOnClickListener {
@@ -58,19 +66,19 @@ class PlayerActivity : AppCompatActivity() {
 
     private fun setupObservers() {
         // Наблюдаем за информацией о треке
-        viewModel.trackInfo.observe(this) { trackInfo ->
+        viewModel.trackInfo.observe(viewLifecycleOwner) { trackInfo ->
             if (trackInfo != null) {
                 updateTrackUI(trackInfo)
             }
         }
 
         // Наблюдаем за состоянием плеера
-        viewModel.playerState.observe(this) { state ->
+        viewModel.playerState.observe(viewLifecycleOwner) { state ->
             updatePlayerUI(state)
         }
 
         // Наблюдаем за текущей позицией трека
-        viewModel.currentPosition.observe(this) { position ->
+        viewModel.currentPosition.observe(viewLifecycleOwner) { position ->
             binding.trackCurrentTime.text = viewModel.getFormattedTime(position)
         }
     }
@@ -82,7 +90,7 @@ class PlayerActivity : AppCompatActivity() {
             .centerCrop()
             .placeholder(R.drawable.placeholder)
             .error(trackInfo.originalArtworkUrl)
-            .transform(RoundedCorners(dpToPx(8f, binding.image)))
+            .transform(RoundedCorners(dpToPx(8f)))
             .into(binding.image)
 
         // Установка текстовых полей
@@ -128,22 +136,27 @@ class PlayerActivity : AppCompatActivity() {
             PlayerViewModel.PlayerState.ERROR -> {
                 binding.btnPlayerPlay.setImageResource(R.drawable.ic_btn_play)
                 binding.btnPlayerPlay.isEnabled = false
-                Toast.makeText(this, getString(R.string.replication_error), Toast.LENGTH_SHORT).show()
+                Toast.makeText(requireContext(), getString(R.string.replication_error), Toast.LENGTH_SHORT).show()
             }
         }
     }
 
-    private fun dpToPx(dp: Float, context: View): Int {
+    private fun dpToPx(dp: Float): Int {
         return TypedValue.applyDimension(
             TypedValue.COMPLEX_UNIT_DIP,
             dp,
-            context.resources.displayMetrics
+            resources.displayMetrics
         ).toInt()
     }
 
     override fun onPause() {
         super.onPause()
         viewModel.pause()
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
     }
 
     override fun onDestroy() {
@@ -153,5 +166,15 @@ class PlayerActivity : AppCompatActivity() {
 
     companion object {
         const val TRACK_EXTRA = "TRACK_EXTRA"
+
+        // Правильный метод для создания фрагмента с аргументами
+        @JvmStatic
+        fun newInstance(track: Track): PlayerFragment {
+            return PlayerFragment().apply {
+                arguments = Bundle().apply {
+                    putParcelable(TRACK_EXTRA, track)
+                }
+            }
+        }
     }
 }

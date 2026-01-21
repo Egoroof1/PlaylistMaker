@@ -2,7 +2,6 @@ package com.diego.playlistmaker.search.ui.fragment
 
 import android.annotation.SuppressLint
 import android.content.Context
-import android.content.Intent
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
@@ -15,9 +14,11 @@ import android.view.inputmethod.InputMethodManager
 import android.widget.Toast
 import androidx.core.view.isVisible
 import androidx.core.widget.doOnTextChanged
+import androidx.fragment.app.commit
 import androidx.recyclerview.widget.RecyclerView
+import com.diego.playlistmaker.R
 import com.diego.playlistmaker.databinding.FragmentSearchBinding
-import com.diego.playlistmaker.player.ui.PlayerActivity
+import com.diego.playlistmaker.player.ui.PlayerFragment
 import com.diego.playlistmaker.search.domain.models.Track
 import com.diego.playlistmaker.search.presentation.TrackAdapter
 import com.diego.playlistmaker.search.ui.view_model.SearchState
@@ -104,10 +105,11 @@ class SearchFragment : Fragment() {
             viewModel.saveTrackToHistory(track)
 
             // Переходим на PlayerActivity
-            val intent = Intent(requireContext(), PlayerActivity::class.java).apply {
-                putExtra("TRACK_EXTRA", track)
+            val playerFragment = PlayerFragment.newInstance(track)
+            parentFragmentManager.commit {
+                replace(R.id.rootFragmentContainerView, playerFragment)
+                addToBackStack(null) // Чтобы можно было вернуться назад
             }
-            startActivity(intent)
         }
     }
 
