@@ -13,6 +13,7 @@ import com.google.android.material.tabs.TabLayoutMediator
 class MediaFragment : Fragment() {
 
     private lateinit var binding: FragmentMediaBinding
+    private lateinit var tabsMediator: TabLayoutMediator
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -45,18 +46,24 @@ class MediaFragment : Fragment() {
         binding.pager.adapter = adapter
 
         // Связываем TabLayout с ViewPager2
-        TabLayoutMediator(binding.tabLayout, binding.pager) { tab, position ->
+        tabsMediator = TabLayoutMediator(binding.tabLayout, binding.pager) { tab, position ->
             tab.text = when (position) {
                 0 -> getString(R.string.tracks)
                 1 -> getString(R.string.playlists)
                 else -> ""
             }
-        }.attach()
+        }
+        tabsMediator.attach()
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        tabsMediator.detach()
     }
 
     companion object {
         @JvmStatic
-        fun newInstance(param1: String, param2: String) =
+        fun newInstance() =
             MediaFragment().apply {
                 arguments = Bundle().apply {
 

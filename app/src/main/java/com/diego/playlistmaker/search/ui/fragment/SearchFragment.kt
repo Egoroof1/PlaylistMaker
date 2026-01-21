@@ -327,7 +327,7 @@ class SearchFragment : Fragment() {
         private const val ANTY_DOUBLE_CLICK = 500L
 
         @JvmStatic
-        fun newInstance(param1: String, param2: String) =
+        fun newInstance() =
             SearchFragment().apply {
                 arguments = Bundle().apply {
 

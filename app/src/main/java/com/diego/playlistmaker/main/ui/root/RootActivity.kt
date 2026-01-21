@@ -32,7 +32,8 @@ class RootActivity : AppCompatActivity() {
             supportFragmentManager.commit {
 //                this.add(R.id.rootFragmentContainerView, MediaFragment())
 //                this.add(R.id.rootFragmentContainerView, SearchFragment())
-                this.add(R.id.rootFragmentContainerView, SettingsFragment())
+                this.add(R.id.rootFragmentContainerView, MainFragment())
+//                this.add(R.id.rootFragmentContainerView, SettingsFragment())
             }
         }
 
