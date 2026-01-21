@@ -8,7 +8,7 @@ import androidx.core.view.WindowInsetsCompat
 import androidx.fragment.app.commit
 import com.diego.playlistmaker.R
 import com.diego.playlistmaker.databinding.ActivityRootBinding
-import com.diego.playlistmaker.media.ui.fragments.MediaFragment
+import com.diego.playlistmaker.search.ui.fragment.SearchFragment
 
 class RootActivity : AppCompatActivity() {
     private lateinit var binding: ActivityRootBinding
@@ -28,7 +28,8 @@ class RootActivity : AppCompatActivity() {
 
         if (savedInstanceState == null){
             supportFragmentManager.commit {
-                this.add(R.id.rootFragmentContainerView, MediaFragment())
+//                this.add(R.id.rootFragmentContainerView, MediaFragment())
+                this.add(R.id.rootFragmentContainerView, SearchFragment())
             }
         }
 

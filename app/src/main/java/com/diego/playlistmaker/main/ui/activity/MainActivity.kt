@@ -7,7 +7,6 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import com.diego.playlistmaker.databinding.ActivityMainBinding
-import com.diego.playlistmaker.search.ui.activity.SearchActivity
 import com.diego.playlistmaker.settings.ui.activity.SettingsActivity
 
 class MainActivity : AppCompatActivity() {
@@ -30,10 +29,6 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun setupClickListeners(){
-
-        binding.btnSearch.setOnClickListener{
-            startActivity(Intent(this, SearchActivity::class.java))
-        }
 
         binding.btnSettings.setOnClickListener {
             startActivity(Intent(this, SettingsActivity::class.java))

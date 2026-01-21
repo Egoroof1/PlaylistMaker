@@ -1,32 +1,34 @@
-package com.diego.playlistmaker.search.ui.activity
+package com.diego.playlistmaker.search.ui.fragment
 
 import android.annotation.SuppressLint
+import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
+import androidx.fragment.app.Fragment
+import android.view.LayoutInflater
 import android.view.View
+import android.view.ViewGroup
 import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputMethodManager
 import android.widget.Toast
-import androidx.activity.enableEdgeToEdge
-import androidx.appcompat.app.AppCompatActivity
-import androidx.core.view.ViewCompat
-import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.isVisible
 import androidx.core.widget.doOnTextChanged
 import androidx.recyclerview.widget.RecyclerView
-import com.diego.playlistmaker.databinding.ActivitySearchBinding
+import com.diego.playlistmaker.databinding.FragmentSearchBinding
 import com.diego.playlistmaker.player.ui.PlayerActivity
 import com.diego.playlistmaker.search.domain.models.Track
 import com.diego.playlistmaker.search.presentation.TrackAdapter
 import com.diego.playlistmaker.search.ui.view_model.SearchState
 import com.diego.playlistmaker.search.ui.view_model.SearchViewModel
 import org.koin.androidx.viewmodel.ext.android.viewModel
+import kotlin.getValue
 
-class SearchActivity : AppCompatActivity() {
+class SearchFragment : Fragment() {
 
-    private lateinit var binding: ActivitySearchBinding
+    private var _binding: FragmentSearchBinding? = null
+    private val binding get() = _binding!!
     private var isClicked = false
     private var myHandler: Handler? = null
     private var currentEditText: String = CURRENT_TEXT
@@ -44,14 +46,28 @@ class SearchActivity : AppCompatActivity() {
         TrackAdapter(historyTracks) { track -> onTrackClicked(track) }
     }
 
-    @SuppressLint("MissingInflatedId")
+    // view ещё не создана
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        binding = ActivitySearchBinding.inflate(layoutInflater)
-        enableEdgeToEdge()
-        setContentView(binding.root)
-        setupWindowInsets()
+        arguments?.let {
 
+        }
+        if (savedInstanceState != null) {
+            currentEditText = savedInstanceState.getString(KEY_CURRENT_TEXT, "")
+        }
+    }
+
+    override fun onCreateView(
+        inflater: LayoutInflater, container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
+
+        _binding = FragmentSearchBinding.inflate(inflater, container, false)
+        return binding.root
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
         initViews()
         setupAdapters()
         setupClickListeners()
@@ -59,23 +75,16 @@ class SearchActivity : AppCompatActivity() {
         observeViewModel()
 
         // Восстанавливаем текст
-        binding.editTextSearch.setText(currentEditText)
-    }
-
-    private fun setupWindowInsets() {
-        ViewCompat.setOnApplyWindowInsetsListener(binding.mainSearch) { v, insets ->
-            val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
-            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
-            insets
-        }
+        val restoredText = savedInstanceState?.getString(KEY_CURRENT_TEXT, "") ?: ""
+        binding.editTextSearch.setText(restoredText)
     }
 
     @SuppressLint("MissingInflatedId")
     private fun initViews() {
         myHandler = Handler(Looper.getMainLooper())
 
-        // Настройка кнопки назад
-        binding.toolbar.setNavigationOnClickListener { finish() }
+        // Настройка кнопки назад (позже удалить)
+//        binding.toolbar.setNavigationOnClickListener { finish() }
     }
 
     private fun setupAdapters() {
@@ -95,7 +104,7 @@ class SearchActivity : AppCompatActivity() {
             viewModel.saveTrackToHistory(track)
 
             // Переходим на PlayerActivity
-            val intent = Intent(this, PlayerActivity::class.java).apply {
+            val intent = Intent(requireContext(), PlayerActivity::class.java).apply {
                 putExtra("TRACK_EXTRA", track)
             }
             startActivity(intent)
@@ -156,13 +165,13 @@ class SearchActivity : AppCompatActivity() {
             currentEditText = s?.toString() ?: ""
 
             val text = s?.toString() ?: ""
-                viewModel.editTextChanged(text)
+            viewModel.editTextChanged(text)
         }
 
     }
 
     private fun observeViewModel() {
-        viewModel.searchState.observe(this) { state ->
+        viewModel.searchState.observe(viewLifecycleOwner) { state ->
             when (state) {
                 is SearchState.ShowLoading -> {
                     showLoadingState()
@@ -198,7 +207,7 @@ class SearchActivity : AppCompatActivity() {
             }
         }
 
-        viewModel.isLoading.observe(this) { isLoading ->
+        viewModel.isLoading.observe(viewLifecycleOwner) { isLoading ->
             binding.progressBar.isVisible = isLoading
         }
     }
@@ -279,13 +288,7 @@ class SearchActivity : AppCompatActivity() {
         hideSearchResults()
         hideHistory()
         binding.searchErrorNotSignal.isVisible = true
-        Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
-    }
-
-    override fun onRestoreInstanceState(savedInstanceState: Bundle) {
-        super.onRestoreInstanceState(savedInstanceState)
-        currentEditText = savedInstanceState.getString(KEY_CURRENT_TEXT, currentEditText)
-        binding.editTextSearch.setText(currentEditText)
+        Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show()
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
@@ -302,8 +305,11 @@ class SearchActivity : AppCompatActivity() {
     }
 
     private fun hideKeyboard() {
-        val imm = getSystemService(INPUT_METHOD_SERVICE) as InputMethodManager
-        imm.hideSoftInputFromWindow(currentFocus?.windowToken, 0)
+        val view = activity?.currentFocus ?: view
+        view?.let {
+            val imm = requireContext().getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+            imm.hideSoftInputFromWindow(it.windowToken, 0)
+        }
     }
 
     override fun onDestroy() {
@@ -313,8 +319,17 @@ class SearchActivity : AppCompatActivity() {
     }
 
     companion object {
+
         const val CURRENT_TEXT = ""
         const val KEY_CURRENT_TEXT = "current_text"
         private const val ANTY_DOUBLE_CLICK = 500L
+
+        @JvmStatic
+        fun newInstance(param1: String, param2: String) =
+            SearchFragment().apply {
+                arguments = Bundle().apply {
+
+                }
+            }
     }
 }
