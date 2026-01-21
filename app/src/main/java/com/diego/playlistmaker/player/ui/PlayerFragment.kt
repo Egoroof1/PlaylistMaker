@@ -7,6 +7,8 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.navigation.fragment.findNavController
+import androidx.navigation.fragment.navArgs
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.resource.bitmap.RoundedCorners
 import com.diego.playlistmaker.R
@@ -16,18 +18,15 @@ import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class PlayerFragment : Fragment() {
 
+    // Получаем аргументы через Safe Args
+    private val args: PlayerFragmentArgs by navArgs()
+
     private var _binding: FragmentPlayerBinding? = null
     private val binding get() = _binding!!
 
     private val viewModel: PlayerViewModel by viewModel()
 
     private var currentTrack: Track? = null
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        // Получаем трек из аргументов
-        currentTrack = arguments?.getParcelable(TRACK_EXTRA)
-    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -40,6 +39,8 @@ class PlayerFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        currentTrack = args.track
+
         if (currentTrack != null) {
             setupUI()
             setupObservers()
@@ -48,14 +49,14 @@ class PlayerFragment : Fragment() {
         } else {
             Toast.makeText(requireContext(), "Ошибка загрузки трека", Toast.LENGTH_SHORT).show()
             // Возвращаемся назад
-            parentFragmentManager.popBackStack()
+            findNavController().popBackStack()
         }
     }
 
     private fun setupUI() {
         // Настройка toolbar - возврат назад
         binding.toolbarPlayer.setNavigationOnClickListener {
-            parentFragmentManager.popBackStack()
+            findNavController().popBackStack()
         }
 
         // Кнопка воспроизведения/паузы
@@ -162,19 +163,5 @@ class PlayerFragment : Fragment() {
     override fun onDestroy() {
         super.onDestroy()
         viewModel.releasePlayer()
-    }
-
-    companion object {
-        const val TRACK_EXTRA = "TRACK_EXTRA"
-
-        // Правильный метод для создания фрагмента с аргументами
-        @JvmStatic
-        fun newInstance(track: Track): PlayerFragment {
-            return PlayerFragment().apply {
-                arguments = Bundle().apply {
-                    putParcelable(TRACK_EXTRA, track)
-                }
-            }
-        }
     }
 }

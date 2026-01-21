@@ -5,12 +5,9 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.fragment.app.commit
+import androidx.navigation.fragment.findNavController
 import com.diego.playlistmaker.R
 import com.diego.playlistmaker.databinding.FragmentMainBinding
-import com.diego.playlistmaker.media.ui.fragments.MediaFragment
-import com.diego.playlistmaker.search.ui.fragment.SearchFragment
-import com.diego.playlistmaker.settings.ui.fragment.SettingsFragment
 
 class MainFragment : Fragment() {
     private var _binding: FragmentMainBinding? = null
@@ -38,57 +35,22 @@ class MainFragment : Fragment() {
     private fun setupClickListeners() {
         // Кнопка поиска
         binding.btnSearch.setOnClickListener {
-            openSearchFragment()
+            findNavController().navigate(R.id.action_mainFragment_to_searchFragment)
         }
 
         // Кнопка медиа
         binding.btnMedia.setOnClickListener {
-            openMediaFragment()
+            findNavController().navigate(R.id.action_mainFragment_to_mediaFragment)
         }
 
         // Кнопка настроек
         binding.btnSettings.setOnClickListener {
-            openSettingsFragment()
-        }
-    }
-
-    private fun openSearchFragment() {
-        val searchFragment = SearchFragment.newInstance()
-
-        requireActivity().supportFragmentManager.commit {
-            replace(R.id.rootFragmentContainerView, searchFragment)
-            addToBackStack("search")
-            setReorderingAllowed(true)
-        }
-    }
-
-    private fun openMediaFragment() {
-        val mediaFragment = MediaFragment.newInstance()
-
-        requireActivity().supportFragmentManager.commit {
-            replace(R.id.rootFragmentContainerView, mediaFragment)
-            addToBackStack("media")
-            setReorderingAllowed(true)
-        }
-    }
-
-    private fun openSettingsFragment() {
-        val settingsFragment = SettingsFragment.newInstance()
-
-        requireActivity().supportFragmentManager.commit {
-            replace(R.id.rootFragmentContainerView, settingsFragment)
-            addToBackStack("settings")
-            setReorderingAllowed(true)
+            findNavController().navigate(R.id.action_mainFragment_to_settingsFragment)
         }
     }
 
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
-    }
-
-    companion object {
-        @JvmStatic
-        fun newInstance() = MainFragment()
     }
 }

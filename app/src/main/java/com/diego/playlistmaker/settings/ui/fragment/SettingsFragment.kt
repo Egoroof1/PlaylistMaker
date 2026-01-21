@@ -54,37 +54,19 @@ class SettingsFragment : Fragment() {
         }
 
         binding.swIsBlackTheme.setOnCheckedChangeListener { _, isChecked ->
-            Log.d("SettingsActivity", "Switch clicked: $isChecked")
             viewModel.updateTheme(isChecked)
         }
 
         binding.apply {
-            toolbar.setNavigationOnClickListener {
-                Log.d("SettingsActivity", "Back button clicked")
-                parentFragmentManager.popBackStack()
-            }
             btnSearch.setOnClickListener {
-                Log.d("SettingsActivity", "Share button clicked")
                 viewModel.shareApp()
             }
             btnSupport.setOnClickListener {
-                Log.d("SettingsActivity", "Support button clicked")
                 viewModel.contactSupport()
             }
             btnAgreement.setOnClickListener {
-                Log.d("SettingsActivity", "Agreement button clicked")
                 viewModel.openAgreement()
             }
         }
-    }
-
-    companion object {
-        @JvmStatic
-        fun newInstance() =
-            SettingsFragment().apply {
-                arguments = Bundle().apply {
-
-                }
-            }
     }
 }

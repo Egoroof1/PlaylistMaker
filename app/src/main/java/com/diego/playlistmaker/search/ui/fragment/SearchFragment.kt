@@ -14,11 +14,9 @@ import android.view.inputmethod.InputMethodManager
 import android.widget.Toast
 import androidx.core.view.isVisible
 import androidx.core.widget.doOnTextChanged
-import androidx.fragment.app.commit
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.RecyclerView
-import com.diego.playlistmaker.R
 import com.diego.playlistmaker.databinding.FragmentSearchBinding
-import com.diego.playlistmaker.player.ui.PlayerFragment
 import com.diego.playlistmaker.search.domain.models.Track
 import com.diego.playlistmaker.search.presentation.TrackAdapter
 import com.diego.playlistmaker.search.ui.view_model.SearchState
@@ -85,7 +83,9 @@ class SearchFragment : Fragment() {
         myHandler = Handler(Looper.getMainLooper())
 
         // Настройка кнопки назад (позже удалить)
-//        binding.toolbar.setNavigationOnClickListener { finish() }
+//        binding.toolbar.setNavigationOnClickListener {
+//            findNavController().popBackStack()
+//        }
     }
 
     private fun setupAdapters() {
@@ -104,12 +104,9 @@ class SearchFragment : Fragment() {
             // Сохраняем в историю
             viewModel.saveTrackToHistory(track)
 
-            // Переходим на PlayerActivity
-            val playerFragment = PlayerFragment.newInstance(track)
-            parentFragmentManager.commit {
-                replace(R.id.rootFragmentContainerView, playerFragment)
-                addToBackStack(null) // Чтобы можно было вернуться назад
-            }
+            // Переходим на PlayerFragment
+            val action = SearchFragmentDirections.actionSearchFragmentToPlayerFragment(track)
+            findNavController().navigate(action)
         }
     }
 
@@ -325,13 +322,5 @@ class SearchFragment : Fragment() {
         const val CURRENT_TEXT = ""
         const val KEY_CURRENT_TEXT = "current_text"
         private const val ANTY_DOUBLE_CLICK = 500L
-
-        @JvmStatic
-        fun newInstance() =
-            SearchFragment().apply {
-                arguments = Bundle().apply {
-
-                }
-            }
     }
 }

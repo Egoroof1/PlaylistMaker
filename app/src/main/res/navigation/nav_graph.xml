@@ -42,5 +42,11 @@
         android:id="@+id/playerFragment"
         android:name="com.diego.playlistmaker.player.ui.PlayerFragment"
         android:label="fragment_player"
-        tools:layout="@layout/fragment_player" />
+        tools:layout="@layout/fragment_player">
+        <argument
+            android:name="track"
+            app:argType="com.diego.playlistmaker.search.domain.models.Track"
+            app:nullable="true"
+            android:defaultValue="@null" />
+    </fragment>
 </navigation>

@@ -2,6 +2,7 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     id("kotlin-parcelize")
+    id("androidx.navigation.safeargs.kotlin")
 }
 
 android {
@@ -59,6 +60,8 @@ dependencies {
 
     implementation("androidx.navigation:navigation-fragment-ktx:2.5.3")
     implementation("androidx.navigation:navigation-ui-ktx:2.5.3")
+
+    implementation("androidx.navigation:navigation-dynamic-features-fragment:2.7.7") // передача данных между фрагментами
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
