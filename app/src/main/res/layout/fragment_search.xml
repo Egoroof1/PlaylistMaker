@@ -6,7 +6,8 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:background="@color/bg_activity">
+    android:background="@color/bg_activity"
+    tools:context=".search.ui.fragment.SearchFragment">
 
     <com.google.android.material.appbar.MaterialToolbar
         style="@style/toolbar"
