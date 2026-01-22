@@ -6,6 +6,7 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.animation.AnimationUtils
 import android.widget.Toast
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
@@ -63,6 +64,9 @@ class PlayerFragment : Fragment() {
         binding.btnPlayerPlay.setOnClickListener {
             viewModel.togglePlayPause()
         }
+
+        binding.image.animation = AnimationUtils.loadAnimation(context, R.anim.slide_in_right)
+        binding.image.animate()
     }
 
     private fun setupObservers() {
