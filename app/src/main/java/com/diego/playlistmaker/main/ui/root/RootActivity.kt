@@ -10,7 +10,6 @@ import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.setupWithNavController
 import com.diego.playlistmaker.R
 import com.diego.playlistmaker.databinding.ActivityRootBinding
-import com.google.android.material.bottomnavigation.BottomNavigationView
 
 class RootActivity : AppCompatActivity() {
     private lateinit var binding: ActivityRootBinding
@@ -31,16 +30,20 @@ class RootActivity : AppCompatActivity() {
         val navHostFragment = supportFragmentManager.findFragmentById(R.id.rootFragmentContainerView) as NavHostFragment
         val navController = navHostFragment.navController
 
-        val bottomNavigationView = findViewById<BottomNavigationView>(R.id.bottomNavigationView)
+        val bottomNavigationView = binding.bottomNavigationView
         bottomNavigationView.setupWithNavController(navController)
+
+        val line = binding.viewLine
 
         navController.addOnDestinationChangedListener { _, destination, _ ->
             when(destination.id){
                 R.id.playerFragment -> {
                     bottomNavigationView.isVisible = false
+                    line.isVisible = false
                 }
                 else -> {
                     bottomNavigationView.isVisible = true
+                    line.isVisible = true
                 }
             }
         }
