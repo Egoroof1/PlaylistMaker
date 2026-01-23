@@ -7,13 +7,11 @@
     android:background="@color/bg_activity"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".media.ui.activity.MediaActivity">
+    tools:context=".media.ui.fragments.MediaFragment">
 
     <com.google.android.material.appbar.MaterialToolbar
         android:id="@+id/toolbar"
         style="@style/toolbar"
-        android:layout_marginBottom="0dp"
-        app:navigationIcon="@drawable/ic_back_arrow_24"
         app:title="@string/media" />
 
     <com.google.android.material.tabs.TabLayout

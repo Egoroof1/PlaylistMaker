@@ -6,14 +6,13 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:background="@color/bg_activity">
+    android:background="@color/bg_activity"
+    tools:context=".search.ui.fragment.SearchFragment">
 
     <com.google.android.material.appbar.MaterialToolbar
         style="@style/toolbar"
         android:id="@+id/toolbar"
-        app:title="@string/search"
-        android:layout_marginBottom="0dp"
-        app:navigationIcon="@drawable/ic_back_arrow_24"/>
+        app:title="@string/search"/>
 
 
     <LinearLayout

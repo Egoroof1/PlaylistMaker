@@ -10,10 +10,29 @@
         <item name="android:textFontWeight">400</item>
     </style>
 
+    <style name="BottomNavigationTextAppearance" parent="TextAppearance.MaterialComponents.Caption">
+        <item name="fontFamily">@font/ys_display_medium</item>
+        <item name="android:fontFamily">@font/ys_display_medium</item>
+        <item name="android:textSize">12sp</item>
+    </style>
+
+    <style name="BottomNavigationStyle" parent="Widget.MaterialComponents.BottomNavigationView">
+        <!-- Отключаем все анимации и увеличения -->
+        <item name="labelVisibilityMode">labeled</item>
+        <item name="itemHorizontalTranslationEnabled">false</item>
+
+        <!-- Одинаковый стиль для активных и неактивных элементов -->
+        <item name="itemTextAppearance">@style/BottomNavigationTextAppearance</item>
+        <item name="itemTextAppearanceActive">@style/BottomNavigationTextAppearance</item>
+        <item name="itemTextAppearanceInactive">@style/BottomNavigationTextAppearance</item>
+
+        <!-- Фиксированный размер иконок -->
+        <item name="itemIconSize">24dp</item>
+    </style>
+
     <style name="toolbar">
         <item name="android:layout_height">@dimen/dp_56</item>
         <item name="android:layout_width">match_parent</item>
-        <item name="android:layout_marginBottom">@dimen/dp_24</item>
         <item name="titleTextAppearance">@style/toolbarAppearance</item>
         <item name="navigationIconTint">@color/string</item>
     </style>
