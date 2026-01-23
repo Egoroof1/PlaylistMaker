@@ -13,7 +13,6 @@
     <style name="toolbar">
         <item name="android:layout_height">@dimen/dp_56</item>
         <item name="android:layout_width">match_parent</item>
-        <item name="android:layout_marginBottom">@dimen/dp_24</item>
         <item name="titleTextAppearance">@style/toolbarAppearance</item>
         <item name="navigationIconTint">@color/string</item>
     </style>

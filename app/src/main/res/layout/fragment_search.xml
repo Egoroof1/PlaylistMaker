@@ -12,9 +12,7 @@
     <com.google.android.material.appbar.MaterialToolbar
         style="@style/toolbar"
         android:id="@+id/toolbar"
-        app:title="@string/search"
-        android:layout_marginBottom="0dp"
-        app:navigationIcon="@drawable/ic_back_arrow_24"/>
+        app:title="@string/search"/>
 
 
     <LinearLayout

@@ -12,8 +12,6 @@
     <com.google.android.material.appbar.MaterialToolbar
         android:id="@+id/toolbar"
         style="@style/toolbar"
-        android:layout_marginBottom="0dp"
-        app:navigationIcon="@drawable/ic_back_arrow_24"
         app:title="@string/media" />
 
     <com.google.android.material.tabs.TabLayout

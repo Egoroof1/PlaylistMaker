@@ -13,8 +13,7 @@
     <com.google.android.material.appbar.MaterialToolbar
         style="@style/toolbar"
         android:id="@+id/toolbar"
-        app:title="@string/settings"
-        app:navigationIcon="@drawable/ic_back_arrow_24" />
+        app:title="@string/settings"/>
 
     <com.google.android.material.switchmaterial.SwitchMaterial
         android:id="@+id/sw_isBlackTheme"
