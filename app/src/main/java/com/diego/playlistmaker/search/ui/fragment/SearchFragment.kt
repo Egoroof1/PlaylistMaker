@@ -81,11 +81,6 @@ class SearchFragment : Fragment() {
     @SuppressLint("MissingInflatedId")
     private fun initViews() {
         myHandler = Handler(Looper.getMainLooper())
-
-        // Настройка кнопки назад (позже удалить)
-//        binding.toolbar.setNavigationOnClickListener {
-//            findNavController().popBackStack()
-//        }
     }
 
     private fun setupAdapters() {
