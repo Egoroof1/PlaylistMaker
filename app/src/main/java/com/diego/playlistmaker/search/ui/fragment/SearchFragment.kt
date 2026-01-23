@@ -72,10 +72,6 @@ class SearchFragment : Fragment() {
         setupClickListeners()
         setupTextWatcher()
         observeViewModel()
-
-        // Восстанавливаем текст
-        val restoredText = savedInstanceState?.getString(KEY_CURRENT_TEXT, "") ?: ""
-        binding.editTextSearch.setText(restoredText)
     }
 
     @SuppressLint("MissingInflatedId")
@@ -228,6 +224,8 @@ class SearchFragment : Fragment() {
         binding.recyclerTracks.isVisible = false
         binding.searchErrorNotFound.isVisible = false
         binding.searchErrorNotSignal.isVisible = false
+
+        binding.icClearEditText.isEnabled = true
     }
 
     private fun performSearch() {
@@ -247,11 +245,15 @@ class SearchFragment : Fragment() {
             recyclerTracks.isVisible = false
             searchErrorNotFound.isVisible = false
             searchErrorNotSignal.isVisible = false
+
+            icClearEditText.isEnabled = false
         }
     }
 
     private fun showSearchResults() {
         binding.recyclerTracks.isVisible = true
+
+        binding.icClearEditText.isEnabled = true
     }
 
     private fun hideSearchResults() {
@@ -261,6 +263,8 @@ class SearchFragment : Fragment() {
     private fun showNotFound() {
         binding.recyclerTracks.isVisible = false
         binding.searchErrorNotFound.isVisible = true
+
+        binding.icClearEditText.isEnabled = true
     }
 
     private fun showHistory() {
@@ -282,6 +286,9 @@ class SearchFragment : Fragment() {
         hideSearchResults()
         hideHistory()
         binding.searchErrorNotSignal.isVisible = true
+
+        binding.icClearEditText.isEnabled = true
+
         Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show()
     }
 
@@ -304,6 +311,16 @@ class SearchFragment : Fragment() {
             val imm = requireContext().getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
             imm.hideSoftInputFromWindow(it.windowToken, 0)
         }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        if (currentEditText.isNotEmpty()) {
+            viewModel.performSearch(currentEditText)
+        }
+
+        // Обновляем историю
+        viewModel.loadHistory()
     }
 
     override fun onDestroy() {

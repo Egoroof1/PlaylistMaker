@@ -26,6 +26,7 @@ class SearchViewModel(
     private val coroutineScope = CoroutineScope(Dispatchers.Main)
     private var searchJob: Job? = null
     private var lastSearchQuery = ""
+    private var lastSearchResult = ""
 
     // Состояния
     private val _searchState = MutableLiveData<SearchState>()
@@ -52,6 +53,8 @@ class SearchViewModel(
             _searchState.value = SearchState.HideSearchResults
             clearSearchResults()
         } else {
+            if (lastSearchResult == text) return
+
             // Если текст не пустой - запускаем поиск через debounce
             lastSearchQuery = text
             _isLoading.value = false // Сбрасываем loading при новом вводе
@@ -60,15 +63,17 @@ class SearchViewModel(
 
                 delay(SEARCH_DEBOUNCE_DELAY)
 
+                lastSearchResult = lastSearchQuery
+
                 performSearch(text)
             }
         }
     }
 
     fun performSearch(query: String) {
-
-        Log.d("TAG", "performSearch: search go")
         if (query != lastSearchQuery) return
+
+        Log.d("TAG", "performSearch: search")
 
         _isLoading.value = true
         _searchState.value = SearchState.ShowLoading
