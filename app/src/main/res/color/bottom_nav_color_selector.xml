@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Выбранный элемент - синий цвет -->
+    <item android:color="#3772E7" android:state_checked="true" />
+
+    <!-- Не выбранный элемент - ваш стандартный цвет -->
+    <item android:color="@color/string" android:state_checked="false" />
+
+    <!-- Цвет по умолчанию (если ни одно условие не выполнено) -->
+    <item android:color="@color/string" />
+</selector>
