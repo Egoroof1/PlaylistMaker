@@ -139,8 +139,6 @@ class SearchFragment : Fragment() {
 
                 viewModel.cancelSearch()
 
-//                myHandler?.removeCallbacksAndMessages(null)
-
                 performSearch()
                 true
             } else {
