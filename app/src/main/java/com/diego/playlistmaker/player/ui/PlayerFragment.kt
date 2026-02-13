@@ -14,6 +14,8 @@ import com.bumptech.glide.Glide
 import com.bumptech.glide.load.resource.bitmap.RoundedCorners
 import com.diego.playlistmaker.R
 import com.diego.playlistmaker.databinding.FragmentPlayerBinding
+import com.diego.playlistmaker.player.models.PlayerState
+import com.diego.playlistmaker.player.models.TrackInfo
 import com.diego.playlistmaker.search.domain.models.Track
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
@@ -88,14 +90,14 @@ class PlayerFragment : Fragment() {
         }
     }
 
-    private fun updateTrackUI(trackInfo: PlayerViewModel.TrackInfo) {
+    private fun updateTrackUI(trackInfo: TrackInfo) {
         // Загрузка изображения
         Glide.with(binding.image)
             .load(trackInfo.artworkUrl)
             .centerCrop()
             .placeholder(R.drawable.placeholder)
             .error(trackInfo.originalArtworkUrl)
-            .transform(RoundedCorners(dpToPx(8f)))
+            .transform(RoundedCorners(8f.dpToPx()))
             .into(binding.image)
 
         // Установка текстовых полей
@@ -110,35 +112,35 @@ class PlayerFragment : Fragment() {
         }
     }
 
-    private fun updatePlayerUI(state: PlayerViewModel.PlayerState) {
+    private fun updatePlayerUI(state: PlayerState) {
         when (state) {
-            PlayerViewModel.PlayerState.DEFAULT -> {
+            PlayerState.DEFAULT -> {
                 binding.btnPlayerPlay.setImageResource(R.drawable.ic_btn_play)
                 binding.btnPlayerPlay.isEnabled = false
                 binding.trackCurrentTime.text = getString(R.string._00_00)
             }
 
-            PlayerViewModel.PlayerState.PREPARING -> {
+            PlayerState.PREPARING -> {
                 binding.btnPlayerPlay.setImageResource(R.drawable.ic_btn_play)
                 binding.btnPlayerPlay.isEnabled = false
             }
 
-            PlayerViewModel.PlayerState.PREPARED -> {
+            PlayerState.PREPARED -> {
                 binding.btnPlayerPlay.setImageResource(R.drawable.ic_btn_play)
                 binding.btnPlayerPlay.isEnabled = true
             }
 
-            PlayerViewModel.PlayerState.PLAYING -> {
+            PlayerState.PLAYING -> {
                 binding.btnPlayerPlay.setImageResource(R.drawable.ic_btn_pause)
                 binding.btnPlayerPlay.isEnabled = true
             }
 
-            PlayerViewModel.PlayerState.PAUSED -> {
+            PlayerState.PAUSED -> {
                 binding.btnPlayerPlay.setImageResource(R.drawable.ic_btn_play)
                 binding.btnPlayerPlay.isEnabled = true
             }
 
-            PlayerViewModel.PlayerState.ERROR -> {
+            PlayerState.ERROR -> {
                 binding.btnPlayerPlay.setImageResource(R.drawable.ic_btn_play)
                 binding.btnPlayerPlay.isEnabled = false
                 Toast.makeText(requireContext(), getString(R.string.replication_error), Toast.LENGTH_SHORT).show()
@@ -146,11 +148,11 @@ class PlayerFragment : Fragment() {
         }
     }
 
-    private fun dpToPx(dp: Float): Int {
+    private fun Float.dpToPx(): Int {
         return TypedValue.applyDimension(
             TypedValue.COMPLEX_UNIT_DIP,
-            dp,
-            resources.displayMetrics
+            this,
+            this@PlayerFragment.resources.displayMetrics
         ).toInt()
     }
 

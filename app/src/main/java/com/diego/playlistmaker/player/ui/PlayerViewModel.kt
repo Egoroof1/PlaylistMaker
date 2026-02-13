@@ -4,6 +4,8 @@ import android.media.MediaPlayer
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import com.diego.playlistmaker.player.models.PlayerState
+import com.diego.playlistmaker.player.models.TrackInfo
 import com.diego.playlistmaker.search.domain.models.Track
 import java.text.SimpleDateFormat
 import java.util.Locale
@@ -17,7 +19,7 @@ class PlayerViewModel : ViewModel() {
     val playerState: LiveData<PlayerState> = _playerState
 
     // LiveData для текущего времени трека
-    private val _currentPosition = MutableLiveData<Int>(0)
+    private val _currentPosition = MutableLiveData(0)
     val currentPosition: LiveData<Int> = _currentPosition
 
     // LiveData для информации о треке
@@ -38,7 +40,7 @@ class PlayerViewModel : ViewModel() {
         val trackInfo = TrackInfo(
             trackName = track.trackName,
             artistName = track.artistName,
-            albumName = track.collectionName ?: "",
+            albumName = track.collectionName,
             genre = track.primaryGenreName,
             country = track.country,
             releaseYear = track.releaseDate.split("-").firstOrNull() ?: "",
@@ -143,29 +145,5 @@ class PlayerViewModel : ViewModel() {
         mediaPlayer = null
         isPrepared = false
         _playerState.postValue(PlayerState.DEFAULT)
-    }
-
-    // Data class для хранения информации о треке
-    data class TrackInfo(
-        val trackName: String,
-        val artistName: String,
-        val albumName: String,
-        val genre: String,
-        val country: String,
-        val releaseYear: String,
-        val artworkUrl: String,
-        val originalArtworkUrl: String,
-        val trackTimeMillis: Long,
-        val previewUrl: String
-    )
-
-    // Enum для состояний плеера
-    enum class PlayerState {
-        DEFAULT,      // Начальное состояние
-        PREPARING,    // Готовится
-        PREPARED,     // Готов к воспроизведению
-        PLAYING,      // Воспроизводится
-        PAUSED,       // На паузе
-        ERROR         // Ошибка
     }
 }

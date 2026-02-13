@@ -3,8 +3,6 @@ package com.diego.playlistmaker.search.ui.fragment
 import android.annotation.SuppressLint
 import android.content.Context
 import android.os.Bundle
-import android.os.Handler
-import android.os.Looper
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
@@ -14,6 +12,7 @@ import android.view.inputmethod.InputMethodManager
 import android.widget.Toast
 import androidx.core.view.isVisible
 import androidx.core.widget.doOnTextChanged
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.RecyclerView
 import com.diego.playlistmaker.databinding.FragmentSearchBinding
@@ -21,6 +20,8 @@ import com.diego.playlistmaker.search.domain.models.Track
 import com.diego.playlistmaker.search.presentation.TrackAdapter
 import com.diego.playlistmaker.search.ui.view_model.SearchState
 import com.diego.playlistmaker.search.ui.view_model.SearchViewModel
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import kotlin.getValue
 
@@ -29,7 +30,6 @@ class SearchFragment : Fragment() {
     private var _binding: FragmentSearchBinding? = null
     private val binding get() = _binding!!
     private var isClicked = false
-    private var myHandler: Handler? = null
     private var currentEditText: String = CURRENT_TEXT
 
     private val viewModel: SearchViewModel by viewModel()
@@ -76,7 +76,7 @@ class SearchFragment : Fragment() {
 
     @SuppressLint("MissingInflatedId")
     private fun initViews() {
-        myHandler = Handler(Looper.getMainLooper())
+
     }
 
     private fun setupAdapters() {
@@ -87,10 +87,11 @@ class SearchFragment : Fragment() {
     private fun onTrackClicked(track: Track) {
         if (!isClicked) {
             isClicked = true
-            myHandler?.postDelayed(
-                { isClicked = false },
-                ANTY_DOUBLE_CLICK
-            )
+
+            viewLifecycleOwner.lifecycleScope.launch {
+                isClicked = false
+                delay(ANTY_DOUBLE_CLICK)
+            }
 
             // Сохраняем в историю
             viewModel.saveTrackToHistory(track)
@@ -138,7 +139,7 @@ class SearchFragment : Fragment() {
 
                 viewModel.cancelSearch()
 
-                myHandler?.removeCallbacksAndMessages(null)
+//                myHandler?.removeCallbacksAndMessages(null)
 
                 performSearch()
                 true
@@ -325,7 +326,6 @@ class SearchFragment : Fragment() {
 
     override fun onDestroy() {
         super.onDestroy()
-        myHandler?.removeCallbacksAndMessages(null)
         viewModel.cancelSearch()
     }
 

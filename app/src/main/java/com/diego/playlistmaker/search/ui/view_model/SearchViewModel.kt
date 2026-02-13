@@ -1,6 +1,5 @@
 package com.diego.playlistmaker.search.ui.view_model
 
-import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -73,8 +72,6 @@ class SearchViewModel(
     fun performSearch(query: String) {
         if (query != lastSearchQuery) return
 
-        Log.d("TAG", "performSearch: search")
-
         _isLoading.value = true
         _searchState.value = SearchState.ShowLoading
 
@@ -138,7 +135,7 @@ class SearchViewModel(
     fun saveTrackToHistory(track: Track) {
         coroutineScope.launch(Dispatchers.IO) {
             saveTrackHistoryUseCase.execute(track)
-            // Немедленно обновляем историю (как в оригинале)
+            // Немедленно обновляем историю
             val updatedHistory = getTracksHistoryUseCase.execute()
             currentHistory.clear()
             currentHistory.addAll(updatedHistory)
