@@ -4,18 +4,22 @@ import android.media.MediaPlayer
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.diego.playlistmaker.player.models.PlayerState
 import com.diego.playlistmaker.player.models.TrackInfo
 import com.diego.playlistmaker.search.domain.models.Track
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.isActive
+import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.Locale
-import java.util.Timer
-import java.util.TimerTask
 
 class PlayerViewModel : ViewModel() {
 
     // LiveData для состояния плеера
-    private val _playerState = MutableLiveData<PlayerState>(PlayerState.DEFAULT)
+    private val _playerState = MutableLiveData(PlayerState.DEFAULT)
     val playerState: LiveData<PlayerState> = _playerState
 
     // LiveData для текущего времени трека
@@ -29,8 +33,8 @@ class PlayerViewModel : ViewModel() {
     // MediaPlayer
     private var mediaPlayer: MediaPlayer? = null
 
-    // Timer для обновления прогресса
-    private var progressTimer: Timer? = null
+    // Job для обновления прогресса (замена Timer)
+    private var progressJob: Job? = null
 
     // Флаг для отслеживания подготовки плеера
     private var isPrepared = false
@@ -66,6 +70,9 @@ class PlayerViewModel : ViewModel() {
 
             setOnCompletionListener {
                 stopProgressTimer()
+                // Принудительно перематываем в начало
+                mediaPlayer?.seekTo(0)
+                // Обновляем состояние
                 _playerState.postValue(PlayerState.PREPARED)
                 _currentPosition.postValue(0)
             }
@@ -90,6 +97,9 @@ class PlayerViewModel : ViewModel() {
             mediaPlayer?.pause()
             _playerState.postValue(PlayerState.PAUSED)
             stopProgressTimer()
+            mediaPlayer?.currentPosition?.let { position ->
+                _currentPosition.postValue(position)
+            }
         }
     }
 
@@ -110,23 +120,19 @@ class PlayerViewModel : ViewModel() {
     }
 
     private fun startProgressTimer() {
-        stopProgressTimer() // Останавливаем предыдущий таймер, если есть
+        stopProgressTimer() // Останавливаем предыдущую корутину, если есть
 
-        Timer().apply {
-            schedule(object : TimerTask() {
-                override fun run() {
-                    if (isPrepared) {
-                        val currentPos = mediaPlayer?.currentPosition ?: 0
-                        _currentPosition.postValue(currentPos)
-                    }
-                }
-            }, 0, 500) // Обновляем каждые 500ms
-        }.also { progressTimer = it }
+        progressJob = viewModelScope.launch(Dispatchers.Main) {
+            while (isActive && _playerState.value == PlayerState.PLAYING) {
+                _currentPosition.value = mediaPlayer?.currentPosition ?: 0
+                delay(500)
+            }
+        }
     }
 
     private fun stopProgressTimer() {
-        progressTimer?.cancel()
-        progressTimer = null
+        progressJob?.cancel()
+        progressJob = null
     }
 
     fun getFormattedTime(timeMillis: Int): String {
