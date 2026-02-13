@@ -45,9 +45,9 @@ class PlayerFragment : Fragment() {
         currentTrack = args.track
 
         if (currentTrack != null) {
+            viewModel.setTrack(currentTrack!!)
             setupUI()
             setupObservers()
-            viewModel.setTrack(currentTrack!!)
             viewModel.preparePlayer(currentTrack!!.previewUrl)
         } else {
             Toast.makeText(requireContext(), "Ошибка загрузки трека", Toast.LENGTH_SHORT).show()
@@ -72,20 +72,17 @@ class PlayerFragment : Fragment() {
     }
 
     private fun setupObservers() {
-        // Наблюдаем за информацией о треке
-        viewModel.trackInfo.observe(viewLifecycleOwner) { trackInfo ->
+        viewModel.screenState.observe(viewLifecycleOwner) { screenState ->
+            val trackInfo = screenState.trackInfo
+            val playerState = screenState.playerState
+            val position = screenState.currentPosition
+
             if (trackInfo != null) {
                 updateTrackUI(trackInfo)
             }
-        }
 
-        // Наблюдаем за состоянием плеера
-        viewModel.playerState.observe(viewLifecycleOwner) { state ->
-            updatePlayerUI(state)
-        }
+            updatePlayerUI(playerState)
 
-        // Наблюдаем за текущей позицией трека
-        viewModel.currentPosition.observe(viewLifecycleOwner) { position ->
             binding.trackCurrentTime.text = viewModel.getFormattedTime(position)
         }
     }
@@ -143,7 +140,11 @@ class PlayerFragment : Fragment() {
             PlayerState.ERROR -> {
                 binding.btnPlayerPlay.setImageResource(R.drawable.ic_btn_play)
                 binding.btnPlayerPlay.isEnabled = false
-                Toast.makeText(requireContext(), getString(R.string.replication_error), Toast.LENGTH_SHORT).show()
+                Toast.makeText(
+                    requireContext(),
+                    getString(R.string.replication_error),
+                    Toast.LENGTH_SHORT
+                ).show()
             }
         }
     }

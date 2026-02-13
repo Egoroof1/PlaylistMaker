@@ -5,6 +5,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.diego.playlistmaker.player.models.PlayerScreenState
 import com.diego.playlistmaker.player.models.PlayerState
 import com.diego.playlistmaker.player.models.TrackInfo
 import com.diego.playlistmaker.search.domain.models.Track
@@ -18,17 +19,8 @@ import java.util.Locale
 
 class PlayerViewModel : ViewModel() {
 
-    // LiveData для состояния плеера
-    private val _playerState = MutableLiveData(PlayerState.DEFAULT)
-    val playerState: LiveData<PlayerState> = _playerState
-
-    // LiveData для текущего времени трека
-    private val _currentPosition = MutableLiveData(0)
-    val currentPosition: LiveData<Int> = _currentPosition
-
-    // LiveData для информации о треке
-    private val _trackInfo = MutableLiveData<TrackInfo>()
-    val trackInfo: LiveData<TrackInfo> = _trackInfo
+    private val _screenState = MutableLiveData(PlayerScreenState())
+    val screenState: LiveData<PlayerScreenState> = _screenState
 
     // MediaPlayer
     private var mediaPlayer: MediaPlayer? = null
@@ -53,7 +45,13 @@ class PlayerViewModel : ViewModel() {
             trackTimeMillis = track.trackTimeMillis,
             previewUrl = track.previewUrl
         )
-        _trackInfo.postValue(trackInfo)
+
+        updateState { it.copy(trackInfo = trackInfo) }
+    }
+
+    private fun updateState(updater: (PlayerScreenState) -> PlayerScreenState) {
+        val currentState = _screenState.value ?: return
+        _screenState.value = updater(currentState)
     }
 
     fun preparePlayer(previewUrl: String) {
@@ -65,7 +63,7 @@ class PlayerViewModel : ViewModel() {
 
             setOnPreparedListener {
                 isPrepared = true
-                _playerState.postValue(PlayerState.PREPARED)
+                updateState { it.copy(playerState = PlayerState.PREPARED) }
             }
 
             setOnCompletionListener {
@@ -73,49 +71,45 @@ class PlayerViewModel : ViewModel() {
                 // Принудительно перематываем в начало
                 mediaPlayer?.seekTo(0)
                 // Обновляем состояние
-                _playerState.postValue(PlayerState.PREPARED)
-                _currentPosition.postValue(0)
+                updateState {
+                    it.copy(
+                        playerState = PlayerState.PREPARED,
+                        currentPosition = 0
+                    )
+                }
             }
 
             setOnErrorListener { _, what, extra ->
-                _playerState.postValue(PlayerState.ERROR)
+                updateState { it.copy(playerState = PlayerState.ERROR) }
                 false
             }
         }
     }
 
     fun play() {
-        if (isPrepared && _playerState.value != PlayerState.PLAYING) {
+        if (isPrepared && _screenState.value?.playerState != PlayerState.PLAYING) {
             mediaPlayer?.start()
-            _playerState.postValue(PlayerState.PLAYING)
+            updateState { it.copy(playerState = PlayerState.PLAYING) }
             startProgressTimer()
         }
     }
 
     fun pause() {
-        if (_playerState.value == PlayerState.PLAYING) {
+        if (_screenState.value?.playerState == PlayerState.PLAYING) {
             mediaPlayer?.pause()
-            _playerState.postValue(PlayerState.PAUSED)
+            updateState { it.copy(playerState = PlayerState.PAUSED) }
             stopProgressTimer()
             mediaPlayer?.currentPosition?.let { position ->
-                _currentPosition.postValue(position)
+                updateState { it.copy(currentPosition = position) }
             }
         }
     }
 
     fun togglePlayPause() {
-        when (_playerState.value) {
+        when (_screenState.value?.playerState) {
             PlayerState.PLAYING -> pause()
             PlayerState.PREPARED, PlayerState.PAUSED -> play()
             else -> Unit
-        }
-    }
-
-    //перемотка
-    fun seekTo(position: Int) {
-        if (isPrepared && position in 0..(mediaPlayer?.duration ?: 0)) {
-            mediaPlayer?.seekTo(position)
-            _currentPosition.postValue(position)
         }
     }
 
@@ -123,8 +117,8 @@ class PlayerViewModel : ViewModel() {
         stopProgressTimer() // Останавливаем предыдущую корутину, если есть
 
         progressJob = viewModelScope.launch(Dispatchers.Main) {
-            while (isActive && _playerState.value == PlayerState.PLAYING) {
-                _currentPosition.value = mediaPlayer?.currentPosition ?: 0
+            while (isActive && _screenState.value?.playerState == PlayerState.PLAYING) {
+                updateState { it.copy(currentPosition = mediaPlayer?.currentPosition ?: 0) }
                 delay(500)
             }
         }
@@ -150,6 +144,6 @@ class PlayerViewModel : ViewModel() {
         mediaPlayer?.release()
         mediaPlayer = null
         isPrepared = false
-        _playerState.postValue(PlayerState.DEFAULT)
+        updateState { it.copy(playerState = PlayerState.DEFAULT) }
     }
 }
