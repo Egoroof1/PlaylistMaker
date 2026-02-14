@@ -18,8 +18,8 @@ import androidx.recyclerview.widget.RecyclerView
 import com.diego.playlistmaker.databinding.FragmentSearchBinding
 import com.diego.playlistmaker.search.domain.models.Track
 import com.diego.playlistmaker.search.presentation.TrackAdapter
-import com.diego.playlistmaker.search.ui.view_model.SearchState
 import com.diego.playlistmaker.search.ui.view_model.SearchViewModel
+import com.diego.playlistmaker.search.ui.view_model.UserActions
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.koin.androidx.viewmodel.ext.android.viewModel
@@ -135,7 +135,8 @@ class SearchFragment : Fragment() {
         // Кнопка "Готово" на клавиатуре
         binding.editTextSearch.setOnEditorActionListener { _, actionId, _ ->
             if (actionId == EditorInfo.IME_ACTION_SEARCH ||
-                actionId == EditorInfo.IME_ACTION_DONE) {
+                actionId == EditorInfo.IME_ACTION_DONE
+            ) {
 
                 viewModel.cancelSearch()
 
@@ -149,7 +150,7 @@ class SearchFragment : Fragment() {
 
     private fun setupTextWatcher() {
 
-        binding.editTextSearch.doOnTextChanged {s,_,_,_ ->
+        binding.editTextSearch.doOnTextChanged { s, _, _, _ ->
             binding.icClearEditText.visibility = clearButtonVisibility(s)
             currentEditText = s?.toString() ?: ""
 
@@ -161,43 +162,43 @@ class SearchFragment : Fragment() {
 
     private fun observeViewModel() {
         viewModel.searchState.observe(viewLifecycleOwner) { state ->
-            when (state) {
-                is SearchState.ShowLoading -> {
-                    showLoadingState()
-                }
-                is SearchState.HideSearchResults -> {
-                    hideSearchResults()
-                }
-                is SearchState.ShowSearchResults -> {
-                    showSearchResults()
-                }
-                is SearchState.ShowNotFound -> {
-                    showNotFound()
-                }
-                is SearchState.HideHistory -> {
-                    hideHistory()
-                }
-                is SearchState.ClearSearchResults -> {
-                    clearSearchResults()
-                }
-                is SearchState.ClearHistory -> {
-                    // История уже очищена во ViewModel
-                }
-                is SearchState.ShowHistory -> {
-                    updateHistoryAdapter(state.tracks)
-                    showHistory()
-                }
-                is SearchState.ShowSearchContent -> {
-                    updateSearchResults(state.tracks)
-                }
-                is SearchState.ShowError -> {
-                    showError(state.message)
-                }
-            }
-        }
+            val historyTracks = state.historyTracks
+            val searchTracks = state.searchTracks
+            val userActions = state.userActions
+            val errorMessage = state.message
 
-        viewModel.isLoading.observe(viewLifecycleOwner) { isLoading ->
-            binding.progressBar.isVisible = isLoading
+            updateHistoryAdapter(historyTracks)
+
+            updateUI(userActions, errorMessage)
+            updateSearchResults(searchTracks)
+
+        }
+    }
+
+    private fun updateUI(userActions: UserActions, errorMessage: String) {
+
+        when(userActions){
+            UserActions.SHOW_HISTORY -> {
+                showHistory()
+                hideSearchResults()
+            }
+            UserActions.SEARCH -> {
+                showLoadingState()
+            }
+            UserActions.SHOW_SEARCH_RESULT -> {
+                hideHistory()
+                showSearchResults()
+            }
+            UserActions.HIDE_SEARCH_RESULT -> {
+                hideSearchResults()
+                showHistory()
+            }
+            UserActions.SHOW_NOT_FOUND -> {
+                showNotFound()
+            }
+            UserActions.ERROR -> {
+                showError(errorMessage)
+            }
         }
     }
 
@@ -260,6 +261,8 @@ class SearchFragment : Fragment() {
     }
 
     private fun showNotFound() {
+        binding.progressBar.isVisible = false
+        binding.searchHistory.isVisible = false
         binding.recyclerTracks.isVisible = false
         binding.searchErrorNotFound.isVisible = true
 
@@ -307,7 +310,8 @@ class SearchFragment : Fragment() {
     private fun hideKeyboard() {
         val view = activity?.currentFocus ?: view
         view?.let {
-            val imm = requireContext().getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+            val imm =
+                requireContext().getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
             imm.hideSoftInputFromWindow(it.windowToken, 0)
         }
     }
