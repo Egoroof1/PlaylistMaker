@@ -4,31 +4,29 @@ import android.media.MediaPlayer
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import com.diego.playlistmaker.player.models.PlayerScreenState
+import com.diego.playlistmaker.player.models.PlayerState
+import com.diego.playlistmaker.player.models.TrackInfo
 import com.diego.playlistmaker.search.domain.models.Track
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.isActive
+import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.Locale
-import java.util.Timer
-import java.util.TimerTask
 
 class PlayerViewModel : ViewModel() {
 
-    // LiveData для состояния плеера
-    private val _playerState = MutableLiveData<PlayerState>(PlayerState.DEFAULT)
-    val playerState: LiveData<PlayerState> = _playerState
-
-    // LiveData для текущего времени трека
-    private val _currentPosition = MutableLiveData<Int>(0)
-    val currentPosition: LiveData<Int> = _currentPosition
-
-    // LiveData для информации о треке
-    private val _trackInfo = MutableLiveData<TrackInfo>()
-    val trackInfo: LiveData<TrackInfo> = _trackInfo
+    private val _screenState = MutableLiveData(PlayerScreenState())
+    val screenState: LiveData<PlayerScreenState> = _screenState
 
     // MediaPlayer
     private var mediaPlayer: MediaPlayer? = null
 
-    // Timer для обновления прогресса
-    private var progressTimer: Timer? = null
+    // Job для обновления прогресса (замена Timer)
+    private var progressJob: Job? = null
 
     // Флаг для отслеживания подготовки плеера
     private var isPrepared = false
@@ -38,7 +36,7 @@ class PlayerViewModel : ViewModel() {
         val trackInfo = TrackInfo(
             trackName = track.trackName,
             artistName = track.artistName,
-            albumName = track.collectionName ?: "",
+            albumName = track.collectionName,
             genre = track.primaryGenreName,
             country = track.country,
             releaseYear = track.releaseDate.split("-").firstOrNull() ?: "",
@@ -47,7 +45,13 @@ class PlayerViewModel : ViewModel() {
             trackTimeMillis = track.trackTimeMillis,
             previewUrl = track.previewUrl
         )
-        _trackInfo.postValue(trackInfo)
+
+        updateState { it.copy(trackInfo = trackInfo) }
+    }
+
+    private fun updateState(updater: (PlayerScreenState) -> PlayerScreenState) {
+        val currentState = _screenState.value ?: return
+        _screenState.value = updater(currentState)
     }
 
     fun preparePlayer(previewUrl: String) {
@@ -59,72 +63,70 @@ class PlayerViewModel : ViewModel() {
 
             setOnPreparedListener {
                 isPrepared = true
-                _playerState.postValue(PlayerState.PREPARED)
+                updateState { it.copy(playerState = PlayerState.PREPARED) }
             }
 
             setOnCompletionListener {
                 stopProgressTimer()
-                _playerState.postValue(PlayerState.PREPARED)
-                _currentPosition.postValue(0)
+                // Принудительно перематываем в начало
+                mediaPlayer?.seekTo(0)
+                // Обновляем состояние
+                updateState {
+                    it.copy(
+                        playerState = PlayerState.PREPARED,
+                        currentPosition = 0
+                    )
+                }
             }
 
             setOnErrorListener { _, what, extra ->
-                _playerState.postValue(PlayerState.ERROR)
+                updateState { it.copy(playerState = PlayerState.ERROR) }
                 false
             }
         }
     }
 
     fun play() {
-        if (isPrepared && _playerState.value != PlayerState.PLAYING) {
+        if (isPrepared && _screenState.value?.playerState != PlayerState.PLAYING) {
             mediaPlayer?.start()
-            _playerState.postValue(PlayerState.PLAYING)
+            updateState { it.copy(playerState = PlayerState.PLAYING) }
             startProgressTimer()
         }
     }
 
     fun pause() {
-        if (_playerState.value == PlayerState.PLAYING) {
+        if (_screenState.value?.playerState == PlayerState.PLAYING) {
             mediaPlayer?.pause()
-            _playerState.postValue(PlayerState.PAUSED)
+            updateState { it.copy(playerState = PlayerState.PAUSED) }
             stopProgressTimer()
+            mediaPlayer?.currentPosition?.let { position ->
+                updateState { it.copy(currentPosition = position) }
+            }
         }
     }
 
     fun togglePlayPause() {
-        when (_playerState.value) {
+        when (_screenState.value?.playerState) {
             PlayerState.PLAYING -> pause()
             PlayerState.PREPARED, PlayerState.PAUSED -> play()
             else -> Unit
         }
     }
 
-    //перемотка
-    fun seekTo(position: Int) {
-        if (isPrepared && position in 0..(mediaPlayer?.duration ?: 0)) {
-            mediaPlayer?.seekTo(position)
-            _currentPosition.postValue(position)
+    private fun startProgressTimer() {
+        stopProgressTimer() // Останавливаем предыдущую корутину, если есть
+
+        progressJob = viewModelScope.launch(Dispatchers.Main) {
+            while (isActive && _screenState.value?.playerState == PlayerState.PLAYING) {
+                updateState { it.copy(currentPosition = mediaPlayer?.currentPosition ?: 0) }
+                delay(500)
+            }
         }
     }
 
-    private fun startProgressTimer() {
-        stopProgressTimer() // Останавливаем предыдущий таймер, если есть
-
-        Timer().apply {
-            schedule(object : TimerTask() {
-                override fun run() {
-                    if (isPrepared) {
-                        val currentPos = mediaPlayer?.currentPosition ?: 0
-                        _currentPosition.postValue(currentPos)
-                    }
-                }
-            }, 0, 500) // Обновляем каждые 500ms
-        }.also { progressTimer = it }
-    }
-
     private fun stopProgressTimer() {
-        progressTimer?.cancel()
-        progressTimer = null
+        progressJob?.cancel()
+        progressJob = null
     }
 
     fun getFormattedTime(timeMillis: Int): String {
@@ -142,30 +144,6 @@ class PlayerViewModel : ViewModel() {
         mediaPlayer?.release()
         mediaPlayer = null
         isPrepared = false
-        _playerState.postValue(PlayerState.DEFAULT)
-    }
-
-    // Data class для хранения информации о треке
-    data class TrackInfo(
-        val trackName: String,
-        val artistName: String,
-        val albumName: String,
-        val genre: String,
-        val country: String,
-        val releaseYear: String,
-        val artworkUrl: String,
-        val originalArtworkUrl: String,
-        val trackTimeMillis: Long,
-        val previewUrl: String
-    )
-
-    // Enum для состояний плеера
-    enum class PlayerState {
-        DEFAULT,      // Начальное состояние
-        PREPARING,    // Готовится
-        PREPARED,     // Готов к воспроизведению
-        PLAYING,      // Воспроизводится
-        PAUSED,       // На паузе
-        ERROR         // Ошибка
+        updateState { it.copy(playerState = PlayerState.DEFAULT) }
     }
 }

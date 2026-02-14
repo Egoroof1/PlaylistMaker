@@ -1,6 +1,5 @@
 package com.diego.playlistmaker.search.ui.view_model
 
-import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -29,15 +28,18 @@ class SearchViewModel(
     private var lastSearchResult = ""
 
     // Состояния
-    private val _searchState = MutableLiveData<SearchState>()
-    val searchState: LiveData<SearchState> = _searchState
 
-    private val _isLoading = MutableLiveData(false)
-    val isLoading: LiveData<Boolean> = _isLoading
+    private val _searchState = MutableLiveData(SearchScreenState())
+    val searchState: LiveData<SearchScreenState> = _searchState
     private val currentHistory = mutableListOf<Track>()
 
     init {
         loadHistory()
+    }
+
+    private fun updateState(updater: (SearchScreenState) -> SearchScreenState) {
+        val currentState = _searchState.value ?: return
+        _searchState.value = updater(currentState)
     }
 
     fun editTextChanged(text: String) {
@@ -47,17 +49,15 @@ class SearchViewModel(
             // Если текст пустой
             if (currentHistory.isNotEmpty()) {
                 // Показываем историю если она не пустая
-                _searchState.value = SearchState.ShowHistory(currentHistory)
+                updateState { it.copy(historyTracks = currentHistory, userActions = UserActions.SHOW_HISTORY) }
             }
             // Скрываем результаты поиска
-            _searchState.value = SearchState.HideSearchResults
+            updateState { it.copy(userActions = UserActions.HIDE_SEARCH_RESULT) }
             clearSearchResults()
         } else {
             if (lastSearchResult == text) return
 
-            // Если текст не пустой - запускаем поиск через debounce
             lastSearchQuery = text
-            _isLoading.value = false // Сбрасываем loading при новом вводе
 
             searchJob = coroutineScope.launch {
 
@@ -73,10 +73,7 @@ class SearchViewModel(
     fun performSearch(query: String) {
         if (query != lastSearchQuery) return
 
-        Log.d("TAG", "performSearch: search")
-
-        _isLoading.value = true
-        _searchState.value = SearchState.ShowLoading
+        updateState { it.copy(userActions = UserActions.SEARCH) }
 
         coroutineScope.launch(Dispatchers.IO) {
             try {
@@ -84,31 +81,24 @@ class SearchViewModel(
                 val tracks = searchTracksUseCase.execute(UserRequestParam(query))
 
                 coroutineScope.launch(Dispatchers.Main) {
-                    _isLoading.value = false
-
-                    if (query.isNotEmpty()) {
-                        _searchState.value = SearchState.HideHistory
-                        _searchState.value = SearchState.ShowSearchResults
-                    }
 
                     if (tracks.isEmpty()) {
-                        _searchState.value = SearchState.ShowNotFound
+                        updateState { it.copy(userActions = UserActions.SHOW_NOT_FOUND) }
                     } else {
-                        _searchState.value = SearchState.ShowSearchContent(tracks)
+                        updateState { it.copy(searchTracks = tracks, userActions = UserActions.SHOW_SEARCH_RESULT) }
                     }
                 }
             } catch (e: Exception) {
                 coroutineScope.launch(Dispatchers.Main) {
-                    _isLoading.value = false
-                    _searchState.value = SearchState.HideSearchResults
-                    _searchState.value = SearchState.HideHistory
-                    _searchState.value = SearchState.ShowError(
-                        when {
-                            e.message?.contains("Network error") == true -> "Проверьте подключение к интернету"
-                            e.message?.contains("Server error") == true -> "Ошибка сервера, попробуйте позже"
-                            else -> "Произошла ошибка при поиске: ${e.message}"
-                        }
-                    )
+                    updateState {
+                        it.copy(userActions = UserActions.ERROR,
+                            message = when {
+                                e.message?.contains("Network error") == true -> "Проверьте подключение к интернету"
+                                e.message?.contains("Server error") == true -> "Ошибка сервера, попробуйте позже"
+                                else -> "Произошла ошибка при поиске: ${e.message}"
+                            }
+                        )
+                    }
                 }
             }
         }
@@ -127,18 +117,17 @@ class SearchViewModel(
     }
 
     private fun updateHistoryVisibility() {
-        // Показываем историю если она не пустая
         if (currentHistory.isNotEmpty()) {
-            _searchState.value = SearchState.ShowHistory(currentHistory)
+            updateState { it.copy(historyTracks = currentHistory) }
         } else {
-            _searchState.value = SearchState.HideHistory
+            updateState { it.copy(historyTracks = emptyList()) }
         }
     }
 
     fun saveTrackToHistory(track: Track) {
         coroutineScope.launch(Dispatchers.IO) {
             saveTrackHistoryUseCase.execute(track)
-            // Немедленно обновляем историю (как в оригинале)
+            // Немедленно обновляем историю
             val updatedHistory = getTracksHistoryUseCase.execute()
             currentHistory.clear()
             currentHistory.addAll(updatedHistory)
@@ -155,15 +144,13 @@ class SearchViewModel(
             currentHistory.clear()
 
             coroutineScope.launch(Dispatchers.Main) {
-                // Сброс высоты RecyclerView будет в активити
-                _searchState.value = SearchState.ClearHistory
                 updateHistoryVisibility()
             }
         }
     }
 
     fun clearSearchResults() {
-        _searchState.value = SearchState.ClearSearchResults
+        updateState { it.copy(searchTracks = emptyList()) }
     }
 
     fun cancelSearch() {

@@ -3,8 +3,6 @@ package com.diego.playlistmaker.search.ui.fragment
 import android.annotation.SuppressLint
 import android.content.Context
 import android.os.Bundle
-import android.os.Handler
-import android.os.Looper
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
@@ -14,13 +12,16 @@ import android.view.inputmethod.InputMethodManager
 import android.widget.Toast
 import androidx.core.view.isVisible
 import androidx.core.widget.doOnTextChanged
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.RecyclerView
 import com.diego.playlistmaker.databinding.FragmentSearchBinding
 import com.diego.playlistmaker.search.domain.models.Track
 import com.diego.playlistmaker.search.presentation.TrackAdapter
-import com.diego.playlistmaker.search.ui.view_model.SearchState
 import com.diego.playlistmaker.search.ui.view_model.SearchViewModel
+import com.diego.playlistmaker.search.ui.view_model.UserActions
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import kotlin.getValue
 
@@ -29,7 +30,6 @@ class SearchFragment : Fragment() {
     private var _binding: FragmentSearchBinding? = null
     private val binding get() = _binding!!
     private var isClicked = false
-    private var myHandler: Handler? = null
     private var currentEditText: String = CURRENT_TEXT
 
     private val viewModel: SearchViewModel by viewModel()
@@ -76,7 +76,7 @@ class SearchFragment : Fragment() {
 
     @SuppressLint("MissingInflatedId")
     private fun initViews() {
-        myHandler = Handler(Looper.getMainLooper())
+
     }
 
     private fun setupAdapters() {
@@ -87,10 +87,11 @@ class SearchFragment : Fragment() {
     private fun onTrackClicked(track: Track) {
         if (!isClicked) {
             isClicked = true
-            myHandler?.postDelayed(
-                { isClicked = false },
-                ANTY_DOUBLE_CLICK
-            )
+
+            viewLifecycleOwner.lifecycleScope.launch {
+                isClicked = false
+                delay(ANTY_DOUBLE_CLICK)
+            }
 
             // Сохраняем в историю
             viewModel.saveTrackToHistory(track)
@@ -134,11 +135,10 @@ class SearchFragment : Fragment() {
         // Кнопка "Готово" на клавиатуре
         binding.editTextSearch.setOnEditorActionListener { _, actionId, _ ->
             if (actionId == EditorInfo.IME_ACTION_SEARCH ||
-                actionId == EditorInfo.IME_ACTION_DONE) {
+                actionId == EditorInfo.IME_ACTION_DONE
+            ) {
 
                 viewModel.cancelSearch()
-
-                myHandler?.removeCallbacksAndMessages(null)
 
                 performSearch()
                 true
@@ -150,7 +150,7 @@ class SearchFragment : Fragment() {
 
     private fun setupTextWatcher() {
 
-        binding.editTextSearch.doOnTextChanged {s,_,_,_ ->
+        binding.editTextSearch.doOnTextChanged { s, _, _, _ ->
             binding.icClearEditText.visibility = clearButtonVisibility(s)
             currentEditText = s?.toString() ?: ""
 
@@ -162,43 +162,43 @@ class SearchFragment : Fragment() {
 
     private fun observeViewModel() {
         viewModel.searchState.observe(viewLifecycleOwner) { state ->
-            when (state) {
-                is SearchState.ShowLoading -> {
-                    showLoadingState()
-                }
-                is SearchState.HideSearchResults -> {
-                    hideSearchResults()
-                }
-                is SearchState.ShowSearchResults -> {
-                    showSearchResults()
-                }
-                is SearchState.ShowNotFound -> {
-                    showNotFound()
-                }
-                is SearchState.HideHistory -> {
-                    hideHistory()
-                }
-                is SearchState.ClearSearchResults -> {
-                    clearSearchResults()
-                }
-                is SearchState.ClearHistory -> {
-                    // История уже очищена во ViewModel
-                }
-                is SearchState.ShowHistory -> {
-                    updateHistoryAdapter(state.tracks)
-                    showHistory()
-                }
-                is SearchState.ShowSearchContent -> {
-                    updateSearchResults(state.tracks)
-                }
-                is SearchState.ShowError -> {
-                    showError(state.message)
-                }
-            }
-        }
+            val historyTracks = state.historyTracks
+            val searchTracks = state.searchTracks
+            val userActions = state.userActions
+            val errorMessage = state.message
 
-        viewModel.isLoading.observe(viewLifecycleOwner) { isLoading ->
-            binding.progressBar.isVisible = isLoading
+            updateHistoryAdapter(historyTracks)
+
+            updateUI(userActions, errorMessage)
+            updateSearchResults(searchTracks)
+
+        }
+    }
+
+    private fun updateUI(userActions: UserActions, errorMessage: String) {
+
+        when(userActions){
+            UserActions.SHOW_HISTORY -> {
+                showHistory()
+                hideSearchResults()
+            }
+            UserActions.SEARCH -> {
+                showLoadingState()
+            }
+            UserActions.SHOW_SEARCH_RESULT -> {
+                hideHistory()
+                showSearchResults()
+            }
+            UserActions.HIDE_SEARCH_RESULT -> {
+                hideSearchResults()
+                showHistory()
+            }
+            UserActions.SHOW_NOT_FOUND -> {
+                showNotFound()
+            }
+            UserActions.ERROR -> {
+                showError(errorMessage)
+            }
         }
     }
 
@@ -261,6 +261,8 @@ class SearchFragment : Fragment() {
     }
 
     private fun showNotFound() {
+        binding.progressBar.isVisible = false
+        binding.searchHistory.isVisible = false
         binding.recyclerTracks.isVisible = false
         binding.searchErrorNotFound.isVisible = true
 
@@ -308,7 +310,8 @@ class SearchFragment : Fragment() {
     private fun hideKeyboard() {
         val view = activity?.currentFocus ?: view
         view?.let {
-            val imm = requireContext().getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+            val imm =
+                requireContext().getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
             imm.hideSoftInputFromWindow(it.windowToken, 0)
         }
     }
@@ -325,7 +328,6 @@ class SearchFragment : Fragment() {
 
     override fun onDestroy() {
         super.onDestroy()
-        myHandler?.removeCallbacksAndMessages(null)
         viewModel.cancelSearch()
     }
 
