@@ -14,9 +14,7 @@ val viewModelModule = module {
     viewModel {
         SearchViewModel(
             searchTracksUseCase = get(),
-            getTracksHistoryUseCase = get(),
-            saveTrackHistoryUseCase = get(),
-            clearTrackHistoryUseCase = get()
+            historyRepository = get()
         )
     }
 
@@ -45,6 +43,6 @@ val viewModelModule = module {
 
     // Tracks Fragment ViewModel
     viewModel {
-        TracksFragmentViewModel(get())
+        TracksFragmentViewModel(get(), get())
     }
 }

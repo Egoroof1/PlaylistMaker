@@ -1,7 +1,7 @@
 package com.diego.playlistmaker.media.domain.use_case
 
 import com.diego.playlistmaker.media.data.repository.FavoriteRepository
-import com.diego.playlistmaker.search.data.mapper.toEntity
+import com.diego.playlistmaker.search.data.mapper.toFavoriteEntity
 import com.diego.playlistmaker.search.data.mapper.toTrack
 import com.diego.playlistmaker.search.domain.models.Track
 import kotlinx.coroutines.flow.Flow
@@ -22,7 +22,7 @@ class FavoriteRepositoryUseCaseImpl(
     }
 
     override suspend fun insertTrack(track: Track) {
-        favoriteRepository.insertTrack(track.toEntity())
+        favoriteRepository.insertTrack(track.toFavoriteEntity())
     }
 
     override suspend fun deleteById(trackId: Int) {

@@ -30,7 +30,6 @@ class SearchFragment : Fragment() {
     private var _binding: FragmentSearchBinding? = null
     private val binding get() = _binding!!
     private var isClicked = false
-    private var currentEditText: String = CURRENT_TEXT
 
     private val viewModel: SearchViewModel by viewModel()
 
@@ -51,9 +50,6 @@ class SearchFragment : Fragment() {
         arguments?.let {
 
         }
-        if (savedInstanceState != null) {
-            currentEditText = savedInstanceState.getString(KEY_CURRENT_TEXT, "")
-        }
     }
 
     override fun onCreateView(
@@ -67,16 +63,10 @@ class SearchFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        initViews()
         setupAdapters()
         setupClickListeners()
         setupTextWatcher()
         observeViewModel()
-    }
-
-    @SuppressLint("MissingInflatedId")
-    private fun initViews() {
-
     }
 
     private fun setupAdapters() {
@@ -152,7 +142,6 @@ class SearchFragment : Fragment() {
 
         binding.editTextSearch.doOnTextChanged { s, _, _, _ ->
             binding.icClearEditText.visibility = clearButtonVisibility(s)
-            currentEditText = s?.toString() ?: ""
 
             val text = s?.toString() ?: ""
             viewModel.editTextChanged(text)
@@ -272,6 +261,8 @@ class SearchFragment : Fragment() {
     private fun showHistory() {
         if (historyTracks.isNotEmpty()) {
             binding.searchHistory.isVisible = true
+        } else {
+            hideHistory()
         }
     }
 
@@ -280,7 +271,7 @@ class SearchFragment : Fragment() {
     }
 
     private fun updateHistoryVisibility() {
-        binding.searchHistory.isVisible = historyTracks.isNotEmpty()
+        binding.searchHistory.isVisible = historyTracks.isEmpty()
     }
 
     private fun showError(message: String) {
@@ -292,11 +283,6 @@ class SearchFragment : Fragment() {
         binding.icClearEditText.isEnabled = true
 
         Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show()
-    }
-
-    override fun onSaveInstanceState(outState: Bundle) {
-        super.onSaveInstanceState(outState)
-        outState.putString(KEY_CURRENT_TEXT, currentEditText)
     }
 
     private fun clearButtonVisibility(s: CharSequence?): Int {
@@ -318,9 +304,6 @@ class SearchFragment : Fragment() {
 
     override fun onResume() {
         super.onResume()
-        if (currentEditText.isNotEmpty()) {
-            viewModel.performSearch(currentEditText)
-        }
 
         // Обновляем историю
         viewModel.loadHistory()
@@ -332,9 +315,6 @@ class SearchFragment : Fragment() {
     }
 
     companion object {
-
-        const val CURRENT_TEXT = ""
-        const val KEY_CURRENT_TEXT = "current_text"
         private const val ANTY_DOUBLE_CLICK = 500L
     }
 }

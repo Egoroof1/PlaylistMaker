@@ -8,7 +8,7 @@ import com.diego.playlistmaker.media.data.entities.TrackFavoriteEntity
 import kotlinx.coroutines.flow.Flow
 
 @Dao
-interface TrackDao {
+interface TrackFavoriteDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertTrack(trackEntity: TrackFavoriteEntity)
 

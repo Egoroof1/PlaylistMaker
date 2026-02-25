@@ -65,6 +65,8 @@ class TracksFragment : Fragment() {
                 delay(ANTY_DOUBLE_CLICK)
             }
 
+            viewModel.saveTrackToHistory(track)
+
             // Переходим на PlayerFragment
             val action = MediaFragmentDirections.actionMediaFragmentToPlayerFragment(track)
             findNavController().navigate(action)
@@ -93,13 +95,5 @@ class TracksFragment : Fragment() {
 
     companion object {
         private const val ANTY_DOUBLE_CLICK = 500L
-
-        @JvmStatic
-        fun newInstance() =
-            TracksFragment().apply {
-                arguments = Bundle().apply {
-
-                }
-            }
     }
 }
