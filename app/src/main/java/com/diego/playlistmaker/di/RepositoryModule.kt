@@ -2,9 +2,9 @@ package com.diego.playlistmaker.di
 
 import com.diego.playlistmaker.media.data.repository.FavoriteRepositoryImpl
 import com.diego.playlistmaker.media.data.repository.FavoriteRepository
-import com.diego.playlistmaker.media.data.repository.HistoryRepository
-import com.diego.playlistmaker.media.data.repository.HistoryRepositoryImpl
+import com.diego.playlistmaker.search.data.local_storage.repository.TrackHistoryRepositoryImpl
 import com.diego.playlistmaker.search.data.network.repository.TrackWebRepositoryImpl
+import com.diego.playlistmaker.search.domain.repository.TrackHistoryRepository
 import com.diego.playlistmaker.search.domain.repository.TrackWebRepository
 import org.koin.dsl.module
 
@@ -13,11 +13,11 @@ val repositoryModule = module {
         TrackWebRepositoryImpl(get())
     }
 
-    single<FavoriteRepository> {
-        FavoriteRepositoryImpl(get())
+    single<TrackHistoryRepository> {
+        TrackHistoryRepositoryImpl(get())
     }
 
-    single<HistoryRepository> {
-        HistoryRepositoryImpl(get())
+    single<FavoriteRepository> {
+        FavoriteRepositoryImpl(get())
     }
 }

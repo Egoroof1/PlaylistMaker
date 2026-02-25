@@ -3,6 +3,8 @@ package com.diego.playlistmaker.di
 import android.content.Context
 import androidx.room.Room
 import com.diego.playlistmaker.media.data.AppDatabase
+import com.diego.playlistmaker.search.data.local_storage.TrackDtoStorage
+import com.diego.playlistmaker.search.data.local_storage.shared_prefs.SharedPrefTrackStorage
 import com.diego.playlistmaker.search.data.network.TrackDtoRetrofit
 import com.diego.playlistmaker.search.data.network.api.ITunesApi
 import com.diego.playlistmaker.search.data.network.retrofit.RetrofitTrackWeb
@@ -29,6 +31,11 @@ val dataModule = module {
 
     // Gson
     factory { Gson() }
+
+    // TrackDtoStorage реализация
+    single<TrackDtoStorage> {
+        SharedPrefTrackStorage(androidContext(), get())
+    }
 
     // TrackDtoRetrofit реализация
     single<TrackDtoRetrofit> {

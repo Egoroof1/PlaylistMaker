@@ -30,7 +30,7 @@ val viewModelModule = module {
 
     // Player ViewModel (не имеет зависимостей)
     viewModel {
-        PlayerViewModel()
+        PlayerViewModel(get())
     }
 
     // Media Activity ViewModel

@@ -1,65 +1,43 @@
 package com.diego.playlistmaker.media.ui.view_model
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.diego.playlistmaker.media.domain.use_case.FavoriteRepositoryUseCase
 import com.diego.playlistmaker.media.ui.state.TracksState
-import com.diego.playlistmaker.search.domain.models.Track
-import com.diego.playlistmaker.search.domain.models.UserRequestParam
-import com.diego.playlistmaker.search.domain.use_case.SearchTracksWebUseCas
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
 class TracksFragmentViewModel(
-    private val searchTracksUseCase: SearchTracksWebUseCas
+    private val repository: FavoriteRepositoryUseCase
 ) : ViewModel() {
 
     private val _tracksState = MutableStateFlow(TracksState())
     val tracksState: StateFlow<TracksState> = _tracksState
 
-    var tracksList: List<Track> = emptyList()
-
     init {
-        loadFavoriteTracks()
+        observeFavoriteTracks()
     }
 
     private fun observeFavoriteTracks() {
-        viewModelScope.launch {
 
+        viewModelScope.launch {
+            repository.favoriteTracks().collect { tracks ->
+                updateState { currentState ->
+                    currentState.copy(
+                        tracksList = tracks
+                    )
+                }
+            }
+
+            Log.d("TAG", "observeFavoriteTracks: ${ repository.isFavorite(123) }")
         }
     }
 
     private fun updateState(updater: (TracksState) -> TracksState) {
         val currentState = _tracksState.value
         _tracksState.value = updater(currentState)
-    }
-
-    private fun loadFavoriteTracks() {
-        viewModelScope.launch {
-            tracksList = searchTracksUseCase.execute(query = UserRequestParam("GG"))
-        }
-
-        viewModelScope.launch(Dispatchers.IO) {
-            while (tracksList.isEmpty()) delay(500)
-            for (i in tracksList) {
-                delay(2000)
-                updateState { currentState ->
-                    // Безопасно создаем новый MutableList из текущего списка
-                    val currentList = currentState.tracksList
-                    val newList = if (currentList.isEmpty()) {
-                        mutableListOf(i)  // Если список пуст, создаем новый с первым элементом
-                    } else {
-                        currentList.toMutableList().apply { add(i) }  // Иначе копируем и добавляем
-                    }
-
-                    currentState.copy(
-                        tracksList = newList
-                    )
-                }
-            }
-        }
     }
 
 

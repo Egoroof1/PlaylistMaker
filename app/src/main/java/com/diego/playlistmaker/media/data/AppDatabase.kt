@@ -2,8 +2,7 @@ package com.diego.playlistmaker.media.data
 
 import androidx.room.Database
 import androidx.room.RoomDatabase
-import com.diego.playlistmaker.media.data.dao.TrackFavoriteDao
-import com.diego.playlistmaker.media.data.dao.TrackHistoryDao
+import com.diego.playlistmaker.media.data.dao.TrackDao
 import com.diego.playlistmaker.media.data.entities.TrackFavoriteEntity
 import com.diego.playlistmaker.media.data.entities.TrackHistoryEntity
 
@@ -16,6 +15,5 @@ import com.diego.playlistmaker.media.data.entities.TrackHistoryEntity
 )
 abstract class AppDatabase : RoomDatabase() {
 
-    abstract fun trackFavoriteDao(): TrackFavoriteDao
-    abstract fun trackHistoryDao(): TrackHistoryDao
+    abstract fun trackDao(): TrackDao
 }

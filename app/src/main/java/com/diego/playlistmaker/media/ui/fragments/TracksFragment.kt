@@ -1,19 +1,19 @@
 package com.diego.playlistmaker.media.ui.fragments
 
+import android.annotation.SuppressLint
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.lifecycle.Lifecycle
+import androidx.core.view.isVisible
 import androidx.lifecycle.lifecycleScope
-import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
 import com.diego.playlistmaker.databinding.FragmentTracksBinding
+import com.diego.playlistmaker.media.ui.state.TracksState
 import com.diego.playlistmaker.media.ui.view_model.TracksFragmentViewModel
 import com.diego.playlistmaker.search.domain.models.Track
 import com.diego.playlistmaker.search.presentation.TrackAdapter
-import com.diego.playlistmaker.search.ui.fragment.SearchFragmentDirections
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.koin.androidx.viewmodel.ext.android.viewModel
@@ -38,7 +38,6 @@ class TracksFragment : Fragment() {
         }
     }
 
-    // в момент вызова onCreateView создаётся View для Fragment, поэтому именно в этот момент мы инициализируем binding и настраиваем View-элементы
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -67,28 +66,28 @@ class TracksFragment : Fragment() {
             }
 
             // Переходим на PlayerFragment
-            val action = SearchFragmentDirections.actionSearchFragmentToPlayerFragment(track)
+            val action = MediaFragmentDirections.actionMediaFragmentToPlayerFragment(track)
             findNavController().navigate(action)
         }
     }
 
+    @SuppressLint("NotifyDataSetChanged")
     private fun observeViewModel() {
-        // Здесь можно добавить observer'ы для LiveData из ViewModel
-        // Например:
-        // viewModel.tracks.observe(viewLifecycleOwner) { tracks ->
-        //     // Обновить RecyclerView с треками
-        // }
-
-        // Подписка на StateFlow (нужен lifecycleScope)
-        viewLifecycleOwner.lifecycleScope.launch {
-            // repeatOnLifecycle автоматически отписывается при остановке
-            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
-                viewModel.tracksState.collect { state ->
-                    tracks.clear()
-                    tracks.addAll(state.tracksList)
-                    trackAdapter.notifyDataSetChanged()
-                }
+        lifecycleScope.launch {
+            viewModel.tracksState.collect { tracksState ->
+                tracks.clear()
+                tracks.addAll(tracksState.tracksList)
+                binding.recyclerTracksFavorite.adapter?.notifyDataSetChanged()
+                updateUI(tracksState)
             }
+        }
+    }
+
+    private fun updateUI(tracksState: TracksState){
+        if (tracksState.tracksList.isEmpty()) {
+            binding.emptyFavorite.isVisible = true
+        } else {
+            binding.emptyFavorite.isVisible = false
         }
     }
 

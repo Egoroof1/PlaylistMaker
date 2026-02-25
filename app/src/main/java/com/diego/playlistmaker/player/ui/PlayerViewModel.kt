@@ -5,6 +5,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.diego.playlistmaker.media.domain.use_case.FavoriteRepositoryUseCase
 import com.diego.playlistmaker.player.models.PlayerScreenState
 import com.diego.playlistmaker.player.models.PlayerState
 import com.diego.playlistmaker.player.models.TrackInfo
@@ -17,7 +18,9 @@ import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.Locale
 
-class PlayerViewModel : ViewModel() {
+class PlayerViewModel(
+    private val repositoryUseCase: FavoriteRepositoryUseCase
+) : ViewModel() {
 
     private val _screenState = MutableLiveData(PlayerScreenState())
     val screenState: LiveData<PlayerScreenState> = _screenState
@@ -46,13 +49,15 @@ class PlayerViewModel : ViewModel() {
             previewUrl = track.previewUrl
         )
 
-        val isLike = _screenState.value?.isLike ?: false
+        viewModelScope.launch {
+            val isLike = repositoryUseCase.isFavorite(track.trackId)
 
-        updateState {
-            it.copy(
-                trackInfo = trackInfo,
-                isLike = isLike
-            )
+            updateState {
+                it.copy(
+                    trackInfo = trackInfo,
+                    isLike = isLike
+                )
+            }
         }
     }
 
@@ -61,17 +66,21 @@ class PlayerViewModel : ViewModel() {
         _screenState.value = updater(currentState)
     }
 
-    fun likeTrack(){
-        if (_screenState.value?.isLike ?: false){
-            updateState {
-                it.copy(isLike = false)
-            }
-        } else {
-            updateState {
-                it.copy(isLike = true)
+    fun likeTrack(track: Track){
+
+        viewModelScope.launch {
+            if (!repositoryUseCase.isFavorite(track.trackId)) {
+                repositoryUseCase.insertTrack(track = track)
+                updateState {
+                    it.copy(isLike = true)
+                }
+            } else {
+                repositoryUseCase.deleteById(trackId = track.trackId)
+                updateState {
+                    it.copy(isLike = false)
+                }
             }
         }
-
     }
 
     fun preparePlayer(previewUrl: String) {
