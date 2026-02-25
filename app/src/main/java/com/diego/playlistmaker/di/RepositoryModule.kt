@@ -1,5 +1,7 @@
 package com.diego.playlistmaker.di
 
+import com.diego.playlistmaker.media.data.repository.FavoriteRepositoryImpl
+import com.diego.playlistmaker.media.data.repository.FavoriteRepository
 import com.diego.playlistmaker.search.data.local_storage.repository.TrackHistoryRepositoryImpl
 import com.diego.playlistmaker.search.data.network.repository.TrackWebRepositoryImpl
 import com.diego.playlistmaker.search.domain.repository.TrackHistoryRepository
@@ -13,5 +15,9 @@ val repositoryModule = module {
 
     single<TrackHistoryRepository> {
         TrackHistoryRepositoryImpl(get())
+    }
+
+    single<FavoriteRepository> {
+        FavoriteRepositoryImpl(get())
     }
 }

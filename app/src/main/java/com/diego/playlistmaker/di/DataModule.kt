@@ -1,6 +1,8 @@
 package com.diego.playlistmaker.di
 
 import android.content.Context
+import androidx.room.Room
+import com.diego.playlistmaker.media.data.AppDatabase
 import com.diego.playlistmaker.search.data.local_storage.TrackDtoStorage
 import com.diego.playlistmaker.search.data.local_storage.shared_prefs.SharedPrefTrackStorage
 import com.diego.playlistmaker.search.data.network.TrackDtoRetrofit
@@ -38,5 +40,13 @@ val dataModule = module {
     // TrackDtoRetrofit реализация
     single<TrackDtoRetrofit> {
         RetrofitTrackWeb(get())
+    }
+
+    single {
+        Room.databaseBuilder(
+            androidContext(),
+            AppDatabase::class.java,
+            "database2.db"
+        ).build()
     }
 }
