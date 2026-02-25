@@ -68,7 +68,7 @@ class PlayerFragment : Fragment() {
         }
 
         binding.btnPlayerLike.setOnClickListener {
-            viewModel.likeTrack(currentTrack!!)
+            viewModel.likeTrack()
         }
 
         binding.image.animation = AnimationUtils.loadAnimation(context, R.anim.slide_in_right)
