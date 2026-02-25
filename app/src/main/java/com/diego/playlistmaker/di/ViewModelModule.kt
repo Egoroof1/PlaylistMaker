@@ -14,7 +14,9 @@ val viewModelModule = module {
     viewModel {
         SearchViewModel(
             searchTracksUseCase = get(),
-            historyRepository = get()
+            getTracksHistoryUseCase = get(),
+            saveTrackHistoryUseCase = get(),
+            clearTrackHistoryUseCase = get()
         )
     }
 
@@ -28,7 +30,7 @@ val viewModelModule = module {
 
     // Player ViewModel (не имеет зависимостей)
     viewModel {
-        PlayerViewModel(get())
+        PlayerViewModel()
     }
 
     // Media Activity ViewModel
@@ -43,6 +45,6 @@ val viewModelModule = module {
 
     // Tracks Fragment ViewModel
     viewModel {
-        TracksFragmentViewModel(get(), get())
+        TracksFragmentViewModel(get())
     }
 }
