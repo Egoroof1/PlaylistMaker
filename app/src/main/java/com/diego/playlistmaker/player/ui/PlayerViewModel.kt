@@ -46,12 +46,32 @@ class PlayerViewModel : ViewModel() {
             previewUrl = track.previewUrl
         )
 
-        updateState { it.copy(trackInfo = trackInfo) }
+        val isLike = _screenState.value?.isLike ?: false
+
+        updateState {
+            it.copy(
+                trackInfo = trackInfo,
+                isLike = isLike
+            )
+        }
     }
 
     private fun updateState(updater: (PlayerScreenState) -> PlayerScreenState) {
         val currentState = _screenState.value ?: return
         _screenState.value = updater(currentState)
+    }
+
+    fun likeTrack(){
+        if (_screenState.value?.isLike ?: false){
+            updateState {
+                it.copy(isLike = false)
+            }
+        } else {
+            updateState {
+                it.copy(isLike = true)
+            }
+        }
+
     }
 
     fun preparePlayer(previewUrl: String) {

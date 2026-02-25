@@ -67,6 +67,10 @@ class PlayerFragment : Fragment() {
             viewModel.togglePlayPause()
         }
 
+        binding.btnPlayerLike.setOnClickListener {
+            viewModel.likeTrack()
+        }
+
         binding.image.animation = AnimationUtils.loadAnimation(context, R.anim.slide_in_right)
         binding.image.animate()
     }
@@ -76,12 +80,13 @@ class PlayerFragment : Fragment() {
             val trackInfo = screenState.trackInfo
             val playerState = screenState.playerState
             val position = screenState.currentPosition
+            val isLike = screenState.isLike
 
             if (trackInfo != null) {
                 updateTrackUI(trackInfo)
             }
 
-            updatePlayerUI(playerState)
+            updatePlayerUI(playerState, isLike)
 
             binding.trackCurrentTime.text = viewModel.getFormattedTime(position)
         }
@@ -109,7 +114,13 @@ class PlayerFragment : Fragment() {
         }
     }
 
-    private fun updatePlayerUI(state: PlayerState) {
+    private fun updatePlayerUI(state: PlayerState, isLike: Boolean) {
+        if (isLike){
+            binding.btnPlayerLike.setImageResource(R.drawable.ic_btn_like_is_like)
+        } else {
+            binding.btnPlayerLike.setImageResource(R.drawable.ic_btn_like)
+        }
+
         when (state) {
             PlayerState.DEFAULT -> {
                 binding.btnPlayerPlay.setImageResource(R.drawable.ic_btn_play)
