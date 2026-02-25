@@ -45,6 +45,6 @@ val viewModelModule = module {
 
     // Tracks Fragment ViewModel
     viewModel {
-        TracksFragmentViewModel()
+        TracksFragmentViewModel(get())
     }
 }
