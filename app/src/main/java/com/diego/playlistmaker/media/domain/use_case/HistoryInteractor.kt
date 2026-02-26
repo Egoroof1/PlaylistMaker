@@ -7,7 +7,7 @@ import com.diego.playlistmaker.search.domain.models.Track
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 
-class HistoryRepositoryUseCaseImpl(
+class HistoryInteractor(
     private val repository: HistoryRepository
 ) : HistoryRepositoryUseCase {
     override fun historyTracks(): Flow<List<Track>> {
