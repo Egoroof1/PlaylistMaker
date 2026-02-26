@@ -6,5 +6,5 @@ enum class PlayerState {
     PREPARED,     // Готов к воспроизведению
     PLAYING,      // Воспроизводится
     PAUSED,       // На паузе
-    ERROR         // Ошибка
+    ERROR
 }

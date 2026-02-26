@@ -3,11 +3,10 @@ package com.diego.playlistmaker.search.ui.view_model
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import com.diego.playlistmaker.media.domain.use_case.HistoryInteractor
 import com.diego.playlistmaker.search.domain.models.Track
 import com.diego.playlistmaker.search.domain.models.UserRequestParam
-import com.diego.playlistmaker.search.domain.use_case.ClearTrackHistoryUseCase
-import com.diego.playlistmaker.search.domain.use_case.GetTracksHistoryUseCase
-import com.diego.playlistmaker.search.domain.use_case.SaveTrackHistoryUseCase
 import com.diego.playlistmaker.search.domain.use_case.SearchTracksWebUseCas
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -17,9 +16,7 @@ import kotlinx.coroutines.launch
 
 class SearchViewModel(
     private val searchTracksUseCase: SearchTracksWebUseCas,
-    private val getTracksHistoryUseCase: GetTracksHistoryUseCase,
-    private val saveTrackHistoryUseCase: SaveTrackHistoryUseCase,
-    private val clearTrackHistoryUseCase: ClearTrackHistoryUseCase
+    private val historyRepository: HistoryInteractor
 ) : ViewModel() {
 
     private val coroutineScope = CoroutineScope(Dispatchers.Main)
@@ -31,7 +28,6 @@ class SearchViewModel(
 
     private val _searchState = MutableLiveData(SearchScreenState())
     val searchState: LiveData<SearchScreenState> = _searchState
-    private val currentHistory = mutableListOf<Track>()
 
     init {
         loadHistory()
@@ -47,15 +43,15 @@ class SearchViewModel(
 
         if (text.isEmpty()) {
             // Если текст пустой
-            if (currentHistory.isNotEmpty()) {
+            if (_searchState.value?.historyTracks?.isNotEmpty() ?: false) {
                 // Показываем историю если она не пустая
-                updateState { it.copy(historyTracks = currentHistory, userActions = UserActions.SHOW_HISTORY) }
+                updateState { it.copy(userActions = UserActions.SHOW_HISTORY) }
             }
             // Скрываем результаты поиска
             updateState { it.copy(userActions = UserActions.HIDE_SEARCH_RESULT) }
             clearSearchResults()
         } else {
-            if (lastSearchResult == text) return
+            if (text == lastSearchQuery) return
 
             lastSearchQuery = text
 
@@ -71,7 +67,6 @@ class SearchViewModel(
     }
 
     fun performSearch(query: String) {
-        if (query != lastSearchQuery) return
 
         updateState { it.copy(userActions = UserActions.SEARCH) }
 
@@ -105,47 +100,36 @@ class SearchViewModel(
     }
 
     fun loadHistory() {
-        coroutineScope.launch(Dispatchers.IO) {
-            val history = getTracksHistoryUseCase.execute()
-            currentHistory.clear()
-            currentHistory.addAll(history)
-
-            coroutineScope.launch(Dispatchers.Main) {
-                updateHistoryVisibility()
+        viewModelScope.launch {
+            historyRepository.historyTracks().collect { entities ->
+                updateState {
+                    it.copy( historyTracks = entities )
+                }
             }
         }
     }
 
-    private fun updateHistoryVisibility() {
-        if (currentHistory.isNotEmpty()) {
-            updateState { it.copy(historyTracks = currentHistory) }
-        } else {
-            updateState { it.copy(historyTracks = emptyList()) }
-        }
-    }
-
     fun saveTrackToHistory(track: Track) {
-        coroutineScope.launch(Dispatchers.IO) {
-            saveTrackHistoryUseCase.execute(track)
-            // Немедленно обновляем историю
-            val updatedHistory = getTracksHistoryUseCase.execute()
-            currentHistory.clear()
-            currentHistory.addAll(updatedHistory)
+        viewModelScope.launch {
 
-            coroutineScope.launch(Dispatchers.Main) {
-                updateHistoryVisibility()
+            if (_searchState.value?.historyTracks?.contains(track) == true){
+                historyRepository.deleteById(track.trackId)
+                historyRepository.insertTrack(track)
+                return@launch
+            }
+
+            if ((_searchState.value?.historyTracks?.size ?: 0) < 10){
+                historyRepository.insertTrack(track)
+            } else {
+                historyRepository.deleteFirstTrack()
+                historyRepository.insertTrack(track)
             }
         }
     }
 
     fun clearHistory() {
-        coroutineScope.launch(Dispatchers.IO) {
-            clearTrackHistoryUseCase.execute()
-            currentHistory.clear()
-
-            coroutineScope.launch(Dispatchers.Main) {
-                updateHistoryVisibility()
-            }
+        viewModelScope.launch {
+            historyRepository.deleteAll()
         }
     }
 

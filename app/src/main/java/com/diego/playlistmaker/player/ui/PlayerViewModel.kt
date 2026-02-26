@@ -5,6 +5,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.diego.playlistmaker.media.domain.use_case.FavoriteInteractor
 import com.diego.playlistmaker.player.models.PlayerScreenState
 import com.diego.playlistmaker.player.models.PlayerState
 import com.diego.playlistmaker.player.models.TrackInfo
@@ -17,7 +18,9 @@ import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.Locale
 
-class PlayerViewModel : ViewModel() {
+class PlayerViewModel(
+    private val repositoryUseCase: FavoriteInteractor
+) : ViewModel() {
 
     private val _screenState = MutableLiveData(PlayerScreenState())
     val screenState: LiveData<PlayerScreenState> = _screenState
@@ -46,12 +49,38 @@ class PlayerViewModel : ViewModel() {
             previewUrl = track.previewUrl
         )
 
-        updateState { it.copy(trackInfo = trackInfo) }
+        viewModelScope.launch {
+            val isLike = repositoryUseCase.isFavorite(track.trackId)
+
+            updateState {
+                it.copy(
+                    trackInfo = trackInfo,
+                    isLike = isLike
+                )
+            }
+        }
     }
 
     private fun updateState(updater: (PlayerScreenState) -> PlayerScreenState) {
         val currentState = _screenState.value ?: return
         _screenState.value = updater(currentState)
+    }
+
+    fun likeTrack(track: Track){
+
+        viewModelScope.launch {
+            if (!repositoryUseCase.isFavorite(track.trackId)) {
+                repositoryUseCase.insertTrack(track = track)
+                updateState {
+                    it.copy(isLike = true)
+                }
+            } else {
+                repositoryUseCase.deleteById(trackId = track.trackId)
+                updateState {
+                    it.copy(isLike = false)
+                }
+            }
+        }
     }
 
     fun preparePlayer(previewUrl: String) {
