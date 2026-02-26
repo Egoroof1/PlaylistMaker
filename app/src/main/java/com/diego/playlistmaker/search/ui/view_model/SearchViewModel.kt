@@ -4,7 +4,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.diego.playlistmaker.media.domain.use_case.HistoryRepositoryUseCase
+import com.diego.playlistmaker.media.domain.use_case.HistoryInteractor
 import com.diego.playlistmaker.search.domain.models.Track
 import com.diego.playlistmaker.search.domain.models.UserRequestParam
 import com.diego.playlistmaker.search.domain.use_case.SearchTracksWebUseCas
@@ -16,7 +16,7 @@ import kotlinx.coroutines.launch
 
 class SearchViewModel(
     private val searchTracksUseCase: SearchTracksWebUseCas,
-    private val historyRepository: HistoryRepositoryUseCase
+    private val historyRepository: HistoryInteractor
 ) : ViewModel() {
 
     private val coroutineScope = CoroutineScope(Dispatchers.Main)
