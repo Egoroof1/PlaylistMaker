@@ -7,7 +7,7 @@ import com.diego.playlistmaker.search.domain.models.Track
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 
-class FavoriteRepositoryUseCaseImpl(
+class FavoriteInteractor(
     private val favoriteRepository: FavoriteRepository
 ) : FavoriteRepositoryUseCase {
     override fun favoriteTracks(): Flow<List<Track>> {
