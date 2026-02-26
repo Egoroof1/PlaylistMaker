@@ -5,7 +5,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.diego.playlistmaker.media.domain.use_case.FavoriteRepositoryUseCase
+import com.diego.playlistmaker.media.domain.use_case.FavoriteInteractor
 import com.diego.playlistmaker.player.models.PlayerScreenState
 import com.diego.playlistmaker.player.models.PlayerState
 import com.diego.playlistmaker.player.models.TrackInfo
@@ -19,7 +19,7 @@ import java.text.SimpleDateFormat
 import java.util.Locale
 
 class PlayerViewModel(
-    private val repositoryUseCase: FavoriteRepositoryUseCase
+    private val repositoryUseCase: FavoriteInteractor
 ) : ViewModel() {
 
     private val _screenState = MutableLiveData(PlayerScreenState())

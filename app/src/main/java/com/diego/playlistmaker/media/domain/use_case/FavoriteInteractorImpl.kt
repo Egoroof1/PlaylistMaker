@@ -7,9 +7,9 @@ import com.diego.playlistmaker.search.domain.models.Track
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 
-class FavoriteInteractor(
+class FavoriteInteractorImpl(
     private val favoriteRepository: FavoriteRepository
-) : FavoriteRepositoryUseCase {
+) : FavoriteInteractor {
     override fun favoriteTracks(): Flow<List<Track>> {
         return favoriteRepository.favoriteTracks().
                 map { entities ->
@@ -30,7 +30,7 @@ class FavoriteInteractor(
     }
 }
 
-interface FavoriteRepositoryUseCase {
+interface FavoriteInteractor {
     fun favoriteTracks(): Flow<List<Track>>
     suspend fun isFavorite(trackId: Int): Boolean
     suspend fun insertTrack(track: Track)
