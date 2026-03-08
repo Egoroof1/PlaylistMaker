@@ -5,6 +5,7 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.navigation.fragment.findNavController
 import com.diego.playlistmaker.databinding.FragmentPlayListsBinding
 import com.diego.playlistmaker.media.ui.view_model.PlayListsFragmentViewModel
 import org.koin.androidx.viewmodel.ext.android.viewModel
@@ -32,6 +33,15 @@ class PlayListsFragment : Fragment() {
         observeViewModel()
 
         return binding.root
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
+        binding.btnNewPlaylist.setOnClickListener {
+            val action = MediaFragmentDirections.actionMediaFragmentToAddMediaPlayerFragment()
+            findNavController().navigate(action)
+        }
     }
 
     private fun observeViewModel() {

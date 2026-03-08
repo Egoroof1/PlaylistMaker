@@ -8,6 +8,8 @@
     <color name="switch_thumb">#AEAFB4</color>
     <color name="switch_track">#D5D7D9</color>
     <color name="color_icon_setting">#AEAFB4</color>
+    <color name="color_bg_input_not_active">#AEAFB4</color>
+    <color name="color_bg_input_active">#3772E7</color>
     <color name="color_icon_main">@color/string</color>
 
 

@@ -25,6 +25,9 @@
         <action
             android:id="@+id/action_mediaFragment_to_playerFragment"
             app:destination="@id/playerFragment" />
+        <action
+            android:id="@+id/action_mediaFragment_to_addMediaPlayerFragment"
+            app:destination="@id/addMediaPlayerFragment" />
     </fragment>
     <fragment
         android:id="@+id/settingsFragment"
@@ -42,4 +45,9 @@
             app:nullable="true"
             android:defaultValue="@null" />
     </fragment>
+    <fragment
+        android:id="@+id/addMediaPlayerFragment"
+        android:name="com.diego.playlistmaker.AddMediaPlayerFragment"
+        android:label="fragment_add_media_player"
+        tools:layout="@layout/fragment_add_media_player" />
 </navigation>
