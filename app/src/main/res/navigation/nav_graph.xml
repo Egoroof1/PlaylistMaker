@@ -47,7 +47,7 @@
     </fragment>
     <fragment
         android:id="@+id/addMediaPlayerFragment"
-        android:name="com.diego.playlistmaker.AddMediaPlayerFragment"
+        android:name="com.diego.playlistmaker.media.ui.fragments.AddMediaPlayerFragment"
         android:label="fragment_add_media_player"
         tools:layout="@layout/fragment_add_media_player" />
 </navigation>
