@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".AddMediaPlayerFragment">
+    tools:context=".media.ui.fragments.AddMediaPlayerFragment">
 
     <com.google.android.material.appbar.MaterialToolbar
         android:id="@+id/toolbar_playlist"
@@ -51,6 +51,11 @@
         android:paddingHorizontal="16dp"
         android:hint="@string/name_media_player"
         android:textColorHint="@color/string"
+        android:inputType="text"
+        android:lines="1"
+        android:maxLength="40"
+        android:imeOptions="actionNext"
+        android:singleLine="true"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/toolbar_playlist" />
