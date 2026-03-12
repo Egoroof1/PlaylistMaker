@@ -1,7 +1,7 @@
-package com.diego.playlistmaker.media.data.repository
+package com.diego.playlistmaker.media.data.database.repository
 
-import com.diego.playlistmaker.media.data.AppDatabase
-import com.diego.playlistmaker.media.data.entities.TrackFavoriteEntity
+import com.diego.playlistmaker.media.data.database.AppDatabase
+import com.diego.playlistmaker.media.data.database.entities.TrackFavoriteEntity
 import kotlinx.coroutines.flow.Flow
 
 class FavoriteRepositoryImpl(

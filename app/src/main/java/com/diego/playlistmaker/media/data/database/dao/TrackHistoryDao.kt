@@ -1,10 +1,10 @@
-package com.diego.playlistmaker.media.data.dao
+package com.diego.playlistmaker.media.data.database.dao
 
 import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
-import com.diego.playlistmaker.media.data.entities.TrackHistoryEntity
+import com.diego.playlistmaker.media.data.database.entities.TrackHistoryEntity
 import kotlinx.coroutines.flow.Flow
 
 @Dao

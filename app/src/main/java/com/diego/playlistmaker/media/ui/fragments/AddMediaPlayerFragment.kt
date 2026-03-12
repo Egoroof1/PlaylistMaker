@@ -1,11 +1,18 @@
 package com.diego.playlistmaker.media.ui.fragments
 
 import android.content.res.ColorStateList
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
+import android.net.Uri
 import android.os.Bundle
+import android.os.Environment
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.activity.result.PickVisualMediaRequest
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
 import androidx.core.view.isVisible
 import androidx.core.widget.doOnTextChanged
@@ -20,12 +27,24 @@ import com.diego.playlistmaker.media.ui.view_model.AddMediaPlayerViewModel
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import kotlinx.coroutines.launch
 import org.koin.androidx.viewmodel.ext.android.viewModel
+import java.io.File
+import java.io.FileOutputStream
 
 class AddMediaPlayerFragment : Fragment() {
 
     private lateinit var binding: FragmentAddMediaPlayerBinding
 
     private val viewModel: AddMediaPlayerViewModel by viewModel()
+
+    private val pickMedia =
+        registerForActivityResult(ActivityResultContracts.PickVisualMedia()) { uri ->
+            if (uri != null) {
+                binding.pickerImage.setImageURI(uri)
+                saveImageToPrivateStorage(uri)
+            } else {
+                Log.d("PhotoPicker", "No media selected")
+            }
+        }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -35,7 +54,6 @@ class AddMediaPlayerFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-
         binding = FragmentAddMediaPlayerBinding.inflate(inflater, container, false)
         return binding.root
     }
@@ -56,6 +74,25 @@ class AddMediaPlayerFragment : Fragment() {
                 }
             }
         }
+    }
+
+    private fun saveImageToPrivateStorage(uri: Uri) {
+        //создаём экземпляр класса File, который указывает на нужный каталог
+        val filePath = File(requireContext().getExternalFilesDir(Environment.DIRECTORY_PICTURES), "myalbum")
+        //создаем каталог, если он не создан
+        if (!filePath.exists()){
+            filePath.mkdirs()
+        }
+        //создаём экземпляр класса File, который указывает на файл внутри каталога
+        val file = File(filePath, "first_cover.jpg")
+        // создаём входящий поток байтов из выбранной картинки
+        val inputStream = requireContext().contentResolver.openInputStream(uri)
+        // создаём исходящий поток байтов в созданный выше файл
+        val outputStream = FileOutputStream(file)
+        // записываем картинку с помощью BitmapFactory
+        BitmapFactory
+            .decodeStream(inputStream)
+            .compress(Bitmap.CompressFormat.JPEG, 30, outputStream)
     }
 
     private fun setupTextWatcher() {
@@ -110,6 +147,15 @@ class AddMediaPlayerFragment : Fragment() {
                 Toast.LENGTH_SHORT).show()
 
             findNavController().popBackStack()
+        }
+
+        binding.pickerImage.setOnClickListener {
+            pickMedia.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
+
+            // берём путь к файлу, затем берём сам файл, ставим его в картинку
+//            val filePath = File(requireContext().getExternalFilesDir(Environment.DIRECTORY_PICTURES), "myalbum")
+//            val file = File(filePath, "first_cover.jpg")
+//            binding.pickerImage.setImageURI(file.toUri())
         }
     }
 

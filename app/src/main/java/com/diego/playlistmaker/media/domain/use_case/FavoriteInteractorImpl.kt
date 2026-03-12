@@ -1,6 +1,6 @@
 package com.diego.playlistmaker.media.domain.use_case
 
-import com.diego.playlistmaker.media.data.repository.FavoriteRepository
+import com.diego.playlistmaker.media.data.database.repository.FavoriteRepository
 import com.diego.playlistmaker.search.data.mapper.toFavoriteEntity
 import com.diego.playlistmaker.search.data.mapper.toTrack
 import com.diego.playlistmaker.search.domain.models.Track

@@ -1,7 +1,7 @@
 package com.diego.playlistmaker.search.data.mapper
 
-import com.diego.playlistmaker.media.data.entities.TrackFavoriteEntity
-import com.diego.playlistmaker.media.data.entities.TrackHistoryEntity
+import com.diego.playlistmaker.media.data.database.entities.TrackFavoriteEntity
+import com.diego.playlistmaker.media.data.database.entities.TrackHistoryEntity
 import com.diego.playlistmaker.search.data.models.TrackDto
 import com.diego.playlistmaker.search.domain.models.Track
 
