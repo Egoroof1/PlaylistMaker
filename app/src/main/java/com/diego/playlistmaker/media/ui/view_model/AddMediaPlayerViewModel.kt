@@ -1,13 +1,16 @@
 package com.diego.playlistmaker.media.ui.view_model
 
+import android.net.Uri
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import com.diego.playlistmaker.R
+import com.diego.playlistmaker.media.data.image_storage.ImageStorageRepository
 import com.diego.playlistmaker.media.ui.state.AddMediaPlayerState
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 
 class AddMediaPlayerViewModel(
-
+    private val repository: ImageStorageRepository
 ) : ViewModel() {
     private val _state = MutableStateFlow(AddMediaPlayerState())
     var state: StateFlow<AddMediaPlayerState> = _state
@@ -43,6 +46,15 @@ class AddMediaPlayerViewModel(
                 inputDescDrawable = R.drawable.bg_input_mediaplayer)
             }
         }
+    }
+
+    fun saveImage(uri: Uri, name: String){
+        updateState { it.copy(image = repository.saveImage(uri, name)) }
+    }
+    
+    fun getAll(): List<Uri> {
+        Log.d("TAG", "getAll: ${repository.getAllImages()}")
+        return repository.getAllImages()
     }
 
     private fun updateState(updater: (AddMediaPlayerState) -> AddMediaPlayerState) {

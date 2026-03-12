@@ -4,6 +4,8 @@ import com.diego.playlistmaker.media.data.database.repository.FavoriteRepository
 import com.diego.playlistmaker.media.data.database.repository.FavoriteRepository
 import com.diego.playlistmaker.media.data.database.repository.HistoryRepository
 import com.diego.playlistmaker.media.data.database.repository.HistoryRepositoryImpl
+import com.diego.playlistmaker.media.data.image_storage.ImageStorageRepository
+import com.diego.playlistmaker.media.data.image_storage.ImageStorageRepositoryImpl
 import com.diego.playlistmaker.search.data.network.repository.TrackWebRepositoryImpl
 import com.diego.playlistmaker.search.domain.repository.TrackWebRepository
 import org.koin.dsl.module
@@ -19,5 +21,9 @@ val repositoryModule = module {
 
     single<HistoryRepository> {
         HistoryRepositoryImpl(get())
+    }
+
+    single<ImageStorageRepository> {
+        ImageStorageRepositoryImpl(get())
     }
 }

@@ -1,11 +1,8 @@
 package com.diego.playlistmaker.media.ui.fragments
 
 import android.content.res.ColorStateList
-import android.graphics.Bitmap
-import android.graphics.BitmapFactory
 import android.net.Uri
 import android.os.Bundle
-import android.os.Environment
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -27,8 +24,6 @@ import com.diego.playlistmaker.media.ui.view_model.AddMediaPlayerViewModel
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import kotlinx.coroutines.launch
 import org.koin.androidx.viewmodel.ext.android.viewModel
-import java.io.File
-import java.io.FileOutputStream
 
 class AddMediaPlayerFragment : Fragment() {
 
@@ -36,11 +31,13 @@ class AddMediaPlayerFragment : Fragment() {
 
     private val viewModel: AddMediaPlayerViewModel by viewModel()
 
+    private lateinit var currentUri: Uri
+
     private val pickMedia =
         registerForActivityResult(ActivityResultContracts.PickVisualMedia()) { uri ->
             if (uri != null) {
                 binding.pickerImage.setImageURI(uri)
-                saveImageToPrivateStorage(uri)
+                currentUri = uri
             } else {
                 Log.d("PhotoPicker", "No media selected")
             }
@@ -66,7 +63,7 @@ class AddMediaPlayerFragment : Fragment() {
         setupTextWatcher()
     }
 
-    private fun observeViewModel(){
+    private fun observeViewModel() {
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 viewModel.state.collect { state ->
@@ -74,25 +71,6 @@ class AddMediaPlayerFragment : Fragment() {
                 }
             }
         }
-    }
-
-    private fun saveImageToPrivateStorage(uri: Uri) {
-        //создаём экземпляр класса File, который указывает на нужный каталог
-        val filePath = File(requireContext().getExternalFilesDir(Environment.DIRECTORY_PICTURES), "myalbum")
-        //создаем каталог, если он не создан
-        if (!filePath.exists()){
-            filePath.mkdirs()
-        }
-        //создаём экземпляр класса File, который указывает на файл внутри каталога
-        val file = File(filePath, "first_cover.jpg")
-        // создаём входящий поток байтов из выбранной картинки
-        val inputStream = requireContext().contentResolver.openInputStream(uri)
-        // создаём исходящий поток байтов в созданный выше файл
-        val outputStream = FileOutputStream(file)
-        // записываем картинку с помощью BitmapFactory
-        BitmapFactory
-            .decodeStream(inputStream)
-            .compress(Bitmap.CompressFormat.JPEG, 30, outputStream)
     }
 
     private fun setupTextWatcher() {
@@ -111,7 +89,7 @@ class AddMediaPlayerFragment : Fragment() {
 
     private fun updateUi(state: AddMediaPlayerState) {
 
-        with(binding){
+        with(binding) {
             btnCreatePlaylist.backgroundTintList = ColorStateList.valueOf(
                 ContextCompat.getColor(
                     requireContext(),
@@ -135,27 +113,25 @@ class AddMediaPlayerFragment : Fragment() {
         }
     }
 
-    private fun setClickListeners(){
+    private fun setClickListeners() {
         binding.toolbarPlaylist.setOnClickListener {
             checkIsEmptyDialogExit(viewModel.state.value)
         }
 
         binding.btnCreatePlaylist.setOnClickListener {
+            viewModel.saveImage(currentUri ,binding.etNamePlaylist.text.toString())
             Toast.makeText(
                 requireContext(),
                 "Плейлист ${binding.etNamePlaylist.text} создан",
-                Toast.LENGTH_SHORT).show()
+                Toast.LENGTH_SHORT
+            ).show()
 
             findNavController().popBackStack()
         }
 
         binding.pickerImage.setOnClickListener {
+            viewModel.getAll()
             pickMedia.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
-
-            // берём путь к файлу, затем берём сам файл, ставим его в картинку
-//            val filePath = File(requireContext().getExternalFilesDir(Environment.DIRECTORY_PICTURES), "myalbum")
-//            val file = File(filePath, "first_cover.jpg")
-//            binding.pickerImage.setImageURI(file.toUri())
         }
     }
 
@@ -164,7 +140,7 @@ class AddMediaPlayerFragment : Fragment() {
             MaterialAlertDialogBuilder(requireContext())
                 .setTitle("Завершить создание плейлиста?")
                 .setMessage("Все несохраненные данные будут потеряны")
-                .setNeutralButton("Отмена"){ dialog, which -> }
+                .setNeutralButton("Отмена") { dialog, which -> }
                 .setPositiveButton("Завершить") { dialog, which ->
                     findNavController().popBackStack()
                 }
