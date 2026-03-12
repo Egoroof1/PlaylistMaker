@@ -4,6 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/bg_activity"
     tools:context=".media.ui.fragments.AddMediaPlayerFragment">
 
     <com.google.android.material.appbar.MaterialToolbar
@@ -16,20 +17,6 @@
         app:navigationIcon="@drawable/ic_back_arrow_24"/>
 
     <ImageView
-        android:id="@+id/imageView4"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:layout_marginStart="24dp"
-        android:layout_marginTop="26dp"
-        android:layout_marginEnd="24dp"
-        android:layout_marginBottom="32dp"
-        android:src="@drawable/bg_add_playlist"
-        app:layout_constraintBottom_toTopOf="@+id/editText"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/toolbar_playlist" />
-
-    <ImageView
         android:id="@+id/imageView3"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -39,8 +26,22 @@
         app:layout_constraintStart_toStartOf="@+id/imageView4"
         app:layout_constraintTop_toTopOf="@+id/imageView4" />
 
+    <ImageView
+        android:id="@+id/imageView4"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginStart="24dp"
+        android:layout_marginTop="26dp"
+        android:layout_marginEnd="24dp"
+        android:layout_marginBottom="32dp"
+        android:src="@drawable/bg_add_playlist"
+        app:layout_constraintBottom_toTopOf="@+id/et_name_playlist"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/toolbar_playlist" />
+
     <EditText
-        android:id="@+id/editText"
+        android:id="@+id/et_name_playlist"
         style="@style/text_settings"
         android:layout_width="0dp"
         android:layout_height="56dp"
@@ -60,8 +61,23 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/toolbar_playlist" />
 
+    <TextView
+        android:id="@+id/et_mini_name_playlist"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="12dp"
+        android:background="@color/bg_activity"
+        android:paddingHorizontal="4dp"
+        android:text="@string/name_media_player"
+        android:textColor="#3772E7"
+        android:textSize="12sp"
+        android:visibility="gone"
+        app:layout_constraintBottom_toTopOf="@+id/et_name_playlist"
+        app:layout_constraintStart_toStartOf="@+id/et_name_playlist"
+        app:layout_constraintTop_toTopOf="@+id/et_name_playlist" />
+
     <EditText
-        android:id="@+id/editText2"
+        android:id="@+id/et_description_playlist"
         style="@style/text_settings"
         android:layout_width="0dp"
         android:layout_height="56dp"
@@ -74,7 +90,22 @@
         android:textColorHint="@color/string"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/editText" />
+        app:layout_constraintTop_toBottomOf="@+id/et_name_playlist" />
+
+    <TextView
+        android:id="@+id/et_mini_description_playlist"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="12dp"
+        android:background="@color/bg_activity"
+        android:paddingHorizontal="4dp"
+        android:text="@string/description"
+        android:textColor="#3772E7"
+        android:textSize="12sp"
+        android:visibility="gone"
+        app:layout_constraintBottom_toTopOf="@+id/et_description_playlist"
+        app:layout_constraintStart_toStartOf="@+id/et_description_playlist"
+        app:layout_constraintTop_toTopOf="@+id/et_description_playlist" />
 
     <androidx.appcompat.widget.AppCompatButton
         android:id="@+id/btn_create_playlist"
