@@ -1,6 +1,6 @@
-package com.diego.playlistmaker.media.data.repository
+package com.diego.playlistmaker.media.data.database.repository
 
-import com.diego.playlistmaker.media.data.entities.TrackHistoryEntity
+import com.diego.playlistmaker.media.data.database.entities.TrackHistoryEntity
 import kotlinx.coroutines.flow.Flow
 
 interface HistoryRepository {
