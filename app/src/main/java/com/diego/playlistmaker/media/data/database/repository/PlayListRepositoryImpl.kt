@@ -16,7 +16,7 @@ class PlayListRepositoryImpl(
         database.playListDao().deletePlayListById(playListId)
     }
 
-    override fun getPlayListById(playListId: Int): PlayListEntity {
+    override suspend fun getPlayListById(playListId: Int): PlayListEntity {
         return database.playListDao().getPlayListById(playListId)
     }
 
