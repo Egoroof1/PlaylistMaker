@@ -28,5 +28,5 @@ data class TrackInPlayListEntity(
     val trackTimeMillis: Long,
     val artworkUrl100: String,
     val previewUrl: String,
-    val playlistId: Int,
+    val playlistId: Int
 )

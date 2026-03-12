@@ -18,7 +18,7 @@ interface PlayListDao {
     suspend fun deletePlayListById(playListId: Int)
 
     @Query("SELECT * FROM play_list_table WHERE id = :playListId")
-    fun getPlayListById(playListId: Int): PlayListEntity
+    suspend fun getPlayListById(playListId: Int): PlayListEntity
 
     @Query("SELECT * FROM track_in_play_list_table ORDER BY id DESC")
     fun getAllTracksForPlayList(): Flow<List<TrackInPlayListEntity>>
