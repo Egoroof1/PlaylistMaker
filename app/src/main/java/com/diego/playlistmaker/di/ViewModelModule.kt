@@ -1,5 +1,6 @@
 package com.diego.playlistmaker.di
 
+import com.diego.playlistmaker.media.ui.view_model.AddMediaPlayerViewModel
 import com.diego.playlistmaker.media.ui.view_model.MediaViewModel
 import com.diego.playlistmaker.media.ui.view_model.PlayListsFragmentViewModel
 import com.diego.playlistmaker.media.ui.view_model.TracksFragmentViewModel
@@ -44,5 +45,9 @@ val viewModelModule = module {
     // Tracks Fragment ViewModel
     viewModel {
         TracksFragmentViewModel(get(), get())
+    }
+
+    viewModel {
+        AddMediaPlayerViewModel()
     }
 }
