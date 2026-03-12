@@ -4,6 +4,10 @@ import com.diego.playlistmaker.media.data.database.repository.FavoriteRepository
 import com.diego.playlistmaker.media.data.database.repository.FavoriteRepository
 import com.diego.playlistmaker.media.data.database.repository.HistoryRepository
 import com.diego.playlistmaker.media.data.database.repository.HistoryRepositoryImpl
+import com.diego.playlistmaker.media.data.database.repository.PlayListRepository
+import com.diego.playlistmaker.media.data.database.repository.PlayListRepositoryImpl
+import com.diego.playlistmaker.media.data.database.repository.TrackInPlayListRepository
+import com.diego.playlistmaker.media.data.database.repository.TrackInPlayListRepositoryImpl
 import com.diego.playlistmaker.media.data.image_storage.ImageStorageRepository
 import com.diego.playlistmaker.media.data.image_storage.ImageStorageRepositoryImpl
 import com.diego.playlistmaker.search.data.network.repository.TrackWebRepositoryImpl
@@ -25,5 +29,13 @@ val repositoryModule = module {
 
     single<ImageStorageRepository> {
         ImageStorageRepositoryImpl(get())
+    }
+
+    single<PlayListRepository> {
+        PlayListRepositoryImpl(get())
+    }
+
+    single<TrackInPlayListRepository> {
+        TrackInPlayListRepositoryImpl(get())
     }
 }

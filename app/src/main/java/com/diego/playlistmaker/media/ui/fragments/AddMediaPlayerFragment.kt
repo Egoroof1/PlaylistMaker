@@ -130,7 +130,6 @@ class AddMediaPlayerFragment : Fragment() {
         }
 
         binding.pickerImage.setOnClickListener {
-            viewModel.getAll()
             pickMedia.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
         }
     }
