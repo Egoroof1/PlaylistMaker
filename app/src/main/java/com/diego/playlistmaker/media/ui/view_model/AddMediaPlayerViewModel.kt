@@ -49,11 +49,12 @@ class AddMediaPlayerViewModel(
     }
 
     fun saveImage(uri: Uri, name: String){
-        updateState { it.copy(image = repository.saveImage(uri, name)) }
+        val newImage = repository.saveImage(uri, name)
+        updateState { it.copy(image = newImage) }
+        Log.d("TAG", "saveImage: $newImage")
     }
     
     fun getAll(): List<Uri> {
-        Log.d("TAG", "getAll: ${repository.getAllImages()}")
         return repository.getAllImages()
     }
 
