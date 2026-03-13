@@ -8,7 +8,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.resource.bitmap.RoundedCorners
 import com.diego.playlistmaker.R
-import com.diego.playlistmaker.databinding.FragmentTrackBinding
+import com.diego.playlistmaker.databinding.ItemTrackBinding
 import com.diego.playlistmaker.search.domain.models.Track
 import java.text.SimpleDateFormat
 import java.util.Locale
@@ -19,7 +19,7 @@ class TrackAdapter(
 ) : RecyclerView.Adapter<TrackAdapter.TrackHolder>() {
 
     class TrackHolder(
-        private val binding: FragmentTrackBinding,
+        private val binding: ItemTrackBinding,
         private val onTrackClick: (Track) -> Unit // Передаём callback в Holder
     ): RecyclerView.ViewHolder(binding.root) {
         private var currentTrack: Track? = null
@@ -60,7 +60,7 @@ class TrackAdapter(
         companion object {
             fun from(parent: ViewGroup, onItemClick: (Track) -> Unit): TrackHolder {
                 val inflater = LayoutInflater.from(parent.context)
-                val binding = FragmentTrackBinding.inflate(inflater, parent, false)
+                val binding = ItemTrackBinding.inflate(inflater, parent, false)
                 return TrackHolder(binding, onItemClick)
             }
         }

@@ -20,6 +20,7 @@
         android:id="@+id/imageView3"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:contentDescription="@string/track_cover"
         android:src="@drawable/ic_add_playlist"
         app:layout_constraintBottom_toBottomOf="@+id/pickerImage"
         app:layout_constraintEnd_toEndOf="@+id/pickerImage"
@@ -30,16 +31,20 @@
         android:id="@+id/pickerImage"
         android:layout_width="0dp"
         android:layout_height="0dp"
+        android:contentDescription="@string/track_cover"
         android:scaleType="centerCrop"
         android:layout_marginStart="24dp"
         android:layout_marginTop="26dp"
         android:layout_marginEnd="24dp"
         android:layout_marginBottom="32dp"
+        android:background="@drawable/bg_corners_8"
+        android:clipToOutline="true"
         android:src="@drawable/bg_add_playlist"
         app:layout_constraintBottom_toTopOf="@+id/et_name_playlist"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/toolbar_playlist" />
+        app:layout_constraintTop_toBottomOf="@id/toolbar_playlist"
+        tools:targetApi="31" />
 
     <EditText
         android:id="@+id/et_name_playlist"

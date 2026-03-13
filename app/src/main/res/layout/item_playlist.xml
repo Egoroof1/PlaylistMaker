@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_marginHorizontal="4dp"
+    android:orientation="vertical">
+
+    <ImageView
+        android:id="@+id/iv_cover_playlist"
+        android:layout_width="160dp"
+        android:layout_height="160dp"
+        android:background="@drawable/bg_corners_8"
+        android:clipToOutline="true"
+        android:contentDescription="@string/track_cover"
+        android:scaleType="centerCrop"
+        android:src="@drawable/placeholder"
+        tools:targetApi="31" />
+
+    <TextView
+        android:id="@+id/tv_playlist_name"
+        android:layout_width="160dp"
+        android:layout_height="wrap_content"
+        style="@style/text_settings"
+        android:textSize="16sp"
+        android:maxLines="1"
+        android:ellipsize="end"
+        tools:text="Name"/>
+
+    <TextView
+        android:id="@+id/tv_quantity_tracks"
+        android:layout_width="160dp"
+        android:layout_height="wrap_content"
+        style="@style/text_settings"
+        android:textSize="16sp"
+        android:maxLines="1"
+        android:ellipsize="end"
+        tools:text="157 треков"/>
+</LinearLayout>
