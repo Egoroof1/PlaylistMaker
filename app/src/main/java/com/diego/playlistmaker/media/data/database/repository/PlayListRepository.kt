@@ -12,5 +12,7 @@ interface PlayListRepository {
 
     suspend fun getPlayListById(playListId: Int): PlayListEntity
 
+    fun getAllPlayList(): Flow<List<PlayListEntity>>
+
     fun getAllTracksForPlayList(): Flow<List<TrackInPlayListEntity>>
 }

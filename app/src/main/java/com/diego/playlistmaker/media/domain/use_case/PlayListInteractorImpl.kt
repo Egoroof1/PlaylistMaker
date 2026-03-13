@@ -24,6 +24,14 @@ class PlayListInteractorImpl(
         return repository.getPlayListById(playListId).toPlayList()
     }
 
+    override fun getAllPlayList(): Flow<List<PlayList>> {
+        return repository.getAllPlayList().map { entities ->
+            entities.map {
+                it.toPlayList()
+            }
+        }
+    }
+
     override fun getAllTracksForPlayList(): Flow<List<TrackInPlayList>> {
         return repository.getAllTracksForPlayList().map { entities ->
             entities.map {
@@ -39,6 +47,8 @@ interface PlayListInteractor {
     suspend fun deletePlayListById(playListId: Int)
 
     suspend fun getPlayListById(playListId: Int): PlayList
+
+    fun getAllPlayList(): Flow<List<PlayList>>
 
     fun getAllTracksForPlayList(): Flow<List<TrackInPlayList>>
 }

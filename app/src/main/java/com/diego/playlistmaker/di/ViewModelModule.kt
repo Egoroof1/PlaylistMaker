@@ -39,7 +39,7 @@ val viewModelModule = module {
 
     // PlayLists Fragment ViewModel
     viewModel {
-        PlayListsFragmentViewModel()
+        PlayListsFragmentViewModel(get())
     }
 
     // Tracks Fragment ViewModel
@@ -48,6 +48,6 @@ val viewModelModule = module {
     }
 
     viewModel {
-        AddMediaPlayerViewModel(get())
+        AddMediaPlayerViewModel(get(), get())
     }
 }

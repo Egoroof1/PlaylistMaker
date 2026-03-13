@@ -14,6 +14,7 @@ import com.diego.playlistmaker.media.ui.state.TracksState
 import com.diego.playlistmaker.media.ui.view_model.TracksFragmentViewModel
 import com.diego.playlistmaker.search.domain.models.Track
 import com.diego.playlistmaker.search.presentation.TrackAdapter
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.koin.androidx.viewmodel.ext.android.viewModel
@@ -73,7 +74,7 @@ class TracksFragment : Fragment() {
 
     @SuppressLint("NotifyDataSetChanged")
     private fun observeViewModel() {
-        lifecycleScope.launch {
+        lifecycleScope.launch(Dispatchers.Main) {
             viewModel.tracksState.collect { tracksState ->
                 tracks.clear()
                 tracks.addAll(tracksState.tracksList)

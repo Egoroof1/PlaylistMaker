@@ -75,4 +75,9 @@ class PlayListAdapter (
         return playLists.size
     }
 
+    fun updateList(newList: List<PlayList>) {
+        playLists = newList
+        notifyItemChanged(0)
+    }
+
 }
