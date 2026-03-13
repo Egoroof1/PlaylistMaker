@@ -6,6 +6,7 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.view.isVisible
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.GridLayoutManager
@@ -13,6 +14,7 @@ import com.diego.playlistmaker.databinding.FragmentPlayListsBinding
 import com.diego.playlistmaker.media.domain.models.PlayList
 import com.diego.playlistmaker.media.presentation.PlayListAdapter
 import com.diego.playlistmaker.media.ui.view_model.PlayListsFragmentViewModel
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.koin.androidx.viewmodel.ext.android.viewModel
@@ -26,11 +28,7 @@ class PlayListsFragment : Fragment() {
     private val playListsAdapter by lazy {
         PlayListAdapter(playLists) { playList -> onPlayListClicked(playList)}
     }
-    private val playLists = listOf(
-        PlayList(name = "1111", description = "descr", quantityTracks = 15),
-        PlayList(name = "222", description = "descr", quantityTracks = 1),
-        PlayList(name = "333", description = "descr", quantityTracks = 4),
-    )
+    private var playLists = emptyList<PlayList>()
     private var isClicked = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -45,17 +43,16 @@ class PlayListsFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         _binding = FragmentPlayListsBinding.inflate(inflater, container, false)
-
-        observeViewModel()
-
         return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        observeViewModel()
         setClickListeners()
         recycler()
+        updateUI()
     }
 
     private fun recycler(){
@@ -71,18 +68,26 @@ class PlayListsFragment : Fragment() {
     }
 
     private fun observeViewModel() {
-        // Здесь можно добавить observer'ы для LiveData из ViewModel
-        // Например:
-        // viewModel.playlists.observe(viewLifecycleOwner) { playlists ->
-        //     // Обновить RecyclerView с плейлистами
-        // }
+        lifecycleScope.launch(Dispatchers.Main) {
+            viewModel.state.collect { state ->
+                playLists = state.playLists
+                playListsAdapter.updateList(playLists)
+                updateUI()
+                Log.d("TAG", "observeViewModel: ${playLists.size}\n${playLists}")
+            }
+        }
+
+    }
+
+    private fun updateUI(){
+        binding.playlistsEmpty.isVisible = playLists.isEmpty()
     }
 
     private fun onPlayListClicked(playList: PlayList) {
         if (!isClicked) {
             isClicked = true
 
-            viewLifecycleOwner.lifecycleScope.launch {
+            lifecycleScope.launch(Dispatchers.Main) {
                 isClicked = false
                 delay(ANTY_DOUBLE_CLICK)
             }

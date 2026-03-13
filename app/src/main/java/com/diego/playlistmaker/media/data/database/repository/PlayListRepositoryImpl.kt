@@ -20,6 +20,10 @@ class PlayListRepositoryImpl(
         return database.playListDao().getPlayListById(playListId)
     }
 
+    override fun getAllPlayList(): Flow<List<PlayListEntity>> {
+        return database.playListDao().getAllPlayList()
+    }
+
     override fun getAllTracksForPlayList(): Flow<List<TrackInPlayListEntity>> {
         return database.playListDao().getAllTracksForPlayList()
     }
