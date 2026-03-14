@@ -20,8 +20,8 @@ class PlayListInteractorImpl(
         repository.deletePlayListById(playListId)
     }
 
-    override suspend fun getPlayListById(playListId: Int): PlayList {
-        return repository.getPlayListById(playListId).toPlayList()
+    override suspend fun getPlayListById(playListId: Int): PlayList? {
+        return repository.getPlayListById(playListId)?.toPlayList()
     }
 
     override fun getAllPlayList(): Flow<List<PlayList>> {
@@ -39,6 +39,22 @@ class PlayListInteractorImpl(
             }
         }
     }
+
+    override suspend fun updatePlayList(playList: PlayList) {
+        repository.updatePlayList(playList.toPlayListEntity())
+    }
+
+    override suspend fun incrementTracksCount(playListId: Int) {
+        repository.incrementTracksCount(playListId)
+    }
+
+    override suspend fun decrementTracksCount(playListId: Int) {
+        repository.decrementTracksCount(playListId)
+    }
+
+    override suspend fun updateTotalTimeMillis(playListId: Int, timeMillis: Long) {
+        repository.updateTotalTimeMillis(playListId, timeMillis)
+    }
 }
 
 interface PlayListInteractor {
@@ -46,9 +62,17 @@ interface PlayListInteractor {
 
     suspend fun deletePlayListById(playListId: Int)
 
-    suspend fun getPlayListById(playListId: Int): PlayList
+    suspend fun getPlayListById(playListId: Int): PlayList?
 
     fun getAllPlayList(): Flow<List<PlayList>>
 
     fun getAllTracksForPlayList(): Flow<List<TrackInPlayList>>
+
+    suspend fun updatePlayList(playList: PlayList)
+
+    suspend fun incrementTracksCount(playListId: Int)
+
+    suspend fun decrementTracksCount(playListId: Int)
+
+    suspend fun updateTotalTimeMillis(playListId: Int, timeMillis: Long)
 }

@@ -30,7 +30,7 @@ class TracksFragment : Fragment() {
     private var isClicked = false
 
     private val trackAdapter by lazy {
-        TrackAdapter(tracks) {track -> onTrackClicked(track) }
+        TrackAdapter(tracks) { track -> onTrackClicked(track) }
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {

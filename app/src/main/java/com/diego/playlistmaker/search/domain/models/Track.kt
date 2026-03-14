@@ -17,6 +17,4 @@ data class Track(
     val trackTimeMillis: Long,
     val artworkUrl100: String,
     val previewUrl: String
-) : Parcelable {
-
-}
+) : Parcelable

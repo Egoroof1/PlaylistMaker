@@ -18,6 +18,8 @@
     <color name="color_edittext_text">#1A1B22</color>
     <color name="btn_update_text">#FFFFFF</color>
 
+    <color name="color_view_overlay">#E6000000</color>
+
     <color name="btn_playlist_add_like">#1A1B22</color>
 
     <!-- ЦВЕТ ФОНА TABLAYOUT -->
