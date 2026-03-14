@@ -10,9 +10,17 @@ interface PlayListRepository {
 
     suspend fun deletePlayListById(playListId: Int)
 
-    suspend fun getPlayListById(playListId: Int): PlayListEntity
+    suspend fun getPlayListById(playListId: Int): PlayListEntity?
 
     fun getAllPlayList(): Flow<List<PlayListEntity>>
 
     fun getAllTracksForPlayList(): Flow<List<TrackInPlayListEntity>>
+
+    suspend fun updatePlayList(playListEntity: PlayListEntity)
+
+    suspend fun incrementTracksCount(playListId: Int)
+
+    suspend fun updateTotalTimeMillis(playListId: Int, timeMillis: Long)
+
+    suspend fun decrementTracksCount(playListId: Int)
 }

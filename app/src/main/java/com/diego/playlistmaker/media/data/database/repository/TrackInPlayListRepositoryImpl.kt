@@ -13,4 +13,12 @@ class TrackInPlayListRepositoryImpl(
     override suspend fun deleteTrackForPlayListById(trackId: Int) {
         database.trackInPlayListDao().deleteTrackForPlayListById(trackId)
     }
+
+    override suspend fun isPlayList(trackId: Int): Boolean {
+        return database.trackInPlayListDao().isPlayList(trackId)
+    }
+
+    override suspend fun getTrackInPlayListByIdTrack(trackId: Int): TrackInPlayListEntity? {
+        return database.trackInPlayListDao().getTrackInPlayListByIdTrack(trackId)
+    }
 }

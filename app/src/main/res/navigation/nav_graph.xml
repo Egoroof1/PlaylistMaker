@@ -44,6 +44,9 @@
             app:argType="com.diego.playlistmaker.search.domain.models.Track"
             app:nullable="true"
             android:defaultValue="@null" />
+        <action
+            android:id="@+id/action_playerFragment_to_addMediaPlayerFragment"
+            app:destination="@id/addMediaPlayerFragment" />
     </fragment>
     <fragment
         android:id="@+id/addMediaPlayerFragment"

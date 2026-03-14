@@ -5,4 +5,6 @@ import com.diego.playlistmaker.media.data.database.entities.TrackInPlayListEntit
 interface TrackInPlayListRepository {
     suspend fun insertTrackInPlayList(trackInPlayListEntity: TrackInPlayListEntity)
     suspend fun deleteTrackForPlayListById(trackId: Int)
+    suspend fun isPlayList(trackId: Int): Boolean
+    suspend fun getTrackInPlayListByIdTrack(trackId: Int): TrackInPlayListEntity?
 }

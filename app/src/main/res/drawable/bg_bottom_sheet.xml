@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<shape xmlns:android="http://schemas.android.com/apk/res/android">
+    <corners
+        android:topRightRadius="@dimen/dp_16"
+        android:topLeftRadius="@dimen/dp_16"
+        />
+
+    <solid android:color="@color/btn_update_text"/>
+</shape>

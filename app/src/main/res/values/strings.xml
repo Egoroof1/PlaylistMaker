@@ -56,5 +56,6 @@
     <string name="create">Создать</string>
     <string name="description">Описание</string>
     <string name="name_media_player">Название*</string>
+    <string name="added_to_playlist">Добавлено в плейлист</string>
 
 </resources>

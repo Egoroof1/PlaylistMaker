@@ -1,0 +1,47 @@
+package com.diego.playlistmaker.player.presenter
+
+import android.view.LayoutInflater
+import android.view.ViewGroup
+import androidx.core.net.toUri
+import androidx.recyclerview.widget.RecyclerView
+import com.diego.playlistmaker.R
+import com.diego.playlistmaker.databinding.ItemPlaylistHorizontalBinding
+import com.diego.playlistmaker.media.domain.models.PlayList
+
+class PlayListHolder(
+    private val binding: ItemPlaylistHorizontalBinding,
+    private val onPlayListClick: (PlayList) -> Unit // Передаём callback в Holder
+) : RecyclerView.ViewHolder(binding.root) {
+    private var currentPlayList: PlayList? = null
+
+    init {
+        // Добавляем обработчик клика на весь элемент
+        binding.root.setOnClickListener {
+            currentPlayList?.let { playList ->
+                onPlayListClick(playList)
+            }
+        }
+    }
+
+    fun bind(playList: PlayList) {
+        currentPlayList = playList
+
+        binding.etNamePlaylist.text = playList.name
+        binding.tvQuantityTracks.text = playList.quantityTracks.toString()
+
+        if (playList.coverImagePath.isEmpty()){
+            binding.image.setImageResource(R.drawable.placeholder)
+        } else {
+            binding.image.setImageURI(playList.coverImagePath.toUri())
+        }
+
+    }
+
+    companion object {
+        fun from(parent: ViewGroup, onItemClick: (PlayList) -> Unit): PlayListHolder {
+            val inflater = LayoutInflater.from(parent.context)
+            val binding = ItemPlaylistHorizontalBinding.inflate(inflater, parent, false)
+            return PlayListHolder(binding, onItemClick)
+        }
+    }
+}
