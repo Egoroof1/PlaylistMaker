@@ -35,6 +35,7 @@ class PlayerFragment : Fragment() {
     private var currentTrack: Track? = null
     private var isPlayList: Boolean = false
     private var playListName: String = ""
+    private var isFirstCreation: Boolean = false
 
     private val playListAdapter: PlayListAdapter by lazy {
         PlayListAdapter(emptyList()) { playList -> onPlayListClicked(playList) }
@@ -83,9 +84,7 @@ class PlayerFragment : Fragment() {
         val bottomSheetContainer = binding.playlistBottomSheet
         val overlay = binding.overlay
 
-        bottomSheetBehavior = BottomSheetBehavior.from(bottomSheetContainer).apply {
-            state = BottomSheetBehavior.STATE_HIDDEN
-        }
+        bottomSheetBehavior = BottomSheetBehavior.from(bottomSheetContainer)
 
         bottomSheetBehavior.addBottomSheetCallback(object :
             BottomSheetBehavior.BottomSheetCallback() {
@@ -109,6 +108,26 @@ class PlayerFragment : Fragment() {
                 overlay.alpha = slideAdapter
             }
         })
+
+        // Теперь синхронизируем overlay с текущим состоянием
+        if (!isFirstCreation) {
+            // Первый вход - скрываем bottom sheet
+            bottomSheetBehavior.state = BottomSheetBehavior.STATE_HIDDEN
+            isFirstCreation = true
+            overlay.isVisible = true
+            overlay.alpha = 0f
+        } else {
+            // При возвращении - синхронизируем overlay с текущим состоянием behavior
+            when (bottomSheetBehavior.state) {
+                BottomSheetBehavior.STATE_HIDDEN -> {
+                    overlay.isVisible = false
+                }
+                else -> {
+                    overlay.isVisible = true
+                    overlay.alpha = 0.5f
+                }
+            }
+        }
     }
 
     private fun setupUI() {
@@ -131,6 +150,7 @@ class PlayerFragment : Fragment() {
         }
 
         binding.btnNewPlaylist.setOnClickListener {
+
             val action = PlayerFragmentDirections.actionPlayerFragmentToAddMediaPlayerFragment()
             findNavController().navigate(action)
         }
