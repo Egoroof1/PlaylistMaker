@@ -17,9 +17,9 @@ import com.diego.playlistmaker.search.domain.models.Track
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.text.SimpleDateFormat
 import java.util.Locale
 
@@ -40,6 +40,10 @@ class PlayerViewModel(
 
     // Флаг для отслеживания подготовки плеера
     private var isPrepared = false
+
+    init {
+        loadPlayLists()
+    }
 
     fun setTrack(track: Track) {
         // Создаем TrackInfo из Track
@@ -79,6 +83,8 @@ class PlayerViewModel(
                 )
             }
         }
+
+        preparePlayer(track.previewUrl)
     }
 
     private fun updateState(updater: (PlayerScreenState) -> PlayerScreenState) {
@@ -103,7 +109,7 @@ class PlayerViewModel(
         }
     }
 
-    fun preparePlayer(previewUrl: String) {
+    private fun preparePlayer(previewUrl: String) {
         releasePlayer() // Освобождаем предыдущий MediaPlayer
 
         mediaPlayer = MediaPlayer().apply {
@@ -196,7 +202,7 @@ class PlayerViewModel(
         updateState { it.copy(playerState = PlayerState.DEFAULT) }
     }
 
-    fun loadPlayLists() {
+    private fun loadPlayLists() {
         viewModelScope.launch {
             playListInteractor.getAllPlayList().collect { lists ->
                 updateState { it.copy(playListList = lists) }
@@ -207,14 +213,23 @@ class PlayerViewModel(
     }
 
     fun addTrackToPlayList(playListId: Int, track: Track) {
-        updateState { it.copy(
-            isPlayList = true
-        ) }
-
         viewModelScope.launch(Dispatchers.IO) {
             playListInteractor.incrementTracksCount(playListId)
             playListInteractor.updateTotalTimeMillis(playListId, track.trackTimeMillis)
             trackInPlayListInteractor.insertTrackInPlayList(TrackInPlayList(track = track, playlistId = playListId))
+        }
+
+        viewModelScope.launch {
+            val namePL = withContext(Dispatchers.IO) {
+                playListInteractor.getPlayListById(playListId)?.name ?: ""
+            }
+
+            updateState {
+                it.copy(
+                    isPlayList = true,
+                    playListName = namePL
+                )
+            }
         }
     }
 }

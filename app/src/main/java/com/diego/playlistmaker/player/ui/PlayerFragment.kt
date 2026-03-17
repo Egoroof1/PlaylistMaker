@@ -34,7 +34,6 @@ class PlayerFragment : Fragment() {
     private val viewModel: PlayerViewModel by viewModel()
     private var currentTrack: Track? = null
     private var isPlayList: Boolean = false
-    private var playListName: String = ""
     private var isFirstCreation: Boolean = false
 
     private val playListAdapter: PlayListAdapter by lazy {
@@ -60,10 +59,8 @@ class PlayerFragment : Fragment() {
             viewModel.setTrack(currentTrack!!)
             setupUI()
             setupObservers()
-            viewModel.preparePlayer(currentTrack!!.previewUrl)
             setBottomSheet()
 
-            viewModel.loadPlayLists()
         } else {
             Toast.makeText(requireContext(), "Ошибка загрузки трека", Toast.LENGTH_SHORT).show()
             findNavController().popBackStack()
@@ -167,7 +164,7 @@ class PlayerFragment : Fragment() {
                 val position = screenState.currentPosition
                 val isLike = screenState.isLike
                 isPlayList = screenState.isPlayList
-                playListName = screenState.playListName
+                val playListName = screenState.playListName
 
                 if (trackInfo != null) {
                     updateTrackUI(trackInfo)
