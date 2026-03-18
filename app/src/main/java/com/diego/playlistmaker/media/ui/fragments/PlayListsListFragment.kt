@@ -45,6 +45,7 @@ class PlayListsListFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        _binding = FragmentPlayListsListBinding.bind(view)
 
         observeViewModel()
         setClickListeners()
@@ -52,6 +53,7 @@ class PlayListsListFragment : Fragment() {
     }
 
     private fun setupRecycler() {
+        if (_binding == null) return
         val layoutManager = GridLayoutManager(
             requireContext(),
             2,
@@ -73,6 +75,7 @@ class PlayListsListFragment : Fragment() {
     }
 
     private fun updateUI(isEmpty: Boolean) {
+        if (_binding == null) return
         binding.playlistsEmpty.isVisible = isEmpty
     }
 
@@ -94,6 +97,7 @@ class PlayListsListFragment : Fragment() {
     }
 
     private fun setClickListeners() {
+        if (_binding == null) return
         binding.btnNewPlaylist.setOnClickListener {
             val action = MediaFragmentDirections.actionMediaFragmentToAddMediaPlayerFragment()
             findNavController().navigate(action)

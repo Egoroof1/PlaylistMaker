@@ -14,7 +14,6 @@ import com.diego.playlistmaker.media.ui.state.TracksState
 import com.diego.playlistmaker.media.ui.view_model.TracksFragmentViewModel
 import com.diego.playlistmaker.search.domain.models.Track
 import com.diego.playlistmaker.search.presentation.TrackAdapter
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.koin.androidx.viewmodel.ext.android.viewModel
@@ -25,12 +24,9 @@ class TracksFragment : Fragment() {
     private val binding get() = _binding!!
 
     private val viewModel: TracksFragmentViewModel by viewModel()
-
-    private val tracks = mutableListOf<Track>()
     private var isClicked = false
-
     private val trackAdapter by lazy {
-        TrackAdapter(tracks) { track -> onTrackClicked(track) }
+        TrackAdapter(emptyList()) { track -> onTrackClicked(track) }
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -59,7 +55,7 @@ class TracksFragment : Fragment() {
         if (!isClicked) {
             isClicked = true
 
-            viewLifecycleOwner.lifecycleScope.launch {
+            lifecycleScope.launch {
                 isClicked = false
                 delay(ANTY_DOUBLE_CLICK)
             }
@@ -74,22 +70,19 @@ class TracksFragment : Fragment() {
 
     @SuppressLint("NotifyDataSetChanged")
     private fun observeViewModel() {
-        lifecycleScope.launch(Dispatchers.Main) {
+        lifecycleScope.launch {
             viewModel.tracksState.collect { tracksState ->
-                tracks.clear()
-                tracks.addAll(tracksState.tracksList)
-                trackAdapter.notifyDataSetChanged()
+                binding.progressBar.isVisible = true
+                trackAdapter.updateList(tracksState.tracksList)
+                binding.progressBar.isVisible = false
+
                 updateUI(tracksState)
             }
         }
     }
 
     private fun updateUI(tracksState: TracksState){
-        if (tracksState.tracksList.isEmpty()) {
-            binding.emptyFavorite.isVisible = true
-        } else {
-            binding.emptyFavorite.isVisible = false
-        }
+            binding.emptyFavorite.isVisible = tracksState.tracksList.isEmpty()
     }
 
     companion object {
