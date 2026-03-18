@@ -28,4 +28,9 @@ class TrackAdapter(
         return tracks.size
     }
 
+    fun updateList(newTracks: List<Track>) {
+        tracks = newTracks
+        notifyItemChanged(0)
+    }
+
 }

@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.diego.playlistmaker.media.domain.use_case.PlayListInteractor
 import com.diego.playlistmaker.media.ui.state.AllPlayListsState
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
@@ -20,7 +21,7 @@ class PlayListsFragmentViewModel(
     }
 
     private fun observeAllPlayList() {
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             playListInteractor.getAllPlayList().collect { lists ->
                 updateState {
                     it.copy(playLists = lists)
@@ -29,7 +30,7 @@ class PlayListsFragmentViewModel(
         }
     }
 
-    private fun updateState(updater: (AllPlayListsState) -> AllPlayListsState){
+    private fun updateState(updater: (AllPlayListsState) -> AllPlayListsState) {
         val currentState = _state.value
         _state.value = updater(currentState)
     }
