@@ -1,7 +1,6 @@
 package com.diego.playlistmaker.player.ui
 
 import android.os.Bundle
-import android.util.Log
 import android.util.TypedValue
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
@@ -33,6 +32,7 @@ class PlayerFragment : Fragment() {
     private val binding get() = _binding!!
     private val viewModel: PlayerViewModel by viewModel()
     private var currentTrack: Track? = null
+    private var currentPlayList: PlayList? = null
     private var isPlayList: Boolean = false
     private var isFirstCreation: Boolean = false
 
@@ -144,6 +144,18 @@ class PlayerFragment : Fragment() {
             if (!isPlayList) {
                 bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
             }
+
+            binding.btnAddToPlaylist.setImageResource(R.drawable.ic_btn_is_add_to_playlist)
+
+
+
+            try {
+                val action = PlayerFragmentDirections.actionPlayerFragmentToPlayListFragment(playList = currentPlayList)
+                findNavController().navigate(action)
+            } catch (e: Exception){
+                e.printStackTrace()
+            }
+
         }
 
         binding.btnNewPlaylist.setOnClickListener {

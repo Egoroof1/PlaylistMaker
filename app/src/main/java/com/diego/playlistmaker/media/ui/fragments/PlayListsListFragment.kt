@@ -10,7 +10,7 @@ import androidx.core.view.isVisible
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.GridLayoutManager
-import com.diego.playlistmaker.databinding.FragmentPlayListsBinding
+import com.diego.playlistmaker.databinding.FragmentPlayListsListBinding
 import com.diego.playlistmaker.media.domain.models.PlayList
 import com.diego.playlistmaker.media.presentation.PlayListAdapter
 import com.diego.playlistmaker.media.ui.view_model.PlayListsFragmentViewModel
@@ -19,8 +19,8 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
-class PlayListsFragment : Fragment() {
-    private var _binding: FragmentPlayListsBinding? = null
+class PlayListsListFragment : Fragment() {
+    private var _binding: FragmentPlayListsListBinding? = null
     private val binding get() = _binding!!
 
     private val viewModel: PlayListsFragmentViewModel by viewModel()
@@ -42,7 +42,7 @@ class PlayListsFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        _binding = FragmentPlayListsBinding.inflate(inflater, container, false)
+        _binding = FragmentPlayListsListBinding.inflate(inflater, container, false)
         return binding.root
     }
 

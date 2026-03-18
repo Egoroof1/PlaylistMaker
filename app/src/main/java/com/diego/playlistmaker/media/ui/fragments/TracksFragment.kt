@@ -78,7 +78,7 @@ class TracksFragment : Fragment() {
             viewModel.tracksState.collect { tracksState ->
                 tracks.clear()
                 tracks.addAll(tracksState.tracksList)
-                binding.recyclerTracksFavorite.adapter?.notifyDataSetChanged()
+                trackAdapter.notifyDataSetChanged()
                 updateUI(tracksState)
             }
         }
