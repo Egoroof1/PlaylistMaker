@@ -1,19 +1,12 @@
 package com.diego.playlistmaker.media.data.database.entities
 
 import androidx.room.Entity
-import androidx.room.ForeignKey
+import androidx.room.Index
 import androidx.room.PrimaryKey
 
 @Entity(
     tableName = "track_in_play_list_table",
-    foreignKeys = [
-        ForeignKey(
-            entity = PlayListEntity::class,
-            parentColumns = ["id"],
-            childColumns = ["playlistId"],
-            onDelete = ForeignKey.CASCADE // При удалении плейлиста удаляются все его треки
-        )
-    ]
+    indices = [Index(value = ["playlistId"])] // Рекомендуется для производительности
     )
 data class TrackInPlayListEntity(
     @PrimaryKey(autoGenerate = true)

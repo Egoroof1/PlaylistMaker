@@ -66,7 +66,7 @@ class AddMediaPlayerViewModel(
             image = state.value.image
         }
         viewModelScope.launch(Dispatchers.IO){
-            playListRepository.insertPlayList(playList.copy(coverImagePath = image))
+//            playListRepository.insertPlayList(playList.copy(coverImagePath = image))
         }
     }
 

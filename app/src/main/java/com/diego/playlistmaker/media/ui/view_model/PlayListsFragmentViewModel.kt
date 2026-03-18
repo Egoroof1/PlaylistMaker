@@ -21,11 +21,11 @@ class PlayListsFragmentViewModel(
 
     private fun observeAllPlayList() {
         viewModelScope.launch {
-            playListInteractor.getAllPlayList().collect { lists ->
-                updateState { state ->
-                    state.copy(playLists = lists)
-                }
-            }
+//            playListInteractor.getAllPlayList().collect { lists ->
+//                updateState { state ->
+//                    state.copy(playLists = lists)
+//                }
+//            }
         }
     }
 

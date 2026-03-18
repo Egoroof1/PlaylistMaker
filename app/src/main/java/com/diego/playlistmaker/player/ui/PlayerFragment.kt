@@ -106,7 +106,7 @@ class PlayerFragment : Fragment() {
             }
         })
 
-        // Теперь синхронизируем overlay с текущим состоянием
+
         if (!isFirstCreation) {
             // Первый вход - скрываем bottom sheet
             bottomSheetBehavior.state = BottomSheetBehavior.STATE_HIDDEN
@@ -176,7 +176,6 @@ class PlayerFragment : Fragment() {
         }
 
         viewModel.screenState.observe(viewLifecycleOwner) { stats ->
-            Log.d("TAG", "Playlists received: ${stats.playListList.size}")
             // Обновляем адаптер
             playListAdapter.playLists = stats.playListList
             playListAdapter.notifyDataSetChanged()
