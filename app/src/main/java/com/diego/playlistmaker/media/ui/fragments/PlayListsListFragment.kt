@@ -91,14 +91,14 @@ class PlayListsListFragment : Fragment() {
             Log.d("TAG", "onPlayListClicked: CKLICK")
 
             // Переходим на PlayerFragment
-//            val action = MediaFragmentDirections.actionMediaFragmentToPlayerFragment(playList.id)
-//            findNavController().navigate(action)
+            val action = MediaFragmentDirections.actionMediaFragmentToPlayListFragment(playList.id)
+            findNavController().navigate(action)
         }
     }
 
     private fun setClickListeners() {
         if (_binding == null) return
-        binding.btnNewPlaylist.setOnClickListener {
+        binding.btnCreateNewPlaylist.setOnClickListener {
             val action = MediaFragmentDirections.actionMediaFragmentToAddMediaPlayerFragment()
             findNavController().navigate(action)
         }

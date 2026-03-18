@@ -65,9 +65,8 @@
         android:label="fragment_play_list"
         tools:layout="@layout/fragment_play_list">
         <argument
-            android:name="playList"
-            app:argType="com.diego.playlistmaker.media.domain.models.PlayList"
-            app:nullable="true"
-            android:defaultValue="@null" />
+            android:name="playListId"
+            app:argType="integer"
+            android:defaultValue="-1" />
     </fragment>
 </navigation>

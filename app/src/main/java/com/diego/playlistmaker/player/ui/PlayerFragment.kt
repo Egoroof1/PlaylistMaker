@@ -32,7 +32,6 @@ class PlayerFragment : Fragment() {
     private val binding get() = _binding!!
     private val viewModel: PlayerViewModel by viewModel()
     private var currentTrack: Track? = null
-    private var currentPlayList: PlayList? = null
     private var isPlayList: Boolean = false
     private var isFirstCreation: Boolean = false
 
@@ -147,18 +146,16 @@ class PlayerFragment : Fragment() {
 
             binding.btnAddToPlaylist.setImageResource(R.drawable.ic_btn_is_add_to_playlist)
 
-
-
-            try {
-                val action = PlayerFragmentDirections.actionPlayerFragmentToPlayListFragment(playList = currentPlayList)
-                findNavController().navigate(action)
-            } catch (e: Exception){
-                e.printStackTrace()
-            }
+//            try {
+//                val action = PlayerFragmentDirections.actionPlayerFragmentToPlayListFragment()
+//                findNavController().navigate(action)
+//            } catch (e: Exception){
+//                e.printStackTrace()
+//            }
 
         }
 
-        binding.btnNewPlaylist.setOnClickListener {
+        binding.btnCreateNewPlaylist.setOnClickListener {
 
             val action = PlayerFragmentDirections.actionPlayerFragmentToAddMediaPlayerFragment()
             findNavController().navigate(action)

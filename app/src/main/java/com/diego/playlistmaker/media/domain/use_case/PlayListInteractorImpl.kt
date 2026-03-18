@@ -20,10 +20,10 @@ class PlayListInteractorImpl(
 //        repository.deletePlayListById(playListId)
 //    }
 //
-//    override suspend fun getPlayListById(playListId: Int): PlayList? {
-//        return repository.getPlayListById(playListId)?.toPlayList()
-//    }
-//
+    override suspend fun getPlayListById(playListId: Int): PlayList? {
+        return repository.getPlayListById(playListId)?.toPlayList()
+    }
+
     override fun getAllPlayList(): Flow<List<PlayList>> {
         return repository.getAllPlayList().map { entities ->
             entities.map {
@@ -62,8 +62,8 @@ interface PlayListInteractor {
 
 //    suspend fun deletePlayListById(playListId: Int)
 //
-//    suspend fun getPlayListById(playListId: Int): PlayList?
-//
+    suspend fun getPlayListById(playListId: Int): PlayList?
+
     fun getAllPlayList(): Flow<List<PlayList>>
 //
 //    fun getAllTracksForPlayList(): Flow<List<TrackInPlayList>>
