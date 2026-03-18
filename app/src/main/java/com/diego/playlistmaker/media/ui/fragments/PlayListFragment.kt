@@ -9,7 +9,6 @@ import android.view.ViewGroup
 import androidx.core.view.isVisible
 import androidx.navigation.fragment.navArgs
 import com.diego.playlistmaker.databinding.FragmentPlayListBinding
-import com.diego.playlistmaker.media.domain.models.PlayList
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import kotlin.getValue
 
@@ -20,7 +19,7 @@ class PlayListFragment : Fragment() {
     private val binding get() = _binding!!
     private var isFirstCreation: Boolean = false
 
-    private var currentPlayList: PlayList? = null
+    private var currentPlayListId: Int = -1
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -36,9 +35,9 @@ class PlayListFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        currentPlayList = args.playList
+        currentPlayListId = args.playListId
 
-        Log.d("TAG", "onViewCreated: $currentPlayList")
+        Log.d("TAG", "onViewCreated: $currentPlayListId")
 
         setBottomSheet()
 
