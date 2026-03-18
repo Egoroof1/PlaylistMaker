@@ -21,7 +21,7 @@ interface PlayListDao {
     @Query("SELECT * FROM play_list_table WHERE id = :playListId")
     suspend fun getPlayListById(playListId: Int): PlayListEntity?
 
-    @Query("SELECT * FROM play_list_table")
+    @Query("SELECT * FROM play_list_table ORDER BY id DESC")
     fun getAllPlayList(): Flow<List<PlayListEntity>>
 
     @Query("SELECT * FROM track_in_play_list_table ORDER BY id DESC")

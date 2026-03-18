@@ -60,14 +60,4 @@ class MediaFragment : Fragment() {
         super.onDestroyView()
         tabsMediator.detach()
     }
-
-    companion object {
-        @JvmStatic
-        fun newInstance() =
-            MediaFragment().apply {
-                arguments = Bundle().apply {
-
-                }
-            }
-    }
 }

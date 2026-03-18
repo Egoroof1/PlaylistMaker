@@ -62,24 +62,24 @@ class PlayerViewModel(
 
         viewModelScope.launch {
             val isLike = repositoryUseCase.isFavorite(track.trackId)
-            val isPlayList = trackInPlayListInteractor.isPlayList(track.trackId)
-            val playListId = trackInPlayListInteractor.getTrackInPlayListByIdTrack(track.trackId)?.playlistId ?: -1
-            val playListName = playListInteractor.getPlayListById(playListId)?.name ?: ""
-
-            if (isPlayList) {
-                updateState {
-                    it.copy(
-                        playListId = playListId,
-                        playListName = playListName
-                    )
-                }
-            }
+//            val isPlayList = trackInPlayListInteractor.isPlayList(track.trackId)
+//            val playListId = trackInPlayListInteractor.getTrackInPlayListByIdTrack(track.trackId)?.playlistId ?: -1
+//            val playListName = playListInteractor.getPlayListById(playListId)?.name ?: ""
+//
+//            if (isPlayList) {
+//                updateState {
+//                    it.copy(
+//                        playListId = playListId,
+//                        playListName = playListName
+//                    )
+//                }
+//            }
 
             updateState {
                 it.copy(
                     trackInfo = trackInfo,
                     isLike = isLike,
-                    isPlayList = isPlayList
+//                    isPlayList = isPlayList
                 )
             }
         }
@@ -204,30 +204,30 @@ class PlayerViewModel(
 
     private fun loadPlayLists() {
         viewModelScope.launch {
-            playListInteractor.getAllPlayList().collect { lists ->
-                updateState { it.copy(playListList = lists) }
-            }
+//            playListInteractor.getAllPlayList().collect { lists ->
+//                updateState { it.copy(playListList = lists) }
+//            }
 
-            Log.d("TAG", "loadPlayLists: ${screenState.value?.playListList[0]?.totalTimeMillis}")
+//            Log.d("TAG", "loadPlayLists: ${screenState.value?.playListList[0]?.totalTimeMillis}")
         }
     }
 
     fun addTrackToPlayList(playListId: Int, track: Track) {
         viewModelScope.launch(Dispatchers.IO) {
-            playListInteractor.incrementTracksCount(playListId)
-            playListInteractor.updateTotalTimeMillis(playListId, track.trackTimeMillis)
-            trackInPlayListInteractor.insertTrackInPlayList(TrackInPlayList(track = track, playlistId = playListId))
+//            playListInteractor.incrementTracksCount(playListId)
+//            playListInteractor.updateTotalTimeMillis(playListId, track.trackTimeMillis)
+//            trackInPlayListInteractor.insertTrackInPlayList(TrackInPlayList(track = track, playlistId = playListId))
         }
 
         viewModelScope.launch {
             val namePL = withContext(Dispatchers.IO) {
-                playListInteractor.getPlayListById(playListId)?.name ?: ""
+//                playListInteractor.getPlayListById(playListId)?.name ?: ""
             }
 
             updateState {
                 it.copy(
                     isPlayList = true,
-                    playListName = namePL
+//                    playListName = namePL
                 )
             }
         }
