@@ -11,7 +11,6 @@ import android.widget.Toast
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
-import androidx.core.net.toUri
 import androidx.core.view.isVisible
 import androidx.core.widget.doOnTextChanged
 import androidx.fragment.app.Fragment
@@ -20,7 +19,6 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
 import com.diego.playlistmaker.databinding.FragmentAddMediaPlayerBinding
-import com.diego.playlistmaker.media.domain.models.PlayList
 import com.diego.playlistmaker.media.ui.state.AddMediaPlayerState
 import com.diego.playlistmaker.media.ui.view_model.AddMediaPlayerViewModel
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
@@ -33,7 +31,7 @@ class AddMediaPlayerFragment : Fragment() {
 
     private val viewModel: AddMediaPlayerViewModel by viewModel()
 
-    private var currentUri: Uri = "".toUri()
+    private var currentUri: Uri? = null
 
     private val pickMedia =
         registerForActivityResult(ActivityResultContracts.PickVisualMedia()) { uri ->
@@ -121,22 +119,25 @@ class AddMediaPlayerFragment : Fragment() {
         }
 
         binding.btnCreatePlaylist.setOnClickListener {
-            viewModel.saveImage(currentUri ,binding.etNamePlaylist.text.toString())
+            val name = binding.etNamePlaylist.text.toString()
+            val description = binding.etDescriptionPlaylist.text.toString()
 
-            viewModel.savePlayList(
-                PlayList(
-                    name = binding.etNamePlaylist.text.toString(),
-                    description = binding.etDescriptionPlaylist.text.toString()
-                )
-            )
+            lifecycleScope.launch {
+                binding.overlay.isVisible = true
+                binding.progressBar.isVisible = true
 
-            Toast.makeText(
-                requireContext(),
-                "Плейлист ${binding.etNamePlaylist.text} создан",
-                Toast.LENGTH_SHORT
-            ).show()
+                val result = viewModel.createPlayList(currentUri, name, description)
 
-            findNavController().popBackStack()
+                binding.overlay.isVisible = false
+                binding.progressBar.isVisible = false
+
+                if (result){
+                    Toast.makeText(requireContext(), "Плейлист $name создан", Toast.LENGTH_SHORT).show()
+                    findNavController().popBackStack()
+                } else {
+                    Toast.makeText(requireContext(), "Ошибка при создании плейлиста", Toast.LENGTH_SHORT).show()
+                }
+            }
         }
 
         binding.pickerImage.setOnClickListener {
@@ -145,7 +146,7 @@ class AddMediaPlayerFragment : Fragment() {
     }
 
     private fun checkIsEmptyDialogExit(state: AddMediaPlayerState) {
-        if (state.nameIsEnable || state.descIsEnable || state.image.isNotEmpty()) {
+        if (state.nameIsEnable || state.descIsEnable || currentUri != null) {
             MaterialAlertDialogBuilder(requireContext())
                 .setTitle("Завершить создание плейлиста?")
                 .setMessage("Все несохраненные данные будут потеряны")
