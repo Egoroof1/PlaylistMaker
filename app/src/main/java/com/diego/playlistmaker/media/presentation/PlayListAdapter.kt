@@ -2,8 +2,10 @@ package com.diego.playlistmaker.media.presentation
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
-import androidx.core.net.toUri
 import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.Glide
+import com.bumptech.glide.load.engine.DiskCacheStrategy
+import com.diego.playlistmaker.R
 import com.diego.playlistmaker.databinding.ItemPlaylistBinding
 import com.diego.playlistmaker.media.domain.models.PlayList
 
@@ -36,7 +38,18 @@ class PlayListAdapter (
             binding.tvQuantityTracks.text = "$quantityTracks ${getPluralForm(quantityTracks)}"
 
             if (playList.coverImagePath.isNotEmpty()) {
-                binding.ivCoverPlaylist.setImageURI(playList.coverImagePath.toUri())
+                Glide.with(binding.ivCoverPlaylist.context)
+                    .load(playList.coverImagePath) // может быть File, String, Uri
+                    .placeholder(R.drawable.placeholder) // показываем, пока грузится
+                    .error(R.drawable.placeholder) // если ошибка загрузки
+                    .centerCrop()
+                    .override(160, 160) // РЕСАЙЗИМ под размер ImageView
+                    .diskCacheStrategy(DiskCacheStrategy.ALL) // КЭШИРУЕМ на диск
+                    .skipMemoryCache(false) // используем memory cache
+                    .into(binding.ivCoverPlaylist)
+            } else {
+                // Если путь пустой - ставим плейсхолдер
+                binding.ivCoverPlaylist.setImageResource(R.drawable.placeholder)
             }
         }
 
@@ -77,7 +90,7 @@ class PlayListAdapter (
 
     fun updateList(newList: List<PlayList>) {
         playLists = newList
-        notifyItemChanged(0)
+        notifyItemRangeChanged(0, playLists.size)
     }
 
 }
