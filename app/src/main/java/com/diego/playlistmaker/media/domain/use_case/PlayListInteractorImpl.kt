@@ -12,10 +12,10 @@ import kotlinx.coroutines.flow.map
 class PlayListInteractorImpl(
     private val repository: PlayListRepository
 ) : PlayListInteractor {
-//    override suspend fun insertPlayList(playList: PlayList) {
-//        repository.insertPlayList(playList.toPlayListEntity())
-//    }
-//
+    override suspend fun insertPlayList(playList: PlayList) {
+        repository.insertPlayList(playList.toPlayListEntity())
+    }
+
 //    override suspend fun deletePlayListById(playListId: Int) {
 //        repository.deletePlayListById(playListId)
 //    }
@@ -24,13 +24,13 @@ class PlayListInteractorImpl(
 //        return repository.getPlayListById(playListId)?.toPlayList()
 //    }
 //
-//    override fun getAllPlayList(): Flow<List<PlayList>> {
-//        return repository.getAllPlayList().map { entities ->
-//            entities.map {
-//                it.toPlayList()
-//            }
-//        }
-//    }
+    override fun getAllPlayList(): Flow<List<PlayList>> {
+        return repository.getAllPlayList().map { entities ->
+            entities.map {
+                it.toPlayList()
+            }
+        }
+    }
 //
 //    override fun getAllTracksForPlayList(): Flow<List<TrackInPlayList>> {
 //        return repository.getAllTracksForPlayList().map { entities ->
@@ -58,13 +58,13 @@ class PlayListInteractorImpl(
 }
 
 interface PlayListInteractor {
-//    suspend fun insertPlayList(playList: PlayList)
-//
+    suspend fun insertPlayList(playList: PlayList)
+
 //    suspend fun deletePlayListById(playListId: Int)
 //
 //    suspend fun getPlayListById(playListId: Int): PlayList?
 //
-//    fun getAllPlayList(): Flow<List<PlayList>>
+    fun getAllPlayList(): Flow<List<PlayList>>
 //
 //    fun getAllTracksForPlayList(): Flow<List<TrackInPlayList>>
 //

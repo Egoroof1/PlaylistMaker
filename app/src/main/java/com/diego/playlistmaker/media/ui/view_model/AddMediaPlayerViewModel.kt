@@ -3,7 +3,6 @@ package com.diego.playlistmaker.media.ui.view_model
 import android.net.Uri
 import android.util.Log
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
 import com.diego.playlistmaker.R
 import com.diego.playlistmaker.media.data.image_storage.ImageStorageRepository
 import com.diego.playlistmaker.media.domain.models.PlayList
@@ -12,7 +11,7 @@ import com.diego.playlistmaker.media.ui.state.AddMediaPlayerState
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class AddMediaPlayerViewModel(
     private val imageRepository: ImageStorageRepository,
@@ -54,19 +53,27 @@ class AddMediaPlayerViewModel(
         }
     }
 
-    fun saveImage(uri: Uri, name: String){
-        val newImage = imageRepository.saveImage(uri, name)
-        updateState { it.copy(image = newImage) }
-        Log.d("TAG", "saveImage: $newImage")
-    }
-
-    fun savePlayList(playList: PlayList){
-        var image = ""
-        if (state.value.image.isNotEmpty()){
-            image = state.value.image
-        }
-        viewModelScope.launch(Dispatchers.IO){
-//            playListRepository.insertPlayList(playList.copy(coverImagePath = image))
+    suspend fun createPlayList(uri: Uri?, name: String, description: String): Boolean{
+        return withContext(Dispatchers.IO){
+            var newImagePath = ""
+            try {
+                uri?.let {
+                    newImagePath = imageRepository.saveImage(it, name)
+                    updateState { state -> state.copy(image = newImagePath) }
+                    Log.d("TAG", "createPlayList: $newImagePath")
+                }
+                playListRepository.insertPlayList(
+                    PlayList(
+                        name = name,
+                        description = description,
+                        coverImagePath = newImagePath
+                    )
+                )
+                true
+            } catch (e: Exception){
+                e.stackTrace
+                false
+            }
         }
     }
 

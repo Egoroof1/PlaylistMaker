@@ -22,13 +22,10 @@ import org.koin.androidx.viewmodel.ext.android.viewModel
 class PlayListsListFragment : Fragment() {
     private var _binding: FragmentPlayListsListBinding? = null
     private val binding get() = _binding!!
-
     private val viewModel: PlayListsFragmentViewModel by viewModel()
-
     private val playListsAdapter by lazy {
-        PlayListAdapter(playLists) { playList -> onPlayListClicked(playList)}
+        PlayListAdapter(emptyList()) { playList -> onPlayListClicked(playList) }
     }
-    private var playLists = emptyList<PlayList>()
     private var isClicked = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -51,11 +48,10 @@ class PlayListsListFragment : Fragment() {
 
         observeViewModel()
         setClickListeners()
-        recycler()
-        updateUI()
+        setupRecycler()
     }
 
-    private fun recycler(){
+    private fun setupRecycler() {
         val layoutManager = GridLayoutManager(
             requireContext(),
             2,
@@ -70,39 +66,34 @@ class PlayListsListFragment : Fragment() {
     private fun observeViewModel() {
         lifecycleScope.launch(Dispatchers.Main) {
             viewModel.state.collect { state ->
-                playLists = state.playLists
-                playListsAdapter.updateList(playLists)
-                updateUI()
-                Log.d("TAG", "observeViewModel: ${playLists.size}\n${playLists}")
+                playListsAdapter.updateList(state.playLists)
+                updateUI(state.playLists.isEmpty())
             }
         }
-
     }
 
-    private fun updateUI(){
-        binding.playlistsEmpty.isVisible = playLists.isEmpty()
+    private fun updateUI(isEmpty: Boolean) {
+        binding.playlistsEmpty.isVisible = isEmpty
     }
 
     private fun onPlayListClicked(playList: PlayList) {
         if (!isClicked) {
             isClicked = true
 
-            lifecycleScope.launch(Dispatchers.Main) {
+            lifecycleScope.launch {
                 isClicked = false
                 delay(ANTY_DOUBLE_CLICK)
             }
 
-            Log.d("TAG", "onPlayListClicked: CLICK")
-
-//            viewModel.saveTrackToHistory(track)
+            Log.d("TAG", "onPlayListClicked: CKLICK")
 
             // Переходим на PlayerFragment
-//            val action = MediaFragmentDirections.actionMediaFragmentToPlayerFragment(playLists)
+//            val action = MediaFragmentDirections.actionMediaFragmentToPlayerFragment(playList.id)
 //            findNavController().navigate(action)
         }
     }
 
-    private fun setClickListeners(){
+    private fun setClickListeners() {
         binding.btnNewPlaylist.setOnClickListener {
             val action = MediaFragmentDirections.actionMediaFragmentToAddMediaPlayerFragment()
             findNavController().navigate(action)

@@ -18,7 +18,7 @@ fun String.toLatin(): String {
         'О' to "O", 'П' to "P", 'Р' to "R", 'С' to "S", 'Т' to "T",
         'У' to "U", 'Ф' to "F", 'Х' to "Kh", 'Ц' to "Ts", 'Ч' to "Ch",
         'Ш' to "Sh", 'Щ' to "Sch", 'Ъ' to "", 'Ы' to "Y", 'Ь' to "",
-        'Э' to "E", 'Ю' to "Yu", 'Я' to "Ya"
+        'Э' to "E", 'Ю' to "Yu", 'Я' to "Ya",
     )
 
     val result = StringBuilder()
