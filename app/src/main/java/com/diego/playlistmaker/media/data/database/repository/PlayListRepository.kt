@@ -20,7 +20,7 @@ interface PlayListRepository {
 
     suspend fun incrementTracksCount(playListId: Int)
 
-    suspend fun updateTotalTimeMillis(playListId: Int, timeMillis: Long)
+    suspend fun addTotalTimeMillis(playListId: Int, timeMillis: Long)
 
     suspend fun decrementTracksCount(playListId: Int)
 }

@@ -45,6 +45,21 @@ fun TrackInPlayListEntity.toTrackInPlayList(): TrackInPlayList {
     )
 }
 
+fun TrackInPlayListEntity.toTrack(): Track {
+    return Track(
+        trackId,
+        trackName,
+        artistName,
+        collectionName,
+        releaseDate,
+        primaryGenreName,
+        country,
+        trackTimeMillis,
+        artworkUrl100,
+        previewUrl
+    )
+}
+
 fun TrackInPlayList.toTrackInPlayListEntity(): TrackInPlayListEntity {
     return TrackInPlayListEntity(
         trackId = track.trackId,

@@ -2,6 +2,7 @@ package com.diego.playlistmaker.media.data.database.repository
 
 import com.diego.playlistmaker.media.data.database.AppDatabase
 import com.diego.playlistmaker.media.data.database.entities.TrackInPlayListEntity
+import kotlinx.coroutines.flow.Flow
 
 class TrackInPlayListRepositoryImpl(
     private val database: AppDatabase
@@ -14,11 +15,11 @@ class TrackInPlayListRepositoryImpl(
         database.trackInPlayListDao().deleteTrackForPlayListById(trackId)
     }
 
-    override suspend fun isPlayList(trackId: Int): Boolean {
-        return database.trackInPlayListDao().isPlayList(trackId)
+    override suspend fun getTrackInPlayListByTrackId(trackId: Int): TrackInPlayListEntity? {
+        return database.trackInPlayListDao().getTrackInPlayListByTrackId(trackId)
     }
 
-    override suspend fun getTrackInPlayListByIdTrack(trackId: Int): TrackInPlayListEntity? {
-        return database.trackInPlayListDao().getTrackInPlayListByIdTrack(trackId)
+    override fun getAllTracksInPlayListByIdPlaylist(playListId: Int): Flow<List<TrackInPlayListEntity>> {
+        return database.trackInPlayListDao().getAllTracksInPlayListByIdPlaylist(playListId)
     }
 }

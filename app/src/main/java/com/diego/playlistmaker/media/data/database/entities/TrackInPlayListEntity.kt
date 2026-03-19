@@ -6,7 +6,10 @@ import androidx.room.PrimaryKey
 
 @Entity(
     tableName = "track_in_play_list_table",
-    indices = [Index(value = ["playlistId"])] // Рекомендуется для производительности
+    indices = [
+        Index(value = ["playlistId"]),
+        Index(value = ["trackId"])
+    ]
     )
 data class TrackInPlayListEntity(
     @PrimaryKey(autoGenerate = true)
