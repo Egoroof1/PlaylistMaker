@@ -27,7 +27,7 @@ class PlayListHolder(
         currentPlayList = playList
 
         binding.etNamePlaylist.text = playList.name
-        binding.tvQuantityTracks.text = playList.quantityTracks.toString()
+        binding.tvItemPlaylistQuantityTracks.text = playList.quantityTracks.toString()
 
         if (playList.coverImagePath.isEmpty()){
             binding.image.setImageResource(R.drawable.placeholder)

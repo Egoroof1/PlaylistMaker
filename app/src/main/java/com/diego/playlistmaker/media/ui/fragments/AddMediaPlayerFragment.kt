@@ -18,6 +18,8 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
+import com.bumptech.glide.Glide
+import com.diego.playlistmaker.R
 import com.diego.playlistmaker.databinding.FragmentAddMediaPlayerBinding
 import com.diego.playlistmaker.media.ui.state.AddMediaPlayerState
 import com.diego.playlistmaker.media.ui.view_model.AddMediaPlayerViewModel
@@ -37,6 +39,13 @@ class AddMediaPlayerFragment : Fragment() {
         registerForActivityResult(ActivityResultContracts.PickVisualMedia()) { uri ->
             if (uri != null) {
                 binding.pickerImage.setImageURI(uri)
+                Glide.with(binding.pickerImage.context)
+                    .load(uri)
+                    .placeholder(R.drawable.placeholder)
+                    .error(R.drawable.placeholder)
+                    .centerCrop()
+                    .override(500, 500)
+                    .into(binding.pickerImage)
                 currentUri = uri
             } else {
                 Log.d("PhotoPicker", "No media selected")

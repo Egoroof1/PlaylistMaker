@@ -32,7 +32,7 @@
 
     <TextView
         style="@style/text_settings"
-        android:id="@+id/tv_quantity_tracks"
+        android:id="@+id/tv_item_playlist_quantity_tracks"
         android:layout_width="wrap_content"
         android:layout_height="13dp"
         android:maxWidth="100dp"

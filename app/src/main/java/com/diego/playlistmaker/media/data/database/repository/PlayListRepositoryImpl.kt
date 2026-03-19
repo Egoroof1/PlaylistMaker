@@ -41,6 +41,6 @@ class PlayListRepositoryImpl(
     }
 
     override suspend fun updateTotalTimeMillis(playListId: Int, timeMillis: Long) {
-        database.playListDao().updateTotalTimeMillis(playListId, timeMillis)
+        database.playListDao().addTotalTimeMillis(playListId, timeMillis)
     }
 }
