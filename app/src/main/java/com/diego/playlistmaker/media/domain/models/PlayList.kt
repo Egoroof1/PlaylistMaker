@@ -10,5 +10,5 @@ data class PlayList(
     val description: String = "",
     val coverImagePath: String = "",
     val quantityTracks: Int = 0,
-    val totalTimeMillis: Long = 0
+    val totalTimeMillis: Long = 0L
 ): Parcelable

@@ -32,13 +32,13 @@ class PlayListAdapter (
         fun bind(playList: PlayList){
             currentPlayList = playList
 
-            binding.tvPlaylistName.text = playList.name
+            binding.tvItemPlaylistName.text = playList.name
 
             val quantityTracks = playList.quantityTracks
-            binding.tvQuantityTracks.text = "$quantityTracks ${getPluralForm(quantityTracks)}"
+            binding.tvItemPlaylistQuantityTracks.text = getTracksCountText(quantityTracks)
 
             if (playList.coverImagePath.isNotEmpty()) {
-                Glide.with(binding.ivCoverPlaylist.context)
+                Glide.with(binding.ivCoverItemPlaylist.context)
                     .load(playList.coverImagePath) // может быть File, String, Uri
                     .placeholder(R.drawable.placeholder) // показываем, пока грузится
                     .error(R.drawable.placeholder) // если ошибка загрузки
@@ -46,18 +46,18 @@ class PlayListAdapter (
                     .override(160, 160) // РЕСАЙЗИМ под размер ImageView
                     .diskCacheStrategy(DiskCacheStrategy.ALL) // КЭШИРУЕМ на диск
                     .skipMemoryCache(false) // используем memory cache
-                    .into(binding.ivCoverPlaylist)
+                    .into(binding.ivCoverItemPlaylist)
             } else {
                 // Если путь пустой - ставим плейсхолдер
-                binding.ivCoverPlaylist.setImageResource(R.drawable.placeholder)
+                binding.ivCoverItemPlaylist.setImageResource(R.drawable.placeholder)
             }
         }
 
-        private fun getPluralForm(count: Int): String {
+        private fun getTracksCountText(count: Int): String {
             return when {
-                count % 10 == 1 && count % 100 != 11 -> "трек"
-                count % 10 in 2..4 && (count % 100 !in 12..14) -> "трека"
-                else -> "треков"
+                count % 10 == 1 && count % 100 != 11 -> "$count трек"
+                count % 10 in 2..4 && (count % 100 !in 12..14) -> "$count трека"
+                else -> "$count треков"
             }
         }
 

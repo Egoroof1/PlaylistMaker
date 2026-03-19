@@ -13,7 +13,7 @@ import androidx.recyclerview.widget.GridLayoutManager
 import com.diego.playlistmaker.databinding.FragmentPlayListsListBinding
 import com.diego.playlistmaker.media.domain.models.PlayList
 import com.diego.playlistmaker.media.presentation.PlayListAdapter
-import com.diego.playlistmaker.media.ui.view_model.PlayListsFragmentViewModel
+import com.diego.playlistmaker.media.ui.view_model.PlayListsListViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -22,7 +22,7 @@ import org.koin.androidx.viewmodel.ext.android.viewModel
 class PlayListsListFragment : Fragment() {
     private var _binding: FragmentPlayListsListBinding? = null
     private val binding get() = _binding!!
-    private val viewModel: PlayListsFragmentViewModel by viewModel()
+    private val viewModel: PlayListsListViewModel by viewModel()
     private val playListsAdapter by lazy {
         PlayListAdapter(emptyList()) { playList -> onPlayListClicked(playList) }
     }

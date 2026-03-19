@@ -8,7 +8,7 @@
     android:orientation="vertical">
 
     <ImageView
-        android:id="@+id/iv_cover_playlist"
+        android:id="@+id/iv_cover_item_playlist"
         android:layout_width="160dp"
         android:layout_height="160dp"
         android:background="@drawable/bg_corners_8"
@@ -19,7 +19,7 @@
         tools:targetApi="31" />
 
     <TextView
-        android:id="@+id/tv_playlist_name"
+        android:id="@+id/tv_item_playlist_name"
         android:layout_width="160dp"
         android:layout_height="wrap_content"
         style="@style/text_settings"
@@ -29,7 +29,7 @@
         tools:text="Name"/>
 
     <TextView
-        android:id="@+id/tv_quantity_tracks"
+        android:id="@+id/tv_item_playlist_quantity_tracks"
         android:layout_width="160dp"
         android:layout_height="wrap_content"
         style="@style/text_settings"

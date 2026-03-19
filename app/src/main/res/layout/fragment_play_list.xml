@@ -13,7 +13,7 @@
         android:orientation="vertical">
 
         <ImageView
-            android:id="@+id/imageView"
+            android:id="@+id/iv_caver_playlist"
             android:layout_width="0dp"
             android:layout_height="0dp"
             android:contentDescription="@string/description"
@@ -38,7 +38,7 @@
             tools:text="Playlist name"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/imageView" />
+            app:layout_constraintTop_toBottomOf="@+id/iv_caver_playlist" />
 
         <TextView
             android:id="@+id/tv_year_playlist"

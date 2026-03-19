@@ -2,7 +2,8 @@ package com.diego.playlistmaker.di
 
 import com.diego.playlistmaker.media.ui.view_model.AddMediaPlayerViewModel
 import com.diego.playlistmaker.media.ui.view_model.MediaViewModel
-import com.diego.playlistmaker.media.ui.view_model.PlayListsFragmentViewModel
+import com.diego.playlistmaker.media.ui.view_model.PlayListViewModel
+import com.diego.playlistmaker.media.ui.view_model.PlayListsListViewModel
 import com.diego.playlistmaker.media.ui.view_model.TracksFragmentViewModel
 import com.diego.playlistmaker.player.ui.PlayerViewModel
 import com.diego.playlistmaker.search.ui.view_model.SearchViewModel
@@ -39,7 +40,7 @@ val viewModelModule = module {
 
     // PlayLists Fragment ViewModel
     viewModel {
-        PlayListsFragmentViewModel(get())
+        PlayListsListViewModel(get())
     }
 
     // Tracks Fragment ViewModel
@@ -49,5 +50,9 @@ val viewModelModule = module {
 
     viewModel {
         AddMediaPlayerViewModel(get(), get())
+    }
+
+    viewModel {
+        PlayListViewModel(get())
     }
 }

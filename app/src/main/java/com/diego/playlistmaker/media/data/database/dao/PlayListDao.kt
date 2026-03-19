@@ -34,7 +34,10 @@ interface PlayListDao {
     suspend fun incrementTracksCount(playListId: Int)
 
     @Query("UPDATE play_list_table SET totalTimeMillis = totalTimeMillis + :timeMillis WHERE id = :playListId")
-    suspend fun updateTotalTimeMillis(playListId: Int, timeMillis: Long)
+    suspend fun addTotalTimeMillis(playListId: Int, timeMillis: Long)
+
+    @Query("UPDATE play_list_table SET totalTimeMillis = totalTimeMillis - :timeMillis WHERE id = :playListId")
+    suspend fun reduceTotalTimeMillis(playListId: Int, timeMillis: Long)
 
     @Query("UPDATE play_list_table SET quantityTracks = quantityTracks - 1 WHERE id = :playListId")
     suspend fun decrementTracksCount(playListId: Int)
