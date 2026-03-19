@@ -5,7 +5,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.diego.playlistmaker.media.domain.models.PlayList
 
 class PlayListAdapter(
-    var playLists: List<PlayList>,
+    private var playLists: List<PlayList>,
     private val onPlayListClick: (PlayList) -> Unit
 ) : RecyclerView.Adapter<PlayListHolder>() {
 
@@ -24,5 +24,10 @@ class PlayListAdapter(
     }
 
     override fun getItemCount(): Int = playLists.size
+
+    fun updatePlayList(newPlayLists: List<PlayList>){
+        playLists = newPlayLists
+        notifyItemRangeChanged(0, playLists.size)
+    }
 
 }

@@ -3,9 +3,7 @@ package com.diego.playlistmaker.media.domain.use_case
 import com.diego.playlistmaker.media.data.database.repository.PlayListRepository
 import com.diego.playlistmaker.media.domain.mapper.toPlayList
 import com.diego.playlistmaker.media.domain.mapper.toPlayListEntity
-import com.diego.playlistmaker.media.domain.mapper.toTrackInPlayList
 import com.diego.playlistmaker.media.domain.models.PlayList
-import com.diego.playlistmaker.media.domain.models.TrackInPlayList
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 
@@ -39,22 +37,22 @@ class PlayListInteractorImpl(
 //            }
 //        }
 //    }
-//
-//    override suspend fun updatePlayList(playList: PlayList) {
-//        repository.updatePlayList(playList.toPlayListEntity())
-//    }
-//
-//    override suspend fun incrementTracksCount(playListId: Int) {
-//        repository.incrementTracksCount(playListId)
-//    }
-//
+
+    override suspend fun updatePlayList(playList: PlayList) {
+        repository.updatePlayList(playList.toPlayListEntity())
+    }
+
+    override suspend fun incrementTracksCount(playListId: Int) {
+        repository.incrementTracksCount(playListId)
+    }
+
 //    override suspend fun decrementTracksCount(playListId: Int) {
 //        repository.decrementTracksCount(playListId)
 //    }
 //
-//    override suspend fun updateTotalTimeMillis(playListId: Int, timeMillis: Long) {
-//        repository.updateTotalTimeMillis(playListId, timeMillis)
-//    }
+    override suspend fun addTotalTimeMillis(playListId: Int, timeMillis: Long) {
+        repository.addTotalTimeMillis(playListId, timeMillis)
+    }
 }
 
 interface PlayListInteractor {
@@ -67,12 +65,12 @@ interface PlayListInteractor {
     fun getAllPlayList(): Flow<List<PlayList>>
 //
 //    fun getAllTracksForPlayList(): Flow<List<TrackInPlayList>>
-//
-//    suspend fun updatePlayList(playList: PlayList)
-//
-//    suspend fun incrementTracksCount(playListId: Int)
-//
+
+    suspend fun updatePlayList(playList: PlayList)
+
+    suspend fun incrementTracksCount(playListId: Int)
+
 //    suspend fun decrementTracksCount(playListId: Int)
-//
-//    suspend fun updateTotalTimeMillis(playListId: Int, timeMillis: Long)
+
+    suspend fun addTotalTimeMillis(playListId: Int, timeMillis: Long)
 }

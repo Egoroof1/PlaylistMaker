@@ -15,6 +15,8 @@ import com.diego.playlistmaker.R
 import com.diego.playlistmaker.databinding.FragmentPlayListBinding
 import com.diego.playlistmaker.media.ui.state.PlayListState
 import com.diego.playlistmaker.media.ui.view_model.PlayListViewModel
+import com.diego.playlistmaker.search.domain.models.Track
+import com.diego.playlistmaker.search.presentation.TrackAdapter
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import kotlinx.coroutines.launch
 import org.koin.androidx.viewmodel.ext.android.viewModel
@@ -27,6 +29,10 @@ class PlayListFragment : Fragment() {
     private val binding get() = _binding!!
     private val viewModel: PlayListViewModel by viewModel()
     private var isFirstCreation: Boolean = false
+
+    private val trackAdapter: TrackAdapter by lazy {
+        TrackAdapter(emptyList()) { track -> onTrackClicked(track) }
+    }
 
     private var currentPlayListId: Int = -1
 
@@ -48,15 +54,24 @@ class PlayListFragment : Fragment() {
 
         observeViewModel()
         setBottomSheet()
+
+        binding.recyclerBottomSheet.adapter = trackAdapter
+    }
+
+    private fun onTrackClicked(track: Track){
+        val action = PlayListFragmentDirections.actionPlayListListFragmentToPlayerFragment(track)
+        findNavController().navigate(action)
     }
 
     private fun observeViewModel(){
 
         viewLifecycleOwner.lifecycleScope.launch {
             viewModel.getPlayListBtId(currentPlayListId)
+            viewModel.getTracksFromPlayList(currentPlayListId)
 
             viewModel.state.collect { state ->
                 updateUi(state)
+                trackAdapter.updateList(state.trackList)
             }
         }
     }

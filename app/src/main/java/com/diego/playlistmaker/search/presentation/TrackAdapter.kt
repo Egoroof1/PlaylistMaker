@@ -30,7 +30,7 @@ class TrackAdapter(
 
     fun updateList(newTracks: List<Track>) {
         tracks = newTracks
-        notifyItemChanged(0)
+        notifyItemRangeChanged(0, tracks.size)
     }
 
 }

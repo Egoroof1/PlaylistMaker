@@ -143,16 +143,6 @@ class PlayerFragment : Fragment() {
             if (!isPlayList) {
                 bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
             }
-
-            binding.btnAddToPlaylist.setImageResource(R.drawable.ic_btn_is_add_to_playlist)
-
-//            try {
-//                val action = PlayerFragmentDirections.actionPlayerFragmentToPlayListFragment()
-//                findNavController().navigate(action)
-//            } catch (e: Exception){
-//                e.printStackTrace()
-//            }
-
         }
 
         binding.btnCreateNewPlaylist.setOnClickListener {
@@ -185,9 +175,8 @@ class PlayerFragment : Fragment() {
         }
 
         viewModel.screenState.observe(viewLifecycleOwner) { stats ->
-            // Обновляем адаптер
-            playListAdapter.playLists = stats.playListList
-            playListAdapter.notifyDataSetChanged()
+
+            playListAdapter.updatePlayList(stats.playListList)
         }
     }
 
