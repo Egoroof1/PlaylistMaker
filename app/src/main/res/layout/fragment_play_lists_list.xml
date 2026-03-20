@@ -72,5 +72,31 @@
         app:layout_constraintTop_toBottomOf="@+id/btn_create_new_playlist"
         app:layout_constraintVertical_bias="0.0" />
 
+    <FrameLayout
+        android:id="@+id/view_name_playlist"
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:layout_gravity="bottom"
+        android:layout_marginHorizontal="8dp"
+        android:layout_marginBottom="16dp"
+        android:background="@color/string"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent">
+
+        <TextView
+            android:id="@+id/tv_name_playlist"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:fontFamily="@font/ys_display_regular"
+            android:textColor="@color/btn_update_text"
+            android:textFontWeight="400"
+            android:textSize="14sp"
+            tools:text="Пример"/>
+
+    </FrameLayout>
+
 
 </androidx.constraintlayout.widget.ConstraintLayout>

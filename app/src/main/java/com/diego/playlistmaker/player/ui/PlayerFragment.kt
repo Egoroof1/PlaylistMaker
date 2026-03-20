@@ -9,7 +9,9 @@ import android.view.ViewGroup
 import android.widget.LinearLayout
 import android.widget.Toast
 import androidx.core.view.isVisible
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import com.bumptech.glide.Glide
@@ -22,6 +24,7 @@ import com.diego.playlistmaker.player.models.TrackInfo
 import com.diego.playlistmaker.player.presenter.PlayListAdapter
 import com.diego.playlistmaker.search.domain.models.Track
 import com.google.android.material.bottomsheet.BottomSheetBehavior
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
@@ -33,7 +36,6 @@ class PlayerFragment : Fragment() {
     private val viewModel: PlayerViewModel by viewModel()
     private var currentTrack: Track? = null
     private var isPlayList: Boolean = false
-    private var isFirstCreation: Boolean = false
 
     private val playListAdapter: PlayListAdapter by lazy {
         PlayListAdapter(emptyList()) { playList -> onPlayListClicked(playList) }
@@ -55,7 +57,9 @@ class PlayerFragment : Fragment() {
         currentTrack = args.track
 
         if (currentTrack != null) {
-            viewModel.setTrack(currentTrack!!)
+            currentTrack?.let { track ->
+                viewModel.setTrack(track)
+            }
             setupUI()
             setupObservers()
             setBottomSheet()
@@ -67,16 +71,26 @@ class PlayerFragment : Fragment() {
     }
 
     private fun onPlayListClicked(playList: PlayList) {
+        viewModel.addTrackToPlayList(playList, currentTrack!!) { success ->
+            bottomSheetBehavior.state = BottomSheetBehavior.STATE_HIDDEN
 
+            val message = if (success) {
+                "${getString(R.string.added_to_playlist)} ${playList.name}"
+            } else {
+                "Трек уже добавлен в плейлист ${playList.name}"
+            }
 
-        viewModel.addTrackToPlayList(playList.id, currentTrack!!)
-        bottomSheetBehavior.state = BottomSheetBehavior.STATE_HIDDEN
-
-        Toast.makeText(requireContext(), "Трек добавлен в ${playList.name}", Toast.LENGTH_SHORT)
-            .show()
+            binding.tvNamePlaylist.text = message
+            lifecycleScope.launch {
+                binding.viewNamePlaylist.isVisible = true
+                delay(2000)
+                binding.viewNamePlaylist.isVisible = false
+            }
+        }
     }
 
     private fun setBottomSheet() {
+
         val bottomSheetContainer = binding.playlistBottomSheet
         val overlay = binding.overlay
 
@@ -106,27 +120,13 @@ class PlayerFragment : Fragment() {
         })
 
 
-        if (!isFirstCreation) {
-            // Первый вход - скрываем bottom sheet
-            bottomSheetBehavior.state = BottomSheetBehavior.STATE_HIDDEN
-            isFirstCreation = true
-            overlay.isVisible = true
-            overlay.alpha = 0f
-        } else {
-            // При возвращении - синхронизируем overlay с текущим состоянием behavior
-            when (bottomSheetBehavior.state) {
-                BottomSheetBehavior.STATE_HIDDEN -> {
-                    overlay.isVisible = false
-                }
-                else -> {
-                    overlay.isVisible = true
-                    overlay.alpha = 0.5f
-                }
-            }
-        }
+        bottomSheetBehavior.state = BottomSheetBehavior.STATE_HIDDEN
+        overlay.isVisible = true
+        overlay.alpha = 0f
     }
 
     private fun setupUI() {
+
         binding.toolbarPlayer.setNavigationOnClickListener {
             findNavController().popBackStack()
         }
@@ -140,9 +140,7 @@ class PlayerFragment : Fragment() {
         }
 
         binding.btnAddToPlaylist.setOnClickListener {
-            if (!isPlayList) {
-                bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
-            }
+            bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
         }
 
         binding.btnCreateNewPlaylist.setOnClickListener {
@@ -155,30 +153,28 @@ class PlayerFragment : Fragment() {
     }
 
     private fun setupObservers() {
-
         viewLifecycleOwner.lifecycleScope.launch {
-            viewModel.screenState.observe(viewLifecycleOwner) { screenState ->
-                val trackInfo = screenState.trackInfo
-                val playerState = screenState.playerState
-                val position = screenState.currentPosition
-                val isLike = screenState.isLike
-                isPlayList = screenState.isPlayList
-                val playListName = screenState.playListName
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED){
+                viewModel.screenState.collect {screenState ->
+                    val trackInfo = screenState.trackInfo
+                    val playerState = screenState.playerState
+                    val position = screenState.currentPosition
+                    val isLike = screenState.isLike
+                    isPlayList = screenState.isPlayList
 
-                if (trackInfo != null) {
-                    updateTrackUI(trackInfo)
+                    if (trackInfo != null) {
+                        updateTrackUI(trackInfo)
+                    }
+
+                    playListAdapter.updatePlayList(screenState.playListList)
+
+                    updatePlayerUI(playerState, isLike, isPlayList)
+                    binding.trackCurrentTime.text = viewModel.getFormattedTime(position)
                 }
-
-                updatePlayerUI(playerState, isLike, isPlayList, playListName)
-                binding.trackCurrentTime.text = viewModel.getFormattedTime(position)
             }
         }
-
-        viewModel.screenState.observe(viewLifecycleOwner) { stats ->
-
-            playListAdapter.updatePlayList(stats.playListList)
-        }
     }
+
 
     private fun updateTrackUI(trackInfo: TrackInfo) {
         Glide.with(binding.image)
@@ -203,8 +199,7 @@ class PlayerFragment : Fragment() {
     private fun updatePlayerUI(
         state: PlayerState,
         isLike: Boolean,
-        isPlayList: Boolean,
-        playListName: String
+        isPlayList: Boolean
     ) {
         if (isLike) {
             binding.btnPlayerLike.setImageResource(R.drawable.ic_btn_like_is_like)
@@ -214,16 +209,8 @@ class PlayerFragment : Fragment() {
 
         if (isPlayList) {
             binding.btnAddToPlaylist.setImageResource(R.drawable.ic_btn_is_add_to_playlist)
-
-            binding.tvNamePlaylist.text = "${getString(R.string.added_to_playlist)} $playListName"
-            binding.viewNamePlaylist.isVisible = true
-
-            binding.emptyView.isVisible = true
         } else {
             binding.btnAddToPlaylist.setImageResource(R.drawable.ic_btn_add_to_playlist)
-            binding.viewNamePlaylist.isVisible = false
-
-            binding.emptyView.isVisible = false
         }
 
         when (state) {

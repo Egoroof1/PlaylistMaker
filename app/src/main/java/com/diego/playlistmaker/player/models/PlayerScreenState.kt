@@ -9,6 +9,5 @@ data class PlayerScreenState(
     val isLike: Boolean = false,
     val isPlayList: Boolean = false,
     val playListId: Int = 0,
-    val playListName: String = "",
     val playListList: List<PlayList> = emptyList()
 )
