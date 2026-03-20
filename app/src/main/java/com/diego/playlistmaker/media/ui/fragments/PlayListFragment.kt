@@ -138,13 +138,13 @@ class PlayListFragment : Fragment() {
         with(binding){
             Glide.with(ivCaverPlaylist.context)
                 .load(playList.coverImagePath)
-                .placeholder(R.drawable.placeholder) // показываем, пока грузится
-                .error(R.drawable.placeholder) // если ошибка загрузки
+                .placeholder(R.drawable.placeholder)
+                .error(R.drawable.placeholder)
                 .centerCrop()
                 .into(ivCaverPlaylist)
 
             tvNamePlaylist.text = playList.name
-            tvYearPlaylist.text = "202020"
+            tvYearPlaylist.text = "2026"
             tvTotalTimePlaylist.text = "${playList.totalTimeMillis/1000/60} минут"
             tvQuantityTracksPlaylist.text = getTracksCountText(playList.quantityTracks)
         }

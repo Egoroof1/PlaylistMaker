@@ -8,6 +8,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.activity.OnBackPressedCallback
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
@@ -47,6 +48,8 @@ class AddMediaPlayerFragment : Fragment() {
                     .override(500, 500)
                     .into(binding.pickerImage)
                 currentUri = uri
+
+                binding.ivIconAddPhoto.isVisible = false
             } else {
                 Log.d("PhotoPicker", "No media selected")
             }
@@ -141,7 +144,6 @@ class AddMediaPlayerFragment : Fragment() {
                 binding.progressBar.isVisible = false
 
                 if (result){
-                    Toast.makeText(requireContext(), "Плейлист $name создан", Toast.LENGTH_SHORT).show()
                     findNavController().popBackStack()
                 } else {
                     Toast.makeText(requireContext(), "Ошибка при создании плейлиста", Toast.LENGTH_SHORT).show()
@@ -152,6 +154,15 @@ class AddMediaPlayerFragment : Fragment() {
         binding.pickerImage.setOnClickListener {
             pickMedia.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
         }
+
+        requireActivity().onBackPressedDispatcher.addCallback(
+            viewLifecycleOwner,
+            object : OnBackPressedCallback(true) {
+                override fun handleOnBackPressed() {
+                    checkIsEmptyDialogExit(viewModel.state.value)
+                }
+            }
+        )
     }
 
     private fun checkIsEmptyDialogExit(state: AddMediaPlayerState) {

@@ -261,15 +261,6 @@
                             app:layout_constraintEnd_toStartOf="@id/player_track_country"
                             app:layout_constraintStart_toStartOf="@+id/textView2"
                             app:layout_constraintTop_toBottomOf="@+id/textView5" />
-
-                        <View
-                            android:id="@+id/empty_view"
-                            android:layout_width="match_parent"
-                            android:layout_height="50dp"
-                            app:layout_constraintBottom_toBottomOf="parent"
-                            app:layout_constraintEnd_toEndOf="parent"
-                            app:layout_constraintStart_toStartOf="parent"
-                            app:layout_constraintTop_toBottomOf="@id/player_track_country"/>
                 </androidx.constraintlayout.widget.ConstraintLayout>
 
         </androidx.core.widget.NestedScrollView>
@@ -306,7 +297,7 @@
         <LinearLayout
             android:id="@+id/playlist_bottom_sheet"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_height="wrap_content"
             android:background="@drawable/bg_bottom_sheet"
             android:orientation="vertical"
             app:behavior_hideable="true"

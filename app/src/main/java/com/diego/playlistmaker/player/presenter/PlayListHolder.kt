@@ -2,20 +2,20 @@ package com.diego.playlistmaker.player.presenter
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
-import androidx.core.net.toUri
 import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.Glide
 import com.diego.playlistmaker.R
 import com.diego.playlistmaker.databinding.ItemPlaylistHorizontalBinding
 import com.diego.playlistmaker.media.domain.models.PlayList
 
 class PlayListHolder(
     private val binding: ItemPlaylistHorizontalBinding,
-    private val onPlayListClick: (PlayList) -> Unit // Передаём callback в Holder
+    private val onPlayListClick: (PlayList) -> Unit
 ) : RecyclerView.ViewHolder(binding.root) {
     private var currentPlayList: PlayList? = null
 
     init {
-        // Добавляем обработчик клика на весь элемент
+
         binding.root.setOnClickListener {
             currentPlayList?.let { playList ->
                 onPlayListClick(playList)
@@ -29,11 +29,13 @@ class PlayListHolder(
         binding.etNamePlaylist.text = playList.name
         binding.tvItemPlaylistQuantityTracks.text = playList.quantityTracks.toString()
 
-        if (playList.coverImagePath.isEmpty()){
-            binding.image.setImageResource(R.drawable.placeholder)
-        } else {
-            binding.image.setImageURI(playList.coverImagePath.toUri())
-        }
+        Glide.with(binding.image)
+            .load(playList.coverImagePath)
+            .override(100, 100)
+            .centerCrop()
+            .placeholder(R.drawable.placeholder)
+            .error(R.drawable.placeholder)
+            .into(binding.image)
 
     }
 
