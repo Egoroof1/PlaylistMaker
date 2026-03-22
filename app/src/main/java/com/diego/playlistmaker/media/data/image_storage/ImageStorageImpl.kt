@@ -13,11 +13,11 @@ import java.io.FileOutputStream
 import java.lang.Exception
 
 
-class ImageStorage(
+class ImageStorageImpl(
     private val context: Context
-) {
+): ImageStorageRepository {
 
-    fun saveImage(uri: Uri, name: String): String {
+    override fun saveImage(uri: Uri, name: String): String {
         return try {
             //создаём экземпляр класса File, который указывает на нужный каталог
             val filePath = File(
@@ -47,33 +47,19 @@ class ImageStorage(
         }
     }
 
-    fun getImage(name: String): Uri {
+    override fun getImage(name: String): Uri {
         val filePath = File(context.getExternalFilesDir(Environment.DIRECTORY_PICTURES), PACKAGE_NAME)
         val file = File(filePath, "$name.jpg")
         return file.toUri()
     }
 
-    fun getAllImages(): List<Uri> {
+    override fun getAllImages(): List<Uri> {
         return File(context.getExternalFilesDir(Environment.DIRECTORY_PICTURES), "myalbum")
             .listFiles()?.map { it.toUri() } ?: emptyList()
     }
 
-    fun deleteAllImages(): Boolean {
-        val directory = File(context.getExternalFilesDir(Environment.DIRECTORY_PICTURES), PACKAGE_NAME)
+    override fun deleteAllImages() {
 
-        return if (directory.exists() && directory.isDirectory) {
-            val files = directory.listFiles()
-            var allDeleted = true
-
-            files?.forEach { file ->
-                if (!file.delete()) {
-                    allDeleted = false
-                }
-            }
-            allDeleted
-        } else {
-            false
-        }
     }
 
     companion object {

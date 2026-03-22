@@ -1,46 +1,47 @@
 package com.diego.playlistmaker.media.data.database.repository
 
-import com.diego.playlistmaker.media.data.database.AppDatabase
+import com.diego.playlistmaker.media.data.database.dao.PlayListDao
 import com.diego.playlistmaker.media.data.database.entities.PlayListEntity
 import com.diego.playlistmaker.media.data.database.entities.TrackInPlayListEntity
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.distinctUntilChanged
 
 class PlayListRepositoryImpl(
-    private val database: AppDatabase
+    private val playListDao: PlayListDao
 ) : PlayListRepository {
     override suspend fun insertPlayList(playListEntity: PlayListEntity) {
-        database.playListDao().insertPlayList(playListEntity)
+        playListDao.insertPlayList(playListEntity)
     }
 
     override suspend fun deletePlayListById(playListId: Int) {
-        database.playListDao().deletePlayListById(playListId)
+        playListDao.deletePlayListById(playListId)
     }
 
     override suspend fun getPlayListById(playListId: Int): PlayListEntity? {
-        return database.playListDao().getPlayListById(playListId)
+        return playListDao.getPlayListById(playListId)
     }
 
     override fun getAllPlayList(): Flow<List<PlayListEntity>> {
-        return database.playListDao().getAllPlayList()
+        return playListDao.getAllPlayList().distinctUntilChanged()
     }
 
     override fun getAllTracksForPlayList(): Flow<List<TrackInPlayListEntity>> {
-        return database.playListDao().getAllTracksForPlayList()
+        return playListDao.getAllTracksForPlayList().distinctUntilChanged()
     }
 
     override suspend fun updatePlayList(playListEntity: PlayListEntity) {
-        database.playListDao().updatePlayList(playListEntity)
+        playListDao.updatePlayList(playListEntity)
     }
 
     override suspend fun incrementTracksCount(playListId: Int) {
-        database.playListDao().incrementTracksCount(playListId)
+        playListDao.incrementTracksCount(playListId)
     }
 
     override suspend fun decrementTracksCount(playListId: Int) {
-        database.playListDao().decrementTracksCount(playListId)
+        playListDao.decrementTracksCount(playListId)
     }
 
     override suspend fun addTotalTimeMillis(playListId: Int, timeMillis: Long) {
-        database.playListDao().addTotalTimeMillis(playListId, timeMillis)
+        playListDao.addTotalTimeMillis(playListId, timeMillis)
     }
 }

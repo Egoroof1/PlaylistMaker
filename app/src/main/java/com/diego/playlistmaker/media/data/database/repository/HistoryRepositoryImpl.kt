@@ -1,33 +1,34 @@
 package com.diego.playlistmaker.media.data.database.repository
 
-import com.diego.playlistmaker.media.data.database.AppDatabase
+import com.diego.playlistmaker.media.data.database.dao.TrackHistoryDao
 import com.diego.playlistmaker.media.data.database.entities.TrackHistoryEntity
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.distinctUntilChanged
 
 class HistoryRepositoryImpl(
-    private val appDatabase: AppDatabase
+    private val trackHistoryDao: TrackHistoryDao
 ) : HistoryRepository {
     override fun historyTracks(): Flow<List<TrackHistoryEntity>> {
-        return appDatabase.trackHistoryDao().getTracks()
+        return trackHistoryDao.getTracks().distinctUntilChanged()
     }
 
     override suspend fun getHistoryTracks(): List<TrackHistoryEntity> {
-        return appDatabase.trackHistoryDao().getHistoryTracks()
+        return trackHistoryDao.getHistoryTracks()
     }
 
     override suspend fun insertTrack(track: TrackHistoryEntity) {
-        appDatabase.trackHistoryDao().insertTrack(track)
+        trackHistoryDao.insertTrack(track)
     }
 
     override suspend fun deleteAll() {
-        appDatabase.trackHistoryDao().deleteAll()
+        trackHistoryDao.deleteAll()
     }
 
     override suspend fun deleteFirstTrack() {
-        appDatabase.trackHistoryDao().deleteFirstTrack()
+        trackHistoryDao.deleteFirstTrack()
     }
 
     override suspend fun deleteById(trackId: Int) {
-        appDatabase.trackHistoryDao().deleteById(trackId)
+        trackHistoryDao.deleteById(trackId)
     }
 }

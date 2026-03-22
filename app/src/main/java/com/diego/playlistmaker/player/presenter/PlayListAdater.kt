@@ -4,7 +4,7 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.diego.playlistmaker.media.domain.models.PlayList
 
-class PlayListAdapter(
+class PlayListHorizontalAdapter(
     private var playLists: List<PlayList>,
     private val onPlayListClick: (PlayList) -> Unit
 ) : RecyclerView.Adapter<PlayListHolder>() {

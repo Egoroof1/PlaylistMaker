@@ -1,5 +1,6 @@
 package com.diego.playlistmaker.player.presenter
 
+import android.content.Context
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
@@ -13,6 +14,7 @@ class PlayListHolder(
     private val onPlayListClick: (PlayList) -> Unit
 ) : RecyclerView.ViewHolder(binding.root) {
     private var currentPlayList: PlayList? = null
+    private val context: Context = binding.root.context
 
     init {
 
@@ -27,7 +29,9 @@ class PlayListHolder(
         currentPlayList = playList
 
         binding.etNamePlaylist.text = playList.name
-        binding.tvItemPlaylistQuantityTracks.text = playList.quantityTracks.toString()
+
+        val quantityTracks = playList.quantityTracks
+        binding.tvItemPlaylistQuantityTracks.text = getTracksCountText(quantityTracks)
 
         Glide.with(binding.image)
             .load(playList.coverImagePath)
@@ -37,6 +41,14 @@ class PlayListHolder(
             .error(R.drawable.placeholder)
             .into(binding.image)
 
+    }
+
+    private fun getTracksCountText(count: Int): String {
+        return context.resources.getQuantityString(
+            R.plurals.tracks_count,
+            count,
+            count
+        )
     }
 
     companion object {

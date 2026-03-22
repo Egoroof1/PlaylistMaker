@@ -3,7 +3,7 @@ package com.diego.playlistmaker.di
 import android.content.Context
 import androidx.room.Room
 import com.diego.playlistmaker.media.data.database.AppDatabase
-import com.diego.playlistmaker.media.data.image_storage.ImageStorage
+import com.diego.playlistmaker.media.data.image_storage.ImageStorageImpl
 import com.diego.playlistmaker.search.data.network.TrackDtoRetrofit
 import com.diego.playlistmaker.search.data.network.api.ITunesApi
 import com.diego.playlistmaker.search.data.network.retrofit.RetrofitTrackWeb
@@ -45,6 +45,6 @@ val dataModule = module {
     }
 
     single {
-        ImageStorage(androidContext())
+        ImageStorageImpl(androidContext())
     }
 }

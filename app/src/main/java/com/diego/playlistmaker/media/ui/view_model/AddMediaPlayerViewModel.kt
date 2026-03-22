@@ -12,6 +12,8 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.withContext
+import java.io.IOException
+import java.sql.SQLException
 
 class AddMediaPlayerViewModel(
     private val imageRepository: ImageStorageRepository,
@@ -53,10 +55,10 @@ class AddMediaPlayerViewModel(
         }
     }
 
-    suspend fun createPlayList(uri: Uri?, name: String, description: String): Boolean{
-        return withContext(Dispatchers.IO){
-            var newImagePath = ""
+    suspend fun createPlayList(uri: Uri?, name: String, description: String): Boolean {
+        return withContext(Dispatchers.IO) {
             try {
+                var newImagePath = ""
                 uri?.let {
                     newImagePath = imageRepository.saveImage(it, name)
                     updateState { state -> state.copy(image = newImagePath) }
@@ -70,10 +72,16 @@ class AddMediaPlayerViewModel(
                     )
                 )
                 true
-            } catch (e: Exception){
-                e.stackTrace
+            } catch (e: IOException) {
+                // Обрабатываем конкретные ошибки ввода-вывода
+                e.printStackTrace()
+                false
+            } catch (e: SQLException) {
+                // Обрабатываем ошибки БД
+                e.printStackTrace()
                 false
             }
+            // CancellationException не перехватывается - пробрасывается автоматически
         }
     }
 

@@ -11,6 +11,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.GridLayoutManager
+import com.diego.playlistmaker.R
 import com.diego.playlistmaker.databinding.FragmentPlayListsListBinding
 import com.diego.playlistmaker.media.domain.models.PlayList
 import com.diego.playlistmaker.media.presentation.PlayListAdapter
@@ -85,7 +86,7 @@ class PlayListsListFragment : Fragment() {
 
         lifecycleScope.launch {
             if (newNamePlayList.isNotEmpty()) {
-                binding.tvNamePlaylist.text = "Плейлист $newNamePlayList создан"
+                binding.tvNamePlaylist.text = getString(R.string.playlist_is_create, newNamePlayList)
                 binding.viewNamePlaylist.isVisible = true
                 delay(2000)
                 binding.viewNamePlaylist.isVisible = false

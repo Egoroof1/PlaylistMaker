@@ -21,7 +21,7 @@ import com.diego.playlistmaker.databinding.FragmentPlayerBinding
 import com.diego.playlistmaker.media.domain.models.PlayList
 import com.diego.playlistmaker.player.models.PlayerState
 import com.diego.playlistmaker.player.models.TrackInfo
-import com.diego.playlistmaker.player.presenter.PlayListAdapter
+import com.diego.playlistmaker.player.presenter.PlayListHorizontalAdapter
 import com.diego.playlistmaker.search.domain.models.Track
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import kotlinx.coroutines.delay
@@ -37,8 +37,8 @@ class PlayerFragment : Fragment() {
     private var currentTrack: Track? = null
     private var isPlayList: Boolean = false
 
-    private val playListAdapter: PlayListAdapter by lazy {
-        PlayListAdapter(emptyList()) { playList -> onPlayListClicked(playList) }
+    private val playListAdapter: PlayListHorizontalAdapter by lazy {
+        PlayListHorizontalAdapter(emptyList()) { playList -> onPlayListClicked(playList) }
     }
 
     private lateinit var bottomSheetBehavior: BottomSheetBehavior<LinearLayout>
@@ -65,7 +65,8 @@ class PlayerFragment : Fragment() {
             setBottomSheet()
 
         } else {
-            Toast.makeText(requireContext(), "Ошибка загрузки трека", Toast.LENGTH_SHORT).show()
+            Toast.makeText(requireContext(),
+                getString(R.string.eroor_load_track), Toast.LENGTH_SHORT).show()
             findNavController().popBackStack()
         }
     }
@@ -77,14 +78,16 @@ class PlayerFragment : Fragment() {
             val message = if (success) {
                 "${getString(R.string.added_to_playlist)} ${playList.name}"
             } else {
-                "Трек уже добавлен в плейлист ${playList.name}"
+                getString(R.string.track_is_added_to_playlist, playList.name)
             }
 
             binding.tvNamePlaylist.text = message
-            lifecycleScope.launch {
+            viewLifecycleOwner.lifecycleScope.launch {
                 binding.viewNamePlaylist.isVisible = true
                 delay(2000)
-                binding.viewNamePlaylist.isVisible = false
+                if (viewLifecycleOwner.lifecycle.currentState.isAtLeast(Lifecycle.State.STARTED)) {
+                    binding.viewNamePlaylist.isVisible = false
+                }
             }
         }
     }

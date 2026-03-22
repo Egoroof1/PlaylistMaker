@@ -1,5 +1,6 @@
 package com.diego.playlistmaker.media.presentation
 
+import android.content.Context
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
@@ -10,7 +11,7 @@ import com.diego.playlistmaker.databinding.ItemPlaylistBinding
 import com.diego.playlistmaker.media.domain.models.PlayList
 
 class PlayListAdapter (
-    var playLists: List<PlayList>,
+    private var playLists: List<PlayList>,
     private val onItemClick: (PlayList) -> Unit //CallBack
 ) : RecyclerView.Adapter<PlayListAdapter.PlayListHolder>() {
 
@@ -19,6 +20,7 @@ class PlayListAdapter (
         private val onPlayListClick: (PlayList) -> Unit // Передаём callback в Holder
     ): RecyclerView.ViewHolder(binding.root) {
         private var currentPlayList: PlayList? = null
+        private val context: Context = binding.root.context
 
         init {
             // Добавляем обработчик клика на весь элемент
@@ -54,11 +56,11 @@ class PlayListAdapter (
         }
 
         private fun getTracksCountText(count: Int): String {
-            return when {
-                count % 10 == 1 && count % 100 != 11 -> "$count трек"
-                count % 10 in 2..4 && (count % 100 !in 12..14) -> "$count трека"
-                else -> "$count треков"
-            }
+            return context.resources.getQuantityString(
+                R.plurals.tracks_count,
+                count,
+                count
+            )
         }
 
         companion object {
