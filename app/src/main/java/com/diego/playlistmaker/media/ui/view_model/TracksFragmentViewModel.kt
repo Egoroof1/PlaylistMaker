@@ -6,6 +6,7 @@ import com.diego.playlistmaker.media.domain.use_case.FavoriteInteractor
 import com.diego.playlistmaker.media.domain.use_case.HistoryInteractor
 import com.diego.playlistmaker.media.ui.state.TracksState
 import com.diego.playlistmaker.search.domain.models.Track
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
@@ -24,7 +25,7 @@ class TracksFragmentViewModel(
 
     private fun observeFavoriteTracks() {
 
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             repository.favoriteTracks().collect { tracks ->
                 updateState { currentState ->
                     currentState.copy(
@@ -36,7 +37,7 @@ class TracksFragmentViewModel(
     }
 
     fun saveTrackToHistory(track: Track) {
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             val tracksHistory = historyRepository.getHistoryTracks()
 
             if (tracksHistory.contains<Any>(track)){

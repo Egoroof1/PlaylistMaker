@@ -1,6 +1,0 @@
-package com.diego.playlistmaker.media.ui.view_model
-
-import androidx.lifecycle.ViewModel
-
-class PlayListsFragmentViewModel : ViewModel() {
-}

@@ -24,12 +24,9 @@ class TracksFragment : Fragment() {
     private val binding get() = _binding!!
 
     private val viewModel: TracksFragmentViewModel by viewModel()
-
-    private val tracks = mutableListOf<Track>()
     private var isClicked = false
-
     private val trackAdapter by lazy {
-        TrackAdapter(tracks) {track -> onTrackClicked(track) }
+        TrackAdapter(emptyList()) { track -> onTrackClicked(track) }
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -58,7 +55,7 @@ class TracksFragment : Fragment() {
         if (!isClicked) {
             isClicked = true
 
-            viewLifecycleOwner.lifecycleScope.launch {
+            lifecycleScope.launch {
                 isClicked = false
                 delay(ANTY_DOUBLE_CLICK)
             }
@@ -75,20 +72,17 @@ class TracksFragment : Fragment() {
     private fun observeViewModel() {
         lifecycleScope.launch {
             viewModel.tracksState.collect { tracksState ->
-                tracks.clear()
-                tracks.addAll(tracksState.tracksList)
-                binding.recyclerTracksFavorite.adapter?.notifyDataSetChanged()
+                binding.progressBar.isVisible = true
+                trackAdapter.updateList(tracksState.tracksList)
+                binding.progressBar.isVisible = false
+
                 updateUI(tracksState)
             }
         }
     }
 
     private fun updateUI(tracksState: TracksState){
-        if (tracksState.tracksList.isEmpty()) {
-            binding.emptyFavorite.isVisible = true
-        } else {
-            binding.emptyFavorite.isVisible = false
-        }
+            binding.emptyFavorite.isVisible = tracksState.tracksList.isEmpty()
     }
 
     companion object {

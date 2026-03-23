@@ -1,4 +1,4 @@
-package com.diego.playlistmaker.media.data.entities
+package com.diego.playlistmaker.media.data.database.entities
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey

@@ -2,7 +2,8 @@ package com.diego.playlistmaker.di
 
 import android.content.Context
 import androidx.room.Room
-import com.diego.playlistmaker.media.data.AppDatabase
+import com.diego.playlistmaker.media.data.database.AppDatabase
+import com.diego.playlistmaker.media.data.image_storage.ImageStorageImpl
 import com.diego.playlistmaker.search.data.network.TrackDtoRetrofit
 import com.diego.playlistmaker.search.data.network.api.ITunesApi
 import com.diego.playlistmaker.search.data.network.retrofit.RetrofitTrackWeb
@@ -39,7 +40,11 @@ val dataModule = module {
         Room.databaseBuilder(
             androidContext(),
             AppDatabase::class.java,
-            "database2.db"
+            "database.db"
         ).build()
+    }
+
+    single {
+        ImageStorageImpl(androidContext())
     }
 }

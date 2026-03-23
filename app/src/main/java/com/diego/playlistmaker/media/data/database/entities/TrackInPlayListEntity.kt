@@ -1,10 +1,17 @@
-package com.diego.playlistmaker.media.data.entities
+package com.diego.playlistmaker.media.data.database.entities
 
 import androidx.room.Entity
+import androidx.room.Index
 import androidx.room.PrimaryKey
 
-@Entity(tableName = "tracks_favorite_table")
-data class TrackFavoriteEntity(
+@Entity(
+    tableName = "track_in_play_list_table",
+    indices = [
+        Index(value = ["playlistId"]),
+        Index(value = ["trackId"])
+    ]
+    )
+data class TrackInPlayListEntity(
     @PrimaryKey(autoGenerate = true)
     val id: Long = 0,
     val trackId: Int,
@@ -16,5 +23,6 @@ data class TrackFavoriteEntity(
     val country: String,
     val trackTimeMillis: Long,
     val artworkUrl100: String,
-    val previewUrl: String
+    val previewUrl: String,
+    val playlistId: Int
 )

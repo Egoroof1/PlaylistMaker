@@ -25,6 +25,12 @@
         <action
             android:id="@+id/action_mediaFragment_to_playerFragment"
             app:destination="@id/playerFragment" />
+        <action
+            android:id="@+id/action_mediaFragment_to_addMediaPlayerFragment"
+            app:destination="@id/addMediaPlayerFragment" />
+        <action
+            android:id="@+id/action_mediaFragment_to_playListFragment"
+            app:destination="@id/playListListFragment" />
     </fragment>
     <fragment
         android:id="@+id/settingsFragment"
@@ -41,5 +47,29 @@
             app:argType="com.diego.playlistmaker.search.domain.models.Track"
             app:nullable="true"
             android:defaultValue="@null" />
+        <action
+            android:id="@+id/action_playerFragment_to_addMediaPlayerFragment"
+            app:destination="@id/addMediaPlayerFragment" />
+        <action
+            android:id="@+id/action_playerFragment_to_playListFragment"
+            app:destination="@id/playListListFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/addMediaPlayerFragment"
+        android:name="com.diego.playlistmaker.media.ui.fragments.AddMediaPlayerFragment"
+        android:label="fragment_add_media_player"
+        tools:layout="@layout/fragment_add_media_player" />
+    <fragment
+        android:id="@+id/playListListFragment"
+        android:name="com.diego.playlistmaker.media.ui.fragments.PlayListFragment"
+        android:label="fragment_play_list"
+        tools:layout="@layout/fragment_play_list">
+        <argument
+            android:name="playListId"
+            app:argType="integer"
+            android:defaultValue="-1" />
+        <action
+            android:id="@+id/action_playListListFragment_to_playerFragment"
+            app:destination="@id/playerFragment" />
     </fragment>
 </navigation>
