@@ -5,6 +5,7 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.LinearLayout
 import android.widget.Toast
 import androidx.core.view.isVisible
 import androidx.lifecycle.lifecycleScope
@@ -31,6 +32,7 @@ class PlayListFragment : Fragment() {
     private val viewModel: PlayListViewModel by viewModel()
     private var isFirstCreation: Boolean = false
     private var currentTrackForDeletion: Track? = null
+    private lateinit var bottomSheetBehavior: BottomSheetBehavior<LinearLayout>
 
     private val trackAdapter: TrackAdapter by lazy {
         TrackAdapter(
@@ -107,6 +109,15 @@ class PlayListFragment : Fragment() {
                 viewModel.sharePlayList(requireContext())
             }
         }
+
+        binding.ivMenu.setOnClickListener {
+            binding.recyclerBottomSheet.isVisible = false
+            bottomSheetBehavior.apply {
+                state = BottomSheetBehavior.STATE_COLLAPSED
+                isHideable = true
+                peekHeight = peekHeight + 200
+            }
+        }
     }
 
     private fun observeViewModel() {
@@ -127,7 +138,7 @@ class PlayListFragment : Fragment() {
         val bottomSheetContainer = binding.playlistBottomSheet
         val overlay = binding.overlay
 
-        val bottomSheetBehavior = BottomSheetBehavior.from(bottomSheetContainer).apply {
+        bottomSheetBehavior = BottomSheetBehavior.from(bottomSheetContainer).apply {
             state = BottomSheetBehavior.STATE_COLLAPSED
             //запрещаем скрытие
             isHideable = false
@@ -139,6 +150,9 @@ class PlayListFragment : Fragment() {
                 when (newState) {
                     BottomSheetBehavior.STATE_HIDDEN -> {
                         overlay.isVisible = false
+                        bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
+                        binding.recyclerBottomSheet.isVisible = true
+                        bottomSheetBehavior.peekHeight = bottomSheetBehavior.peekHeight - 200
                     }
 
                     else -> {
@@ -196,6 +210,18 @@ class PlayListFragment : Fragment() {
             tvTotalTimePlaylist.text =
                 getString(R.string.minuts, playList.totalTimeMillis / 1000 / 60)
             tvQuantityTracksPlaylist.text = getTracksCountText(playList.quantityTracks)
+        }
+
+        with(binding.includeLayoutPlaylist){
+            Glide.with(image.context)
+                .load(playList.coverImagePath)
+                .placeholder(R.drawable.placeholder)
+                .error(R.drawable.placeholder)
+                .centerCrop()
+                .into(image)
+
+            etNamePlaylist.text = playList.name
+            tvItemPlaylistQuantityTracks.text = getTracksCountText(playList.quantityTracks)
         }
     }
 

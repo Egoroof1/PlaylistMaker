@@ -162,7 +162,40 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_marginTop="12dp"
+            android:visibility="visible"
             app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"/>
+
+        <include
+            android:id="@+id/include_layout_playlist"
+            layout="@layout/item_playlist_horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:layout_marginTop="16dp"
+            />
+
+        <TextView
+            style="@style/text_settings"
+            android:layout_width="match_parent"
+            android:layout_height="61dp"
+            android:paddingHorizontal="16dp"
+            android:layout_marginTop="8dp"
+            android:text="Поделиться"/>
+        <TextView
+            style="@style/text_settings"
+            android:layout_width="match_parent"
+            android:layout_height="61dp"
+            android:paddingHorizontal="16dp"
+            android:layout_marginTop="8dp"
+            android:text="Редактировать информацию"/>
+        <TextView
+            style="@style/text_settings"
+            android:layout_width="match_parent"
+            android:layout_height="61dp"
+            android:paddingHorizontal="16dp"
+            android:layout_marginTop="8dp"
+            android:text="Удалить плейлист"/>
+
 
     </LinearLayout>
 
