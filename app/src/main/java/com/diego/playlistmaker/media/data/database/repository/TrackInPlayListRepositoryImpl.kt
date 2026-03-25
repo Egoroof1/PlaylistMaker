@@ -12,8 +12,8 @@ class TrackInPlayListRepositoryImpl(
         trackInPlayListDao.insertTrackInPlayList(trackInPlayListEntity)
     }
 
-    override suspend fun deleteTrackForPlayListById(trackId: Int) {
-        trackInPlayListDao.deleteTrackForPlayListById(trackId)
+    override suspend fun deleteTrackForPlayListById(trackId: Int, playListId: Int) {
+        trackInPlayListDao.deleteTrackForPlayListById(trackId, playListId)
     }
 
     override suspend fun getTrackInPlayListByTrackId(trackId: Int): TrackInPlayListEntity? {

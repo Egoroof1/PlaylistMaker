@@ -46,10 +46,10 @@ class PlayListInteractorImpl(
         repository.incrementTracksCount(playListId)
     }
 
-//    override suspend fun decrementTracksCount(playListId: Int) {
-//        repository.decrementTracksCount(playListId)
-//    }
-//
+    override suspend fun decrementTracksCount(playListId: Int) {
+        repository.decrementTracksCount(playListId)
+    }
+
     override suspend fun addTotalTimeMillis(playListId: Int, timeMillis: Long) {
         repository.addTotalTimeMillis(playListId, timeMillis)
     }
@@ -70,7 +70,7 @@ interface PlayListInteractor {
 
     suspend fun incrementTracksCount(playListId: Int)
 
-//    suspend fun decrementTracksCount(playListId: Int)
+    suspend fun decrementTracksCount(playListId: Int)
 
     suspend fun addTotalTimeMillis(playListId: Int, timeMillis: Long)
 }

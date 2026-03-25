@@ -15,10 +15,10 @@ class TrackInPlayListInteractorImpl(
     override suspend fun insertTrackInPlayList(trackInPlayList: TrackInPlayList) {
         repository.insertTrackInPlayList(trackInPlayList.toTrackInPlayListEntity())
     }
-//
-//    override suspend fun deleteTrackForPlayListById(trackId: Int) {
-//        repository.deleteTrackForPlayListById(trackId)
-//    }
+
+    override suspend fun deleteTrackForPlayListById(trackId: Int, playListId: Int) {
+        repository.deleteTrackForPlayListById(trackId, playListId)
+    }
 
     override suspend fun getTrackInPlayListByTrackId(trackId: Int): TrackInPlayList? {
         return repository.getTrackInPlayListByTrackId(trackId)?.toTrackInPlayList()
@@ -33,8 +33,7 @@ class TrackInPlayListInteractorImpl(
 
 interface TrackInPlayListInteractor {
     suspend fun insertTrackInPlayList(trackInPlayList: TrackInPlayList)
-
-    //    suspend fun deleteTrackForPlayListById(trackId: Int)
+    suspend fun deleteTrackForPlayListById(trackId: Int, playListId: Int)
     suspend fun getTrackInPlayListByTrackId(trackId: Int): TrackInPlayList?
     fun getAllTracksInPlayListByIdPlaylist(playListId: Int): Flow<List<Track>>
 }

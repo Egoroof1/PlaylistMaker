@@ -26,7 +26,11 @@ class TracksFragment : Fragment() {
     private val viewModel: TracksFragmentViewModel by viewModel()
     private var isClicked = false
     private val trackAdapter by lazy {
-        TrackAdapter(emptyList()) { track -> onTrackClicked(track) }
+        TrackAdapter(
+            tracks = emptyList(),
+            onTrackClick = {track -> onTrackClicked(track)},
+            onTrackLongClicked = {}
+        )
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {

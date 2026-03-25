@@ -13,8 +13,8 @@ interface TrackInPlayListDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertTrackInPlayList(trackInPlayListEntity: TrackInPlayListEntity)
 
-    @Query("DELETE FROM track_in_play_list_table WHERE trackId = :trackId")
-    suspend fun deleteTrackForPlayListById(trackId: Int)
+    @Query("DELETE FROM track_in_play_list_table WHERE trackId = :trackId AND playlistId = :playListId")
+    suspend fun deleteTrackForPlayListById(trackId: Int, playListId: Int)
 
     @Query("SELECT * FROM track_in_play_list_table WHERE trackId = :trackId")
     suspend fun getTrackInPlayListByTrackId(trackId: Int): TrackInPlayListEntity?

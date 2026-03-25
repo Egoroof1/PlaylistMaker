@@ -17,12 +17,25 @@
             android:layout_width="0dp"
             android:layout_height="0dp"
             android:contentDescription="@string/description"
-            app:srcCompat="@drawable/placeholder"
             android:scaleType="centerCrop"
+            android:padding="40dp"
+            android:background="@color/white"
             app:layout_constraintDimensionRatio="1:1"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"/>
+            app:layout_constraintTop_toTopOf="parent"
+            app:srcCompat="@drawable/placeholder" />
+
+        <ImageView
+            android:id="@+id/btn_back"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="4dp"
+            android:layout_marginTop="4dp"
+            android:contentDescription="@string/clear"
+            android:src="@drawable/ic_back_arrow_24"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
 
         <TextView
             android:id="@+id/tv_name_playlist"
@@ -95,19 +108,19 @@
             app:layout_constraintTop_toBottomOf="@+id/tv_year_playlist" />
 
         <ImageView
-            android:id="@+id/imageView5"
+            android:id="@+id/iv_menu"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
             android:layout_marginTop="16dp"
             android:contentDescription="@string/description"
             android:src="@drawable/ic_settings_dots"
-            app:layout_constraintStart_toEndOf="@+id/imageView2"
+            app:layout_constraintStart_toEndOf="@+id/iv_sharing"
             app:layout_constraintTop_toBottomOf="@+id/tv_total_time_playlist"
             app:tint="@color/color_edittext_text" />
 
         <ImageView
-            android:id="@+id/imageView2"
+            android:id="@+id/iv_sharing"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
@@ -133,7 +146,7 @@
         android:background="@drawable/bg_bottom_sheet"
         android:orientation="vertical"
         app:behavior_hideable="true"
-        app:behavior_peekHeight="240dp"
+        app:behavior_peekHeight="200dp"
         android:visibility="visible"
         app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior">
 

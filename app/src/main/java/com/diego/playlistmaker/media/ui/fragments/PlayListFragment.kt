@@ -18,6 +18,7 @@ import com.diego.playlistmaker.media.ui.view_model.PlayListViewModel
 import com.diego.playlistmaker.search.domain.models.Track
 import com.diego.playlistmaker.search.presentation.TrackAdapter
 import com.google.android.material.bottomsheet.BottomSheetBehavior
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import kotlinx.coroutines.launch
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import kotlin.getValue
@@ -29,9 +30,18 @@ class PlayListFragment : Fragment() {
     private val binding get() = _binding!!
     private val viewModel: PlayListViewModel by viewModel()
     private var isFirstCreation: Boolean = false
+    private var currentTrackForDeletion: Track? = null
 
     private val trackAdapter: TrackAdapter by lazy {
-        TrackAdapter(emptyList()) { track -> onTrackClicked(track) }
+        TrackAdapter(
+            tracks = emptyList(),
+            onTrackClick = { track ->
+                onTrackClicked(track)
+            },
+            onTrackLongClicked = { track ->
+                onTrackLongClicked(track)
+            }
+        )
     }
 
     private var currentPlayListId: Int = -1
@@ -54,29 +64,66 @@ class PlayListFragment : Fragment() {
 
         observeViewModel()
         setBottomSheet()
+        setOnClickListener()
 
         binding.recyclerBottomSheet.adapter = trackAdapter
     }
 
-    private fun onTrackClicked(track: Track){
+    private fun onTrackClicked(track: Track) {
         val action = PlayListFragmentDirections.actionPlayListListFragmentToPlayerFragment(track)
         findNavController().navigate(action)
     }
 
-    private fun observeViewModel(){
+    private fun onTrackLongClicked(track: Track) {
+        currentTrackForDeletion = track
+        showDeleteTrackDialog()
+    }
 
-        viewLifecycleOwner.lifecycleScope.launch {
-            viewModel.getPlayListBtId(currentPlayListId)
-            viewModel.getTracksFromPlayList(currentPlayListId)
+    private fun showDeleteTrackDialog() {
+        val track = currentTrackForDeletion ?: return
 
-            viewModel.state.collect { state ->
-                updateUi(state)
-                trackAdapter.updateList(state.trackList)
+        MaterialAlertDialogBuilder(requireContext())
+            .setTitle("Хотите удалить трек?")
+            .setMessage("")
+            .setNegativeButton("Нет") { dialog, which -> }
+            .setPositiveButton("Да") { dialog, which ->
+                viewModel.deleteTrack(track, currentPlayListId)
+            }
+            .show()
+    }
+
+    private fun setOnClickListener() {
+        binding.btnBack.setOnClickListener {
+            findNavController().popBackStack()
+        }
+
+        binding.ivSharing.setOnClickListener {
+            if (viewModel.state.value.trackList.isEmpty()){
+                Toast.makeText(
+                    requireContext(),
+                    "В этом плейлисте нет списка треков, которым можно поделиться",
+                    Toast.LENGTH_SHORT).show()
+            } else {
+                viewModel.sharePlayList(requireContext())
             }
         }
     }
 
-    private fun setBottomSheet(){
+    private fun observeViewModel() {
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewModel.getPlayListById(currentPlayListId)
+            viewModel.getTracksFromPlayList(currentPlayListId)
+
+            viewModel.state.collect { state ->
+                if (_binding != null) {
+                    updateUi(state)
+                    trackAdapter.updateList(state.trackList)
+                }
+            }
+        }
+    }
+
+    private fun setBottomSheet() {
         val bottomSheetContainer = binding.playlistBottomSheet
         val overlay = binding.overlay
 
@@ -118,6 +165,7 @@ class PlayListFragment : Fragment() {
                 BottomSheetBehavior.STATE_HIDDEN -> {
                     overlay.isVisible = false
                 }
+
                 else -> {
                     overlay.isVisible = true
                     overlay.alpha = 0.0f
@@ -126,16 +174,16 @@ class PlayListFragment : Fragment() {
         }
     }
 
-    private fun updateUi(state: PlayListState){
+    private fun updateUi(state: PlayListState) {
         if (_binding == null) return
 
         val playList = state.playList
         if (playList == null) {
             findNavController().popBackStack()
-            Toast.makeText(requireContext(), "Ошибка загрузки", Toast.LENGTH_SHORT).show()
+            Toast.makeText(requireContext(), getString(R.string.eroor_load_track), Toast.LENGTH_SHORT).show()
             return
         }
-        with(binding){
+        with(binding) {
             Glide.with(ivCaverPlaylist.context)
                 .load(playList.coverImagePath)
                 .placeholder(R.drawable.placeholder)
@@ -144,8 +192,9 @@ class PlayListFragment : Fragment() {
                 .into(ivCaverPlaylist)
 
             tvNamePlaylist.text = playList.name
-            tvYearPlaylist.text = "2026"
-            tvTotalTimePlaylist.text = "${playList.totalTimeMillis/1000/60} минут"
+            tvYearPlaylist.text = playList.description
+            tvTotalTimePlaylist.text =
+                getString(R.string.minuts, playList.totalTimeMillis / 1000 / 60)
             tvQuantityTracksPlaylist.text = getTracksCountText(playList.quantityTracks)
         }
     }
@@ -157,8 +206,6 @@ class PlayListFragment : Fragment() {
             else -> "$count треков"
         }
     }
-
-
 
     override fun onDestroyView() {
         super.onDestroyView()

@@ -10,8 +10,8 @@ class SharingInteractorImpl(
     private val externalNavigator: ExternalNavigator,
     private val resourceProvider: ResourceProvider
 ) : SharingInteractor {
-    override fun shareApp() {
-        externalNavigator.shareLink(getShareAppLink())
+    override fun shareApp(str: String) {
+        externalNavigator.shareLink(str)
     }
 
     override fun openTerms() {
@@ -20,10 +20,6 @@ class SharingInteractorImpl(
 
     override fun openSupport() {
         externalNavigator.openEmail(getSupportEmailData())
-    }
-
-    private fun getShareAppLink(): String {
-        return resourceProvider.getString(R.string.practicum_ru)
     }
 
     private fun getSupportEmailData(): EmailData {
