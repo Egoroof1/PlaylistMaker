@@ -29,6 +29,10 @@ class TrackInPlayListInteractorImpl(
             entities.map { it.toTrack() }
         }
     }
+
+    override suspend fun deleteAllTrackFromPlaylist(playListId: Int) {
+        repository.deleteAllTrackFromPlaylist(playListId)
+    }
 }
 
 interface TrackInPlayListInteractor {
@@ -36,4 +40,5 @@ interface TrackInPlayListInteractor {
     suspend fun deleteTrackForPlayListById(trackId: Int, playListId: Int)
     suspend fun getTrackInPlayListByTrackId(trackId: Int): TrackInPlayList?
     fun getAllTracksInPlayListByIdPlaylist(playListId: Int): Flow<List<Track>>
+    suspend fun deleteAllTrackFromPlaylist(playListId: Int)
 }

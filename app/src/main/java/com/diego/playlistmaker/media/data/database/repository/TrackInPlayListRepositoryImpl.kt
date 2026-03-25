@@ -23,4 +23,8 @@ class TrackInPlayListRepositoryImpl(
     override fun getAllTracksInPlayListByIdPlaylist(playListId: Int): Flow<List<TrackInPlayListEntity>> {
         return trackInPlayListDao.getAllTracksInPlayListByIdPlaylist(playListId).distinctUntilChanged()
     }
+
+    override suspend fun deleteAllTrackFromPlaylist(playListId: Int) {
+        trackInPlayListDao.deleteAllTrackFromPlaylist(playListId)
+    }
 }

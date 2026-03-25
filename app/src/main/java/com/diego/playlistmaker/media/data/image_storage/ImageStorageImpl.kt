@@ -59,7 +59,63 @@ class ImageStorageImpl(
     }
 
     override fun deleteAllImages() {
+        try {
+            val filePath = File(context.getExternalFilesDir(Environment.DIRECTORY_PICTURES), PACKAGE_NAME)
 
+            if (!filePath.exists()) {
+                Log.d("ImageStorage", "Directory does not exist")
+            }
+
+            val files = filePath.listFiles()
+            if (files.isNullOrEmpty()) {
+                Log.d("ImageStorage", "No files to delete")
+            }
+
+            var allDeleted = true
+            files.forEach { file ->
+                if (file.isFile) {
+                    val deleted = file.delete()
+                    if (!deleted) {
+                        allDeleted = false
+                        Log.d("ImageStorage", "Failed to delete: ${file.name}")
+                    }
+                }
+            }
+
+            if (allDeleted) {
+                Log.d("ImageStorage", "All images deleted successfully")
+            } else {
+                Log.d("ImageStorage", "Some images failed to delete")
+            }
+
+            allDeleted
+        } catch (e: Exception) {
+            Log.d("Exception", "deleteAllImages: ${e.stackTrace}")
+        }
+    }
+
+    override fun deleteImage(imagePath: String) {
+        try {
+            if (imagePath.isEmpty()) {
+                Log.d("ImageStorage", "Image path is empty")
+            }
+
+            val file = File(imagePath)
+
+            if (file.exists()) {
+                val deleted = file.delete()
+                if (deleted) {
+                    Log.d("ImageStorage", "Image deleted: $imagePath")
+                } else {
+                    Log.d("ImageStorage", "Failed to delete image: $imagePath")
+                }
+                deleted
+            } else {
+                Log.d("ImageStorage", "Image not found: $imagePath")
+            }
+        } catch (e: Exception) {
+            Log.d("Exception", "deleteImage: ${e.stackTrace}")
+        }
     }
 
     companion object {

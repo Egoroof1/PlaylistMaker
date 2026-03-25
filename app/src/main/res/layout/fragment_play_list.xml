@@ -176,25 +176,28 @@
 
         <TextView
             style="@style/text_settings"
+            android:id="@+id/btn_share"
             android:layout_width="match_parent"
             android:layout_height="61dp"
             android:paddingHorizontal="16dp"
             android:layout_marginTop="8dp"
-            android:text="Поделиться"/>
+            android:text="@string/share"/>
         <TextView
             style="@style/text_settings"
+            android:id="@+id/btn_edit_info"
             android:layout_width="match_parent"
             android:layout_height="61dp"
             android:paddingHorizontal="16dp"
             android:layout_marginTop="8dp"
-            android:text="Редактировать информацию"/>
+            android:text="@string/edit_info"/>
         <TextView
             style="@style/text_settings"
+            android:id="@+id/btn_delete_playlist"
             android:layout_width="match_parent"
             android:layout_height="61dp"
             android:paddingHorizontal="16dp"
             android:layout_marginTop="8dp"
-            android:text="Удалить плейлист"/>
+            android:text="@string/delete_playlist"/>
 
 
     </LinearLayout>

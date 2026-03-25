@@ -8,4 +8,5 @@ interface TrackInPlayListRepository {
     suspend fun deleteTrackForPlayListById(trackId: Int, playListId: Int)
     suspend fun getTrackInPlayListByTrackId(trackId: Int): TrackInPlayListEntity?
     fun getAllTracksInPlayListByIdPlaylist(playListId: Int): Flow<List<TrackInPlayListEntity>>
+    suspend fun deleteAllTrackFromPlaylist(playListId: Int)
 }

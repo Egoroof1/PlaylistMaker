@@ -100,14 +100,7 @@ class PlayListFragment : Fragment() {
         }
 
         binding.ivSharing.setOnClickListener {
-            if (viewModel.state.value.trackList.isEmpty()){
-                Toast.makeText(
-                    requireContext(),
-                    "В этом плейлисте нет списка треков, которым можно поделиться",
-                    Toast.LENGTH_SHORT).show()
-            } else {
-                viewModel.sharePlayList(requireContext())
-            }
+            sharePlaylist()
         }
 
         binding.ivMenu.setOnClickListener {
@@ -117,6 +110,37 @@ class PlayListFragment : Fragment() {
                 isHideable = true
                 peekHeight = peekHeight + 200
             }
+        }
+
+        binding.btnShare.setOnClickListener {
+            sharePlaylist()
+        }
+
+        binding.btnDeletePlaylist.setOnClickListener {
+            MaterialAlertDialogBuilder(requireContext())
+                .setTitle("Удалить плейлист")
+                .setMessage("Хотите удалить плейлист?")
+                .setNegativeButton("Нет") { dialog, which -> }
+                .setPositiveButton("Да") { dialog, which ->
+                    viewModel.deletePlaylist(viewModel.state.value.playList?.id ?: -1)
+                    findNavController().popBackStack()
+                }
+                .show()
+        }
+
+        binding.btnEditInfo.setOnClickListener {
+            //edit
+        }
+    }
+
+    private fun sharePlaylist(){
+        if (viewModel.state.value.trackList.isEmpty()){
+            Toast.makeText(
+                requireContext(),
+                "В этом плейлисте нет списка треков, которым можно поделиться",
+                Toast.LENGTH_SHORT).show()
+        } else {
+            viewModel.sharePlayList(requireContext())
         }
     }
 

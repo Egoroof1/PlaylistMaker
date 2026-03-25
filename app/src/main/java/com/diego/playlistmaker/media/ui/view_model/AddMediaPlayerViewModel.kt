@@ -4,8 +4,8 @@ import android.net.Uri
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import com.diego.playlistmaker.R
-import com.diego.playlistmaker.media.data.image_storage.ImageStorageRepository
 import com.diego.playlistmaker.media.domain.models.PlayList
+import com.diego.playlistmaker.media.domain.use_case.ImageStorageInteractor
 import com.diego.playlistmaker.media.domain.use_case.PlayListInteractor
 import com.diego.playlistmaker.media.ui.state.AddMediaPlayerState
 import kotlinx.coroutines.Dispatchers
@@ -16,7 +16,7 @@ import java.io.IOException
 import java.sql.SQLException
 
 class AddMediaPlayerViewModel(
-    private val imageRepository: ImageStorageRepository,
+    private val imageRepository: ImageStorageInteractor,
     private val playListRepository: PlayListInteractor
 ) : ViewModel() {
     private val _state = MutableStateFlow(AddMediaPlayerState())
@@ -73,11 +73,9 @@ class AddMediaPlayerViewModel(
                 )
                 true
             } catch (e: IOException) {
-                // Обрабатываем конкретные ошибки ввода-вывода
                 e.printStackTrace()
                 false
             } catch (e: SQLException) {
-                // Обрабатываем ошибки БД
                 e.printStackTrace()
                 false
             }

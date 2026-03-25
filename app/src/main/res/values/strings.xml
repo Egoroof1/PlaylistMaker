@@ -23,7 +23,7 @@
 
     <!--    contentDescription-->
     <string name="back">back</string>
-    <string name="share">share</string>
+    <string name="share">Поделиться</string>
     <string name="support">support</string>
     <string name="arrow_forward">arrow_forward</string>
     <string name="track_cover">track cover</string>
@@ -62,6 +62,8 @@
     <string name="track_is_added_to_playlist">Трек уже добавлен в плейлист %1$s</string>
     <string name="playlist_is_create">Плейлист %1$s создан</string>
     <string name="minuts">%1$d минут</string>
+    <string name="edit_info">Редактировать информацию</string>
+    <string name="delete_playlist">Удалить плейлист</string>
 
     <plurals name="tracks_count">
         <item quantity="one">%d трек</item>

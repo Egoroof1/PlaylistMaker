@@ -6,6 +6,7 @@ import androidx.lifecycle.viewModelScope
 import com.diego.playlistmaker.media.domain.mapper.formatDuration
 import com.diego.playlistmaker.media.domain.mapper.getTracksCountText
 import com.diego.playlistmaker.media.domain.models.PlayList
+import com.diego.playlistmaker.media.domain.use_case.ImageStorageInteractor
 import com.diego.playlistmaker.media.domain.use_case.PlayListInteractor
 import com.diego.playlistmaker.media.domain.use_case.TrackInPlayListInteractor
 import com.diego.playlistmaker.media.ui.state.PlayListState
@@ -20,7 +21,8 @@ import kotlinx.coroutines.withContext
 class PlayListViewModel(
     private val playListInteractor: PlayListInteractor,
     private val trackInPlayList: TrackInPlayListInteractor,
-    private val sharingInteractor: SharingInteractor
+    private val sharingInteractor: SharingInteractor,
+    private val imageStorageInteractor: ImageStorageInteractor
 ) : ViewModel() {
     private val _state = MutableStateFlow(PlayListState())
     var state: StateFlow<PlayListState> = _state
@@ -34,6 +36,16 @@ class PlayListViewModel(
         updateState { it.copy(playList = playList) }
 
         return playList
+    }
+
+    fun deletePlaylist(playListId: Int){
+        if (playListId < 0) return
+        viewModelScope.launch(Dispatchers.IO) {
+            trackInPlayList.deleteAllTrackFromPlaylist(playListId)
+            playListInteractor.deletePlayListById(playListId)
+            imageStorageInteractor.deleteImage(state.value.playList?.coverImagePath ?: "")
+        }
+
     }
 
     fun sharePlayList(context: Context) {
