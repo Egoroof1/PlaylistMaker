@@ -4,6 +4,7 @@ import com.diego.playlistmaker.R
 
 data class AddMediaPlayerState(
     val image: String = "",
+    val nameError: Boolean = false,
     val nameIsEnable: Boolean = false,
     val descIsEnable: Boolean = false,
     val isBtnEnable: Boolean = false,

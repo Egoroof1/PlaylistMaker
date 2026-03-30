@@ -146,7 +146,12 @@ class AddMediaPlayerFragment : Fragment() {
                 if (result){
                     findNavController().popBackStack()
                 } else {
-                    Toast.makeText(requireContext(), "Ошибка при создании плейлиста", Toast.LENGTH_SHORT).show()
+                    if (viewModel.state.value.nameError){
+                        Toast.makeText(requireContext(), "Имя уже занято", Toast.LENGTH_SHORT).show()
+                    } else {
+                        Toast.makeText(requireContext(), "Ошибка при создании плейлиста", Toast.LENGTH_SHORT).show()
+                    }
+
                 }
             }
         }
