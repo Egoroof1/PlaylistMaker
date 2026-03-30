@@ -47,7 +47,6 @@ class PlayListsListFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        _binding = FragmentPlayListsListBinding.bind(view)
 
         observeViewModel()
         setClickListeners()
@@ -72,10 +71,11 @@ class PlayListsListFragment : Fragment() {
 
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 viewModel.state.collect { state ->
+                    if (_binding != null) {
+                        playListsAdapter.updateList(state.playLists)
 
-                    playListsAdapter.updateList(state.playLists)
-
-                    updateUI(state.playLists.isEmpty(), newNamePlayList)
+                        updateUI(state.playLists.isEmpty(), newNamePlayList)
+                    }
                 }
             }
         }
@@ -84,14 +84,17 @@ class PlayListsListFragment : Fragment() {
     private fun updateUI(isEmpty: Boolean, newNamePlayList: String) {
         binding.playlistsEmpty.isVisible = isEmpty
 
-        lifecycleScope.launch {
-            if (newNamePlayList.isNotEmpty()) {
-                binding.tvNamePlaylist.text = getString(R.string.playlist_is_create, newNamePlayList)
-                binding.viewNamePlaylist.isVisible = true
-                delay(2000)
-                binding.viewNamePlaylist.isVisible = false
+        if (newNamePlayList.isNotEmpty()){
+            viewLifecycleOwner.lifecycleScope.launch {
+                if (_binding != null) {
+                    binding.tvNamePlaylist.text =
+                        getString(R.string.playlist_is_create, newNamePlayList)
+                    binding.viewNamePlaylist.isVisible = true
+                    delay(2000)
+                    binding.viewNamePlaylist.isVisible = false
 
-                viewModel.resetNewPlayListNameManually()
+                    viewModel.resetNewPlayListNameManually()
+                }
             }
         }
 
