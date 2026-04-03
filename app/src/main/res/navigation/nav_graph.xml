@@ -71,5 +71,18 @@
         <action
             android:id="@+id/action_playListListFragment_to_playerFragment"
             app:destination="@id/playerFragment" />
+        <action
+            android:id="@+id/action_playListListFragment_to_editPlayListFragment"
+            app:destination="@id/editPlayListFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/editPlayListFragment"
+        android:name="com.diego.playlistmaker.media.ui.fragments.EditPlayListFragment"
+        android:label="fragment_edit_play_list"
+        tools:layout="@layout/fragment_edit_play_list" >
+        <argument
+            android:name="playListId"
+            app:argType="integer"
+            android:defaultValue="-1" />
     </fragment>
 </navigation>

@@ -5,117 +5,53 @@ import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.net.Uri
 import android.os.Environment
-import android.util.Log
 import androidx.core.net.toUri
-import com.diego.playlistmaker.media.domain.mapper.toLatin
 import java.io.File
 import java.io.FileOutputStream
-import java.lang.Exception
-
 
 class ImageStorageImpl(
     private val context: Context
-): ImageStorageRepository {
+) : ImageStorageRepository {
 
     override fun saveImage(uri: Uri, name: String): String {
-        return try {
-            //создаём экземпляр класса File, который указывает на нужный каталог
-            val filePath = File(
-                context.getExternalFilesDir(
-                    Environment.DIRECTORY_PICTURES
-                ), PACKAGE_NAME
-            )
+        val dir = File(context.getExternalFilesDir(Environment.DIRECTORY_PICTURES), PACKAGE_NAME)
+        if (!dir.exists()) dir.mkdirs()
 
-            //создаем каталог, если он не создан
-            if (!filePath.exists()) filePath.mkdirs()
+        val file = File(dir, "${System.currentTimeMillis()}.jpg")
+        if (file.exists()) file.delete()
 
-            //создаём экземпляр класса File, который указывает на файл внутри каталога
-            val file = File(filePath, "${name.toLatin()}.jpg")
-
-            context.contentResolver.openInputStream(uri)?.use { inputStream ->
-                FileOutputStream(file).use { outputStream ->
-                    BitmapFactory
-                        .decodeStream(inputStream)
-                        ?.compress(Bitmap.CompressFormat.JPEG, 30, outputStream)
-                }
+        context.contentResolver.openInputStream(uri)?.use { input ->
+            FileOutputStream(file).use { output ->
+                BitmapFactory.decodeStream(input)?.compress(Bitmap.CompressFormat.JPEG, 30, output)
             }
-
-            file.absolutePath
-        } catch (e: Exception) {
-            Log.d("Exeption", "saveImage: ${e.stackTrace}")
-            ""
         }
+
+        return file.absolutePath
     }
 
     override fun getImage(name: String): Uri {
-        val filePath = File(context.getExternalFilesDir(Environment.DIRECTORY_PICTURES), PACKAGE_NAME)
-        val file = File(filePath, "$name.jpg")
-        return file.toUri()
+        return File(
+            File(context.getExternalFilesDir(Environment.DIRECTORY_PICTURES), PACKAGE_NAME),
+            "$name.jpg"
+        ).toUri()
     }
 
     override fun getAllImages(): List<Uri> {
-        return File(context.getExternalFilesDir(Environment.DIRECTORY_PICTURES), "myalbum")
-            .listFiles()?.map { it.toUri() } ?: emptyList()
+        return File(
+            context.getExternalFilesDir(Environment.DIRECTORY_PICTURES),
+            PACKAGE_NAME
+        ).listFiles()?.map { it.toUri() } ?: emptyList()
     }
 
     override fun deleteAllImages() {
-        try {
-            val filePath = File(context.getExternalFilesDir(Environment.DIRECTORY_PICTURES), PACKAGE_NAME)
-
-            if (!filePath.exists()) {
-                Log.d("ImageStorage", "Directory does not exist")
-            }
-
-            val files = filePath.listFiles()
-            if (files.isNullOrEmpty()) {
-                Log.d("ImageStorage", "No files to delete")
-            }
-
-            var allDeleted = true
-            files.forEach { file ->
-                if (file.isFile) {
-                    val deleted = file.delete()
-                    if (!deleted) {
-                        allDeleted = false
-                        Log.d("ImageStorage", "Failed to delete: ${file.name}")
-                    }
-                }
-            }
-
-            if (allDeleted) {
-                Log.d("ImageStorage", "All images deleted successfully")
-            } else {
-                Log.d("ImageStorage", "Some images failed to delete")
-            }
-
-            allDeleted
-        } catch (e: Exception) {
-            Log.d("Exception", "deleteAllImages: ${e.stackTrace}")
-        }
+        File(
+            context.getExternalFilesDir(Environment.DIRECTORY_PICTURES),
+            PACKAGE_NAME
+        ).listFiles()?.forEach { if (it.isFile) it.delete() }
     }
 
     override fun deleteImage(imagePath: String) {
-        try {
-            if (imagePath.isEmpty()) {
-                Log.d("ImageStorage", "Image path is empty")
-            }
-
-            val file = File(imagePath)
-
-            if (file.exists()) {
-                val deleted = file.delete()
-                if (deleted) {
-                    Log.d("ImageStorage", "Image deleted: $imagePath")
-                } else {
-                    Log.d("ImageStorage", "Failed to delete image: $imagePath")
-                }
-                deleted
-            } else {
-                Log.d("ImageStorage", "Image not found: $imagePath")
-            }
-        } catch (e: Exception) {
-            Log.d("Exception", "deleteImage: ${e.stackTrace}")
-        }
+        File(imagePath).delete()
     }
 
     companion object {

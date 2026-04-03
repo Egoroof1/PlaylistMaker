@@ -129,7 +129,8 @@ class PlayListFragment : Fragment() {
         }
 
         binding.btnEditInfo.setOnClickListener {
-            //edit
+            val action = PlayListFragmentDirections.actionPlayListListFragmentToEditPlayListFragment(args.playListId)
+            findNavController().navigate(action)
         }
     }
 

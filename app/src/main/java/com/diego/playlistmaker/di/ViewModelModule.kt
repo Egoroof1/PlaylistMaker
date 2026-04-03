@@ -1,6 +1,7 @@
 package com.diego.playlistmaker.di
 
 import com.diego.playlistmaker.media.ui.view_model.AddMediaPlayerViewModel
+import com.diego.playlistmaker.media.ui.view_model.EditPlayListViewModel
 import com.diego.playlistmaker.media.ui.view_model.MediaViewModel
 import com.diego.playlistmaker.media.ui.view_model.PlayListViewModel
 import com.diego.playlistmaker.media.ui.view_model.PlayListsListViewModel
@@ -59,5 +60,9 @@ val viewModelModule = module {
             get(),
             get()
         )
+    }
+
+    viewModel {
+        EditPlayListViewModel(get(), get())
     }
 }
