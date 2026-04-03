@@ -21,6 +21,18 @@ class EditPlayListViewModel(
     var state: StateFlow<EditPLState> = _state
 
     private var name: String = ""
+    private var newImage = false
+
+    fun setNewImage() {
+        newImage = true
+        if (name.isEmpty()) return
+        updateState {
+            it.copy(
+                isBtnEnable = true,
+                btnColor = R.color.color_bg_input_active
+            )
+        }
+    }
 
     fun setPlayList(playListId: Int) {
         viewModelScope.launch(Dispatchers.IO) {
@@ -38,38 +50,47 @@ class EditPlayListViewModel(
 
     fun editTextName(text: String) {
         name = text
-        if (text != _state.value.playList?.name && text.isNotEmpty()){
-            updateState { it.copy(
-                nameIsEnable = true,
-                isBtnEnable = true,
-                btnColor = R.color.color_bg_input_active,
-                inputNameDrawable = R.drawable.bg_input_mediaplayer_active)
+        if (text != _state.value.playList?.name && text.isNotEmpty()) {
+            updateState {
+                it.copy(
+                    nameIsEnable = true,
+                    isBtnEnable = true,
+                    btnColor = R.color.color_bg_input_active,
+                    inputNameDrawable = R.drawable.bg_input_mediaplayer_active
+                )
             }
         } else {
-            updateState { it.copy(
-                nameIsEnable = false,
-                isBtnEnable = false,
-                btnColor = R.color.color_bg_input_not_active,
-                inputNameDrawable = R.drawable.bg_input_mediaplayer)
+            if (text.isNotEmpty() && newImage) return
+            updateState {
+                it.copy(
+                    nameIsEnable = false,
+                    isBtnEnable = false,
+                    btnColor = R.color.color_bg_input_not_active,
+                    inputNameDrawable = R.drawable.bg_input_mediaplayer
+                )
             }
         }
     }
 
     fun editTextDescription(text: String) {
-        if (text != _state.value.playList?.description && name.isNotEmpty()){
-            updateState { it.copy(
-                descIsEnable = true,
-                isBtnEnable = true,
-                btnColor = R.color.color_bg_input_active,
-                inputDescDrawable = R.drawable.bg_input_mediaplayer_active
-            )
+        if (text != _state.value.playList?.description && name.isNotEmpty()) {
+            updateState {
+                it.copy(
+                    descIsEnable = true,
+                    isBtnEnable = true,
+                    btnColor = R.color.color_bg_input_active,
+                    inputDescDrawable = R.drawable.bg_input_mediaplayer_active
+                )
             }
         } else {
-            updateState { it.copy(
-                descIsEnable = false,
-                isBtnEnable = false,
-                btnColor = R.color.color_bg_input_not_active,
-                inputDescDrawable = R.drawable.bg_input_mediaplayer)
+            if (newImage) return
+            updateState {
+                it.copy(
+                    descIsEnable = false,
+                    isBtnEnable = false,
+                    btnColor = R.color.color_bg_input_not_active,
+                    inputDescDrawable = R.drawable.bg_input_mediaplayer
+                )
             }
         }
     }

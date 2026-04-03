@@ -119,7 +119,7 @@ class PlayListFragment : Fragment() {
         binding.btnDeletePlaylist.setOnClickListener {
             MaterialAlertDialogBuilder(requireContext())
                 .setTitle(getString(R.string.delete_playlist))
-                .setMessage(getString(R.string.dyw_delete_playlist))
+                .setMessage(getString(R.string.dyw_delete_playlist, "<<${viewModel.state.value.playList?.name}>>"))
                 .setNegativeButton(getString(R.string.no)) { dialog, which -> }
                 .setPositiveButton(getString(R.string.yes)) { dialog, which ->
                     viewModel.deletePlaylist(viewModel.state.value.playList?.id ?: -1)

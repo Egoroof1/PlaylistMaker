@@ -66,7 +66,7 @@
     <string name="delete_playlist">Удалить плейлист</string>
     <string name="count_tracks">%1$d трек</string>
     <string name="tracks_list_is_empty_share_error">В этом плейлисте нет списка треков, которым можно поделиться</string>
-    <string name="dyw_delete_playlist">Хотите удалить плейлист?</string>
+    <string name="dyw_delete_playlist">Хотите удалить плейлист? %s</string>
     <string name="no">Нет</string>
     <string name="yes">Да</string>
     <string name="edit">Редактировать</string>

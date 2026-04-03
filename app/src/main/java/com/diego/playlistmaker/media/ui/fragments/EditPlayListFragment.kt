@@ -50,6 +50,7 @@ class EditPlayListFragment : Fragment() {
                     .override(500, 500)
                     .into(binding.pickerImage)
                 currentUri = uri
+                viewModel.setNewImage()
             } else {
                 Log.d("PhotoPicker", "No media selected")
             }
@@ -114,6 +115,7 @@ class EditPlayListFragment : Fragment() {
                     state.btnColor
                 )
             )
+            btnSavePlaylist.isEnabled = state.isBtnEnable
 
             etNamePlaylist.background = ContextCompat.getDrawable(
                 requireContext(),
@@ -125,7 +127,6 @@ class EditPlayListFragment : Fragment() {
                 state.inputDescDrawable
             )
 
-            btnSavePlaylist.isEnabled = state.isBtnEnable
             etMiniNamePlaylist.isVisible = state.nameIsEnable
             etMiniDescriptionPlaylist.isVisible = state.descIsEnable
         }
