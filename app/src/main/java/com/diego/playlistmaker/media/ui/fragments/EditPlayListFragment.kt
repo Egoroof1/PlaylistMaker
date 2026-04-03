@@ -1,5 +1,6 @@
 package com.diego.playlistmaker.media.ui.fragments
 
+import android.content.res.ColorStateList
 import android.net.Uri
 import android.os.Bundle
 import android.util.Log
@@ -10,7 +11,10 @@ import android.view.ViewGroup
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.core.content.ContextCompat
 import androidx.core.net.toUri
+import androidx.core.view.isVisible
+import androidx.core.widget.doOnTextChanged
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
@@ -71,22 +75,23 @@ class EditPlayListFragment : Fragment() {
         observeViewModel()
         setFirstUI()
         setupClickListeners()
+        setupTextWatcher()
 
     }
 
-//    private fun setupTextWatcher() {
-//
-//        binding.etNamePlaylist.doOnTextChanged { s, _, _, _ ->
-//            val text = s?.toString() ?: ""
-//            viewModel.editTextName(text)
-//        }
-//
-//        binding.etDescriptionPlaylist.doOnTextChanged { s, _, _, _ ->
-//            val text = s?.toString() ?: ""
-//            viewModel.editTextDescription(text)
-//        }
-//
-//    }
+    private fun setupTextWatcher() {
+
+        binding.etNamePlaylist.doOnTextChanged { s, _, _, _ ->
+            val text = binding.etNamePlaylist.text.toString()
+            viewModel.editTextName(text)
+        }
+
+        binding.etDescriptionPlaylist.doOnTextChanged { s, _, _, _ ->
+            val text = binding.etDescriptionPlaylist.text.toString()
+            viewModel.editTextDescription(text)
+        }
+
+    }
 
     private fun observeViewModel() {
         lifecycleScope.launch {
@@ -102,7 +107,28 @@ class EditPlayListFragment : Fragment() {
     }
 
     private fun updateUI(state: EditPLState){
+        with(binding) {
+            btnSavePlaylist.backgroundTintList = ColorStateList.valueOf(
+                ContextCompat.getColor(
+                    requireContext(),
+                    state.btnColor
+                )
+            )
 
+            etNamePlaylist.background = ContextCompat.getDrawable(
+                requireContext(),
+                state.inputNameDrawable
+            )
+
+            etDescriptionPlaylist.background = ContextCompat.getDrawable(
+                requireContext(),
+                state.inputDescDrawable
+            )
+
+            btnSavePlaylist.isEnabled = state.isBtnEnable
+            etMiniNamePlaylist.isVisible = state.nameIsEnable
+            etMiniDescriptionPlaylist.isVisible = state.descIsEnable
+        }
     }
 
     private fun setFirstUI() {
@@ -134,6 +160,7 @@ class EditPlayListFragment : Fragment() {
                     etDescriptionPlaylist.text.toString(),
                     currentUri ?: "".toUri()
                 )
+                findNavController().popBackStack()
             }
 
             pickerImage.setOnClickListener {

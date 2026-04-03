@@ -3,6 +3,7 @@ package com.diego.playlistmaker.media.ui.view_model
 import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.diego.playlistmaker.R
 import com.diego.playlistmaker.media.domain.use_case.ImageStorageInteractor
 import com.diego.playlistmaker.media.domain.use_case.PlayListInteractor
 import com.diego.playlistmaker.media.ui.state.EditPLState
@@ -19,6 +20,8 @@ class EditPlayListViewModel(
     private val _state = MutableStateFlow(EditPLState())
     var state: StateFlow<EditPLState> = _state
 
+    private var name: String = ""
+
     fun setPlayList(playListId: Int) {
         viewModelScope.launch(Dispatchers.IO) {
             playListInteractor.getPlayListById(playListId).collect { playList ->
@@ -29,6 +32,44 @@ class EditPlayListViewModel(
                         )
                     }
                 }
+            }
+        }
+    }
+
+    fun editTextName(text: String) {
+        name = text
+        if (text != _state.value.playList?.name && text.isNotEmpty()){
+            updateState { it.copy(
+                nameIsEnable = true,
+                isBtnEnable = true,
+                btnColor = R.color.color_bg_input_active,
+                inputNameDrawable = R.drawable.bg_input_mediaplayer_active)
+            }
+        } else {
+            updateState { it.copy(
+                nameIsEnable = false,
+                isBtnEnable = false,
+                btnColor = R.color.color_bg_input_not_active,
+                inputNameDrawable = R.drawable.bg_input_mediaplayer)
+            }
+        }
+    }
+
+    fun editTextDescription(text: String) {
+        if (text != _state.value.playList?.description && name.isNotEmpty()){
+            updateState { it.copy(
+                descIsEnable = true,
+                isBtnEnable = true,
+                btnColor = R.color.color_bg_input_active,
+                inputDescDrawable = R.drawable.bg_input_mediaplayer_active
+            )
+            }
+        } else {
+            updateState { it.copy(
+                descIsEnable = false,
+                isBtnEnable = false,
+                btnColor = R.color.color_bg_input_not_active,
+                inputDescDrawable = R.drawable.bg_input_mediaplayer)
             }
         }
     }
