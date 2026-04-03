@@ -4,7 +4,6 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
-import androidx.room.Update
 import com.diego.playlistmaker.media.data.database.entities.PlayListEntity
 import com.diego.playlistmaker.media.data.database.entities.TrackInPlayListEntity
 import kotlinx.coroutines.flow.Flow
@@ -19,7 +18,7 @@ interface PlayListDao {
     suspend fun deletePlayListById(playListId: Int)
 
     @Query("SELECT * FROM play_list_table WHERE id = :playListId")
-    suspend fun getPlayListById(playListId: Int): PlayListEntity?
+    fun getPlayListById(playListId: Int): Flow<PlayListEntity?>
 
     @Query("SELECT * FROM play_list_table ORDER BY id DESC")
     fun getAllPlayList(): Flow<List<PlayListEntity>>
@@ -27,8 +26,8 @@ interface PlayListDao {
     @Query("SELECT * FROM track_in_play_list_table ORDER BY id DESC")
     fun getAllTracksForPlayList(): Flow<List<TrackInPlayListEntity>>
 
-    @Update
-    suspend fun updatePlayList(playListEntity: PlayListEntity)
+    @Query("UPDATE play_list_table SET name = :name, description = :description, coverImagePath = :coverImagePath WHERE id = :playListId")
+    suspend fun updatePlayList(playListId: Int, name: String, description: String, coverImagePath: String)
 
     @Query("UPDATE play_list_table SET quantityTracks = quantityTracks + 1 WHERE id = :playListId")
     suspend fun incrementTracksCount(playListId: Int)

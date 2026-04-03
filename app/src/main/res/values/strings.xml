@@ -64,6 +64,11 @@
     <string name="minuts">%1$d минут</string>
     <string name="edit_info">Редактировать информацию</string>
     <string name="delete_playlist">Удалить плейлист</string>
+    <string name="count_tracks">%1$d трек</string>
+    <string name="tracks_list_is_empty_share_error">В этом плейлисте нет списка треков, которым можно поделиться</string>
+    <string name="dyw_delete_playlist">Хотите удалить плейлист?</string>
+    <string name="no">Нет</string>
+    <string name="yes">Да</string>
 
     <plurals name="tracks_count">
         <item quantity="one">%d трек</item>

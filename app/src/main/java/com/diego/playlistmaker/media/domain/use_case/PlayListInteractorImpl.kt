@@ -18,8 +18,10 @@ class PlayListInteractorImpl(
         repository.deletePlayListById(playListId)
     }
 
-    override suspend fun getPlayListById(playListId: Int): PlayList? {
-        return repository.getPlayListById(playListId)?.toPlayList()
+    override suspend fun getPlayListById(playListId: Int): Flow<PlayList?> {
+        return repository.getPlayListById(playListId).map { playListEntity ->
+            playListEntity?.toPlayList()
+        }
     }
 
     override fun getAllPlayList(): Flow<List<PlayList>> {
@@ -30,8 +32,8 @@ class PlayListInteractorImpl(
         }
     }
 
-    override suspend fun updatePlayList(playList: PlayList) {
-        repository.updatePlayList(playList.toPlayListEntity())
+    override suspend fun updatePlayList(playListId: Int, name: String, description: String, coverImagePath: String) {
+        repository.updatePlayList(playListId, name, description, coverImagePath)
     }
 
     override suspend fun incrementTracksCount(playListId: Int) {
@@ -52,11 +54,11 @@ interface PlayListInteractor {
 
     suspend fun deletePlayListById(playListId: Int)
 
-    suspend fun getPlayListById(playListId: Int): PlayList?
+    suspend fun getPlayListById(playListId: Int): Flow<PlayList?>
 
     fun getAllPlayList(): Flow<List<PlayList>>
 
-    suspend fun updatePlayList(playList: PlayList)
+    suspend fun updatePlayList(playListId: Int, name: String, description: String, coverImagePath: String)
 
     suspend fun incrementTracksCount(playListId: Int)
 

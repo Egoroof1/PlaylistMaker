@@ -41,7 +41,7 @@ class PlayerViewModel(
 
     // Флаг для отслеживания подготовки плеера
     private var isPrepared = false
-    private var currentPlayList: PlayList? = null
+//    private var currentPlayList: PlayList? = null
 
     init {
         loadPlayLists()
@@ -69,7 +69,7 @@ class PlayerViewModel(
             val isPlayList = trackInPlayList != null
             val playListId = trackInPlayList?.playlistId ?: -1
 
-            currentPlayList = playListInteractor.getPlayListById(playListId)
+//            currentPlayList = playListInteractor.getPlayListById(playListId)
 
             withContext(Dispatchers.Main) {
                 if (isPlayList) {

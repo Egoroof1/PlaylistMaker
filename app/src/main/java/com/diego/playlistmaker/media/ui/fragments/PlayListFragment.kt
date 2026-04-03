@@ -85,10 +85,10 @@ class PlayListFragment : Fragment() {
         val track = currentTrackForDeletion ?: return
 
         MaterialAlertDialogBuilder(requireContext())
-            .setTitle("Хотите удалить трек?")
+            .setTitle(getString(R.string.dyw_delete_playlist))
             .setMessage("")
-            .setNegativeButton("Нет") { dialog, which -> }
-            .setPositiveButton("Да") { dialog, which ->
+            .setNegativeButton(getString(R.string.no)) { dialog, which -> }
+            .setPositiveButton(getString(R.string.yes)) { dialog, which ->
                 viewModel.deleteTrack(track, currentPlayListId)
             }
             .show()
@@ -118,10 +118,10 @@ class PlayListFragment : Fragment() {
 
         binding.btnDeletePlaylist.setOnClickListener {
             MaterialAlertDialogBuilder(requireContext())
-                .setTitle("Удалить плейлист")
-                .setMessage("Хотите удалить плейлист?")
-                .setNegativeButton("Нет") { dialog, which -> }
-                .setPositiveButton("Да") { dialog, which ->
+                .setTitle(getString(R.string.delete_playlist))
+                .setMessage(getString(R.string.dyw_delete_playlist))
+                .setNegativeButton(getString(R.string.no)) { dialog, which -> }
+                .setPositiveButton(getString(R.string.yes)) { dialog, which ->
                     viewModel.deletePlaylist(viewModel.state.value.playList?.id ?: -1)
                     findNavController().popBackStack()
                 }
@@ -137,7 +137,7 @@ class PlayListFragment : Fragment() {
         if (viewModel.state.value.trackList.isEmpty()){
             Toast.makeText(
                 requireContext(),
-                "В этом плейлисте нет списка треков, которым можно поделиться",
+                getString(R.string.tracks_list_is_empty_share_error),
                 Toast.LENGTH_SHORT).show()
         } else {
             viewModel.sharePlayList(requireContext())
@@ -151,6 +151,7 @@ class PlayListFragment : Fragment() {
 
             viewModel.state.collect { state ->
                 if (_binding != null) {
+
                     updateUi(state)
                     trackAdapter.updateList(state.trackList)
                 }
@@ -216,11 +217,9 @@ class PlayListFragment : Fragment() {
         if (_binding == null) return
 
         val playList = state.playList
-        if (playList == null) {
-            findNavController().popBackStack()
-            Toast.makeText(requireContext(), getString(R.string.eroor_load_track), Toast.LENGTH_SHORT).show()
-            return
-        }
+
+        if (playList == null) return
+
         with(binding) {
             Glide.with(ivCaverPlaylist.context)
                 .load(playList.coverImagePath)
@@ -251,9 +250,9 @@ class PlayListFragment : Fragment() {
 
     private fun getTracksCountText(count: Int): String {
         return when {
-            count % 10 == 1 && count % 100 != 11 -> "$count трек"
-            count % 10 in 2..4 && (count % 100 !in 12..14) -> "$count трека"
-            else -> "$count треков"
+            count % 10 == 1 && count % 100 != 11 -> getString(R.string.count_tracks, count)
+            count % 10 in 2..4 && (count % 100 !in 12..14) -> getString(R.string.count_tracks, count)
+            else -> getString(R.string.count_tracks, count)
         }
     }
 

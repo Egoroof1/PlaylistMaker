@@ -5,7 +5,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.diego.playlistmaker.media.domain.mapper.formatDuration
 import com.diego.playlistmaker.media.domain.mapper.getTracksCountText
-import com.diego.playlistmaker.media.domain.models.PlayList
 import com.diego.playlistmaker.media.domain.use_case.ImageStorageInteractor
 import com.diego.playlistmaker.media.domain.use_case.PlayListInteractor
 import com.diego.playlistmaker.media.domain.use_case.TrackInPlayListInteractor
@@ -29,13 +28,14 @@ class PlayListViewModel(
 
 
 
-    suspend fun getPlayListById(playListId: Int): PlayList?{
-        val playList: PlayList? = withContext(Dispatchers.IO) {
-            playListInteractor.getPlayListById(playListId)
+    fun getPlayListById(playListId: Int) {
+        viewModelScope.launch(Dispatchers.IO) {
+            playListInteractor.getPlayListById(playListId).collect { playList ->
+                withContext(Dispatchers.Main){
+                    updateState { it.copy(playList = playList) }
+                }
+            }
         }
-        updateState { it.copy(playList = playList) }
-
-        return playList
     }
 
     fun deletePlaylist(playListId: Int){
@@ -90,13 +90,6 @@ class PlayListViewModel(
 
                 playListInteractor.decrementTracksCount(playListId)
                 playListInteractor.addTotalTimeMillis(playListId, -track.trackTimeMillis)
-
-                val updatedPlayList = playListInteractor.getPlayListById(playListId)
-                withContext(Dispatchers.Main) {
-                    updateState {
-                        it.copy(playList = updatedPlayList)
-                    }
-                }
             } catch (e: Exception) {
                 e.printStackTrace()
             }
