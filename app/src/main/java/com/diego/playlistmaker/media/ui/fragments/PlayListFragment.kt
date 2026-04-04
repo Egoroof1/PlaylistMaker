@@ -250,11 +250,7 @@ class PlayListFragment : Fragment() {
     }
 
     private fun getTracksCountText(count: Int): String {
-        return when {
-            count % 10 == 1 && count % 100 != 11 -> getString(R.string.count_tracks, count)
-            count % 10 in 2..4 && (count % 100 !in 12..14) -> getString(R.string.count_tracks, count)
-            else -> getString(R.string.count_tracks, count)
-        }
+        return resources.getQuantityString(R.plurals.tracks_count, count, count)
     }
 
     override fun onDestroyView() {

@@ -139,7 +139,6 @@ class EditPlayListFragment : Fragment() {
                 .load(oldPlayList?.coverImagePath)
                 .placeholder(R.drawable.placeholder)
                 .error(R.drawable.placeholder)
-                .override(500, 500)
                 .into(pickerImage)
 
             etNamePlaylist.setText(oldPlayList?.name)
@@ -182,10 +181,10 @@ class EditPlayListFragment : Fragment() {
     private fun checkIsEmptyDialogExit(state: EditPLState) {
         if (state.nameIsEnable || state.descIsEnable || currentUri != null) {
             MaterialAlertDialogBuilder(requireContext())
-                .setTitle("Завершить создание плейлиста?")
-                .setMessage("Все несохраненные данные будут потеряны")
-                .setNeutralButton("Отмена") { dialog, which -> }
-                .setPositiveButton("Завершить") { dialog, which ->
+                .setTitle(getString(R.string.finish_creating_the_playlist))
+                .setMessage(getString(R.string.all_unsaved_data_will_be_lost))
+                .setNeutralButton(getString(R.string.cancellation)) { dialog, which -> }
+                .setPositiveButton(getString(R.string.complete)) { dialog, which ->
                     findNavController().popBackStack()
                 }
                 .show()

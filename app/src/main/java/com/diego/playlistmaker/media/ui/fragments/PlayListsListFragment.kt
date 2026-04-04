@@ -90,7 +90,7 @@ class PlayListsListFragment : Fragment() {
                     binding.tvNamePlaylist.text =
                         getString(R.string.playlist_is_create, newNamePlayList)
                     binding.viewNamePlaylist.isVisible = true
-                    delay(2000)
+                    delay(MESSAGE_VISIBLE)
                     binding.viewNamePlaylist.isVisible = false
 
                     viewModel.resetNewPlayListNameManually()
@@ -128,5 +128,6 @@ class PlayListsListFragment : Fragment() {
 
     companion object {
         const val ANTY_DOUBLE_CLICK = 500L
+        const val MESSAGE_VISIBLE = 2000L
     }
 }
