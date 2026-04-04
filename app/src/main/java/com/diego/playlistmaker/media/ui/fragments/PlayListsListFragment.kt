@@ -25,6 +25,7 @@ class PlayListsListFragment : Fragment() {
     private val binding get() = _binding!!
     private val viewModel: PlayListsListViewModel by viewModel()
     private var newNamePlayList: String = ""
+    private var nameDeletedPlayList: String = ""
     private val playListsAdapter by lazy {
         PlayListAdapter(emptyList()) { playList -> onPlayListClicked(playList) }
     }
@@ -68,20 +69,21 @@ class PlayListsListFragment : Fragment() {
     private fun observeViewModel() {
         viewLifecycleOwner.lifecycleScope.launch {
             newNamePlayList = viewModel.state.value.nameNewPlayList
+            nameDeletedPlayList = viewModel.state.value.nameDeletedPlayList
 
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 viewModel.state.collect { state ->
                     if (_binding != null) {
                         playListsAdapter.updateList(state.playLists)
 
-                        updateUI(state.playLists.isEmpty(), newNamePlayList)
+                        updateUI(state.playLists.isEmpty(), newNamePlayList, nameDeletedPlayList)
                     }
                 }
             }
         }
     }
 
-    private fun updateUI(isEmpty: Boolean, newNamePlayList: String) {
+    private fun updateUI(isEmpty: Boolean, newNamePlayList: String, nameDeletedPlayList: String) {
         binding.playlistsEmpty.isVisible = isEmpty
 
         if (newNamePlayList.isNotEmpty()){
@@ -89,6 +91,20 @@ class PlayListsListFragment : Fragment() {
                 if (_binding != null) {
                     binding.tvNamePlaylist.text =
                         getString(R.string.playlist_is_create, newNamePlayList)
+                    binding.viewNamePlaylist.isVisible = true
+                    delay(MESSAGE_VISIBLE)
+                    binding.viewNamePlaylist.isVisible = false
+
+                    viewModel.resetNewPlayListNameManually()
+                }
+            }
+        }
+
+        if (nameDeletedPlayList.isNotEmpty()){
+            viewLifecycleOwner.lifecycleScope.launch {
+                if (_binding != null) {
+                    binding.tvNamePlaylist.text =
+                        getString(R.string.playlist_is_deleted, nameDeletedPlayList)
                     binding.viewNamePlaylist.isVisible = true
                     delay(MESSAGE_VISIBLE)
                     binding.viewNamePlaylist.isVisible = false

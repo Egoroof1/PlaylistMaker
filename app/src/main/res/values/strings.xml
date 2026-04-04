@@ -61,12 +61,14 @@
     <string name="eroor_load_track">Ошибка загрузки трека</string>
     <string name="track_is_added_to_playlist">Трек уже добавлен в плейлист %1$s</string>
     <string name="playlist_is_create">Плейлист %1$s создан</string>
+    <string name="playlist_is_deleted">Плейлист %1$s удалён</string>
+    <string name="track_is_deleted">Трек %1$s удалён</string>
     <string name="minuts">%1$d минут</string>
     <string name="edit_info">Редактировать информацию</string>
     <string name="delete_playlist">Удалить плейлист</string>
     <string name="count_tracks">%1$d трек</string>
     <string name="tracks_list_is_empty_share_error">В этом плейлисте нет списка треков, которым можно поделиться</string>
-    <string name="dyw_delete_playlist">Хотите удалить плейлист? %s</string>
+
     <string name="no">Нет</string>
     <string name="yes">Да</string>
     <string name="edit">Редактировать</string>
@@ -75,6 +77,8 @@
     <string name="all_unsaved_data_will_be_lost">Все несохраненные данные будут потеряны</string>
     <string name="cancellation">Отмена</string>
     <string name="complete">Завершить</string>
+    <string name="dyw_delete_track">Хотите удалить трек?</string>
+    <string name="dyw_delete_playlist"><![CDATA[Хотите удалить плейлист <<%1$s>>?]]></string>
 
     <plurals name="tracks_count">
         <item quantity="one">%d трек</item>

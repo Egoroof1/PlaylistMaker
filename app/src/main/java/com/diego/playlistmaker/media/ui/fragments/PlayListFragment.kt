@@ -20,6 +20,7 @@ import com.diego.playlistmaker.search.domain.models.Track
 import com.diego.playlistmaker.search.presentation.TrackAdapter
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import kotlin.getValue
@@ -78,18 +79,28 @@ class PlayListFragment : Fragment() {
 
     private fun onTrackLongClicked(track: Track) {
         currentTrackForDeletion = track
-        showDeleteTrackDialog()
+        showDeleteTrackDialog(track.trackName)
     }
 
-    private fun showDeleteTrackDialog() {
+    private fun showDeleteTrackDialog(trackName: String) {
         val track = currentTrackForDeletion ?: return
 
         MaterialAlertDialogBuilder(requireContext())
-            .setTitle(getString(R.string.dyw_delete_playlist))
+            .setTitle(getString(R.string.dyw_delete_track))
             .setMessage("")
             .setNegativeButton(getString(R.string.no)) { dialog, which -> }
             .setPositiveButton(getString(R.string.yes)) { dialog, which ->
                 viewModel.deleteTrack(track, currentPlayListId)
+
+                viewLifecycleOwner.lifecycleScope.launch {
+                    if (_binding != null) {
+                        binding.tvNameDeletedTrack.text =
+                            getString(R.string.track_is_deleted, trackName)
+                        binding.viewDeletedTrack.isVisible = true
+                        delay(MESSAGE_VISIBLE)
+                        binding.viewDeletedTrack.isVisible = false
+                    }
+                }
             }
             .show()
     }
@@ -119,7 +130,7 @@ class PlayListFragment : Fragment() {
         binding.btnDeletePlaylist.setOnClickListener {
             MaterialAlertDialogBuilder(requireContext())
                 .setTitle(getString(R.string.delete_playlist))
-                .setMessage(getString(R.string.dyw_delete_playlist, "<<${viewModel.state.value.playList?.name}>>"))
+                .setMessage(getString(R.string.dyw_delete_playlist, viewModel.state.value.playList?.name))
                 .setNegativeButton(getString(R.string.no)) { dialog, which -> }
                 .setPositiveButton(getString(R.string.yes)) { dialog, which ->
                     viewModel.deletePlaylist(viewModel.state.value.playList?.id ?: -1)
@@ -259,6 +270,6 @@ class PlayListFragment : Fragment() {
     }
 
     companion object {
-
+        const val MESSAGE_VISIBLE = 2000L
     }
 }

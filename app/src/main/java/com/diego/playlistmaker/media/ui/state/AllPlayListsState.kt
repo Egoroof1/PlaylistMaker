@@ -4,5 +4,6 @@ import com.diego.playlistmaker.media.domain.models.PlayList
 
 data class AllPlayListsState(
     val playLists: List<PlayList> = emptyList(),
-    val nameNewPlayList: String = ""
+    val nameNewPlayList: String = "",
+    val nameDeletedPlayList: String = ""
 )
