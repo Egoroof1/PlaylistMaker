@@ -77,7 +77,7 @@ class PlayListViewModel(
         viewModelScope.launch(Dispatchers.IO) {
             trackInPlayList.getAllTracksInPlayListByIdPlaylist(playListId).collect { tracks ->
                 updateState {
-                    it.copy(trackList = tracks)
+                    it.copy(trackList = tracks.reversed())
                 }
             }
         }
