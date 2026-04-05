@@ -28,15 +28,15 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import kotlinx.coroutines.launch
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
-class AddMediaPlayerFragment : Fragment() {
+open class AddMediaPlayerFragment : Fragment() {
 
-    private lateinit var binding: FragmentAddMediaPlayerBinding
+    lateinit var binding: FragmentAddMediaPlayerBinding
 
     private val viewModel: AddMediaPlayerViewModel by viewModel()
 
-    private var currentUri: Uri? = null
+    var currentUri: Uri? = null
 
-    private val pickMedia =
+    open val pickMedia =
         registerForActivityResult(ActivityResultContracts.PickVisualMedia()) { uri ->
             if (uri != null) {
                 binding.pickerImage.setImageURI(uri)
@@ -45,7 +45,6 @@ class AddMediaPlayerFragment : Fragment() {
                     .placeholder(R.drawable.placeholder)
                     .error(R.drawable.placeholder)
                     .centerCrop()
-                    .override(500, 500)
                     .into(binding.pickerImage)
                 currentUri = uri
 
@@ -75,7 +74,7 @@ class AddMediaPlayerFragment : Fragment() {
         setupTextWatcher()
     }
 
-    private fun observeViewModel() {
+    open fun observeViewModel() {
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 viewModel.state.collect { state ->
@@ -85,21 +84,21 @@ class AddMediaPlayerFragment : Fragment() {
         }
     }
 
-    private fun setupTextWatcher() {
+    open fun setupTextWatcher() {
 
         binding.etNamePlaylist.doOnTextChanged { s, _, _, _ ->
-            val text = s?.toString() ?: ""
+            val text = binding.etNamePlaylist.text.toString()
             viewModel.editTextName(text)
         }
 
         binding.etDescriptionPlaylist.doOnTextChanged { s, _, _, _ ->
-            val text = s?.toString() ?: ""
+            val text = binding.etDescriptionPlaylist.text.toString()
             viewModel.editTextDescription(text)
         }
 
     }
 
-    private fun updateUi(state: AddMediaPlayerState) {
+    open fun updateUi(state: AddMediaPlayerState) {
 
         with(binding) {
             btnCreatePlaylist.backgroundTintList = ColorStateList.valueOf(
@@ -170,7 +169,7 @@ class AddMediaPlayerFragment : Fragment() {
         )
     }
 
-    private fun checkIsEmptyDialogExit(state: AddMediaPlayerState) {
+    open fun checkIsEmptyDialogExit(state: AddMediaPlayerState) {
         if (state.nameIsEnable || state.descIsEnable || currentUri != null) {
             MaterialAlertDialogBuilder(requireContext(), R.style.CustomMaterialDialog)
                 .setTitle(getString(R.string.finish_creating_the_playlist))

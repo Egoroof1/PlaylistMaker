@@ -1,10 +1,8 @@
 package com.diego.playlistmaker.media.ui.fragments
 
 import android.content.res.ColorStateList
-import android.net.Uri
 import android.os.Bundle
 import android.util.Log
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -20,25 +18,21 @@ import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import com.bumptech.glide.Glide
 import com.diego.playlistmaker.R
-import com.diego.playlistmaker.databinding.FragmentEditPlayListBinding
+import com.diego.playlistmaker.databinding.FragmentAddMediaPlayerBinding
 import com.diego.playlistmaker.media.domain.models.PlayList
-import com.diego.playlistmaker.media.ui.state.EditPLState
+import com.diego.playlistmaker.media.ui.state.AddMediaPlayerState
 import com.diego.playlistmaker.media.ui.view_model.EditPlayListViewModel
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import kotlinx.coroutines.launch
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
-class EditPlayListFragment : Fragment() {
-
-    private lateinit var binding: FragmentEditPlayListBinding
+class EditPlayListFragment : AddMediaPlayerFragment() {
     private val args: EditPlayListFragmentArgs by navArgs()
     private val viewModel: EditPlayListViewModel by viewModel()
 
     private var oldPlayList: PlayList? = null
 
-    private var currentUri: Uri? = null
-
-    private val pickMedia =
+    override val pickMedia =
         registerForActivityResult(ActivityResultContracts.PickVisualMedia()) { uri ->
             if (uri != null) {
                 binding.pickerImage.setImageURI(uri)
@@ -47,7 +41,6 @@ class EditPlayListFragment : Fragment() {
                     .placeholder(R.drawable.placeholder)
                     .error(R.drawable.placeholder)
                     .centerCrop()
-                    .override(500, 500)
                     .into(binding.pickerImage)
                 currentUri = uri
                 viewModel.setNewImage()
@@ -64,7 +57,7 @@ class EditPlayListFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        binding = FragmentEditPlayListBinding.inflate(inflater, container, false)
+        binding = FragmentAddMediaPlayerBinding.inflate(inflater, container, false)
         return binding.root
     }
 
@@ -80,7 +73,7 @@ class EditPlayListFragment : Fragment() {
 
     }
 
-    private fun setupTextWatcher() {
+    override fun setupTextWatcher() {
 
         binding.etNamePlaylist.doOnTextChanged { s, _, _, _ ->
             val text = binding.etNamePlaylist.text.toString()
@@ -94,7 +87,7 @@ class EditPlayListFragment : Fragment() {
 
     }
 
-    private fun observeViewModel() {
+    override fun observeViewModel() {
         lifecycleScope.launch {
             viewModel.state.collect { state ->
                 if (oldPlayList == null) {
@@ -102,20 +95,20 @@ class EditPlayListFragment : Fragment() {
                     setFirstUI()
                 }
 
-                updateUI(state)
+                updateUi(state)
             }
         }
     }
 
-    private fun updateUI(state: EditPLState){
+    override fun updateUi(state: AddMediaPlayerState) {
         with(binding) {
-            btnSavePlaylist.backgroundTintList = ColorStateList.valueOf(
+            btnCreatePlaylist.backgroundTintList = ColorStateList.valueOf(
                 ContextCompat.getColor(
                     requireContext(),
                     state.btnColor
                 )
             )
-            btnSavePlaylist.isEnabled = state.isBtnEnable
+            btnCreatePlaylist.isEnabled = state.isBtnEnable
 
             etNamePlaylist.background = ContextCompat.getDrawable(
                 requireContext(),
@@ -134,6 +127,10 @@ class EditPlayListFragment : Fragment() {
 
     private fun setFirstUI() {
         if (oldPlayList == null) return
+
+        binding.toolbarPlaylist.title = getString(R.string.edit)
+        binding.btnCreatePlaylist.text = getString(R.string.save)
+
         with(binding) {
             Glide.with(pickerImage.context)
                 .load(oldPlayList?.coverImagePath)
@@ -153,7 +150,7 @@ class EditPlayListFragment : Fragment() {
                 checkIsEmptyDialogExit(viewModel.state.value)
             }
 
-            btnSavePlaylist.setOnClickListener {
+            btnCreatePlaylist.setOnClickListener {
                 viewModel.updatePlayList(
                     id = args.playListId,
                     etNamePlaylist.text.toString(),
@@ -178,9 +175,9 @@ class EditPlayListFragment : Fragment() {
         )
     }
 
-    private fun checkIsEmptyDialogExit(state: EditPLState) {
+    override fun checkIsEmptyDialogExit(state: AddMediaPlayerState) {
         if (state.nameIsEnable || state.descIsEnable || currentUri != null) {
-            MaterialAlertDialogBuilder(requireContext())
+            MaterialAlertDialogBuilder(requireContext(), R.style.CustomMaterialDialog)
                 .setTitle(getString(R.string.finish_creating_the_playlist))
                 .setMessage(getString(R.string.all_unsaved_data_will_be_lost))
                 .setNeutralButton(getString(R.string.cancellation)) { dialog, which -> }

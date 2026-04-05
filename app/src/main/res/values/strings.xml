@@ -74,6 +74,7 @@
     <string name="edit">Редактировать</string>
     <string name="save">Сохранить</string>
     <string name="finish_creating_the_playlist">Завершить создание плейлиста?</string>
+    <string name="finish_update_the_playlist">Завершить редактирование плейлиста?</string>
     <string name="all_unsaved_data_will_be_lost">Все несохраненные данные будут потеряны</string>
     <string name="cancellation">Отмена</string>
     <string name="complete">Завершить</string>

@@ -17,11 +17,11 @@ import kotlinx.coroutines.withContext
 import java.io.IOException
 import java.sql.SQLException
 
-class AddMediaPlayerViewModel(
-    private val imageRepository: ImageStorageInteractor,
-    private val playListRepository: PlayListInteractor
+open class AddMediaPlayerViewModel(
+    protected val imageRepository: ImageStorageInteractor,
+    protected val playListRepository: PlayListInteractor
 ) : ViewModel() {
-    private val _state = MutableStateFlow(AddMediaPlayerState())
+    val _state = MutableStateFlow(AddMediaPlayerState())
     var state: StateFlow<AddMediaPlayerState> = _state
 
     private var listPlayList: List<PlayList> = emptyList()
@@ -34,7 +34,7 @@ class AddMediaPlayerViewModel(
         }
     }
 
-    fun editTextName(text: String) {
+    open fun editTextName(text: String) {
         if (text.isNotEmpty()){
             updateState { it.copy(
                 nameIsEnable = true,
@@ -52,7 +52,7 @@ class AddMediaPlayerViewModel(
         }
     }
 
-    fun editTextDescription(text: String) {
+    open fun editTextDescription(text: String) {
         if (text.isNotEmpty()){
             updateState { it.copy(
                 descIsEnable = true,
@@ -106,7 +106,7 @@ class AddMediaPlayerViewModel(
         }
     }
 
-    private fun updateState(updater: (AddMediaPlayerState) -> AddMediaPlayerState) {
+    open fun updateState(updater: (AddMediaPlayerState) -> AddMediaPlayerState) {
         val currentState = _state.value
         _state.value = updater(currentState)
     }

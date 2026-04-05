@@ -1,8 +1,10 @@
 package com.diego.playlistmaker.media.ui.state
 
 import com.diego.playlistmaker.R
+import com.diego.playlistmaker.media.domain.models.PlayList
 
 data class AddMediaPlayerState(
+    val playList: PlayList? = null,
     val image: String = "",
     val nameError: Boolean = false,
     val nameIsEnable: Boolean = false,

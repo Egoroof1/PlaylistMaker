@@ -1,24 +1,18 @@
 package com.diego.playlistmaker.media.ui.view_model
 
 import android.net.Uri
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.diego.playlistmaker.R
 import com.diego.playlistmaker.media.domain.use_case.ImageStorageInteractor
 import com.diego.playlistmaker.media.domain.use_case.PlayListInteractor
-import com.diego.playlistmaker.media.ui.state.EditPLState
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 class EditPlayListViewModel(
-    private val playListInteractor: PlayListInteractor,
-    private val imageInteractor: ImageStorageInteractor
-) : ViewModel() {
-    private val _state = MutableStateFlow(EditPLState())
-    var state: StateFlow<EditPLState> = _state
+    playListInteractor: PlayListInteractor,
+    imageInteractor: ImageStorageInteractor
+) : AddMediaPlayerViewModel(imageInteractor, playListInteractor) {
 
     private var name: String = ""
     private var newImage = false
@@ -36,7 +30,7 @@ class EditPlayListViewModel(
 
     fun setPlayList(playListId: Int) {
         viewModelScope.launch(Dispatchers.IO) {
-            playListInteractor.getPlayListById(playListId).collect { playList ->
+            playListRepository.getPlayListById(playListId).collect { playList ->
                 withContext(Dispatchers.Main) {
                     updateState {
                         it.copy(
@@ -48,7 +42,7 @@ class EditPlayListViewModel(
         }
     }
 
-    fun editTextName(text: String) {
+    override fun editTextName(text: String) {
         name = text
         if (text != _state.value.playList?.name && text.isNotEmpty()) {
             updateState {
@@ -72,7 +66,7 @@ class EditPlayListViewModel(
         }
     }
 
-    fun editTextDescription(text: String) {
+    override fun editTextDescription(text: String) {
         if (text != _state.value.playList?.description && name.isNotEmpty()) {
             updateState {
                 it.copy(
@@ -99,16 +93,11 @@ class EditPlayListViewModel(
         viewModelScope.launch(Dispatchers.IO) {
             var storageImagePath = state.value.playList?.coverImagePath ?: ""
             if (imagePath.toString().isNotEmpty()) {
-                imageInteractor.deleteImage(state.value.playList?.coverImagePath ?: "")
-                storageImagePath = imageInteractor.saveImage(imagePath, name)
+                imageRepository.deleteImage(state.value.playList?.coverImagePath ?: "")
+                storageImagePath = imageRepository.saveImage(imagePath, name)
             }
 
-            playListInteractor.updatePlayList(id, name, desc, storageImagePath)
+            playListRepository.updatePlayList(id, name, desc, storageImagePath)
         }
-    }
-
-    private fun updateState(updater: (EditPLState) -> EditPLState) {
-        val currentState = _state.value
-        _state.value = updater(currentState)
     }
 }
