@@ -85,7 +85,7 @@ class PlayListFragment : Fragment() {
     private fun showDeleteTrackDialog(trackName: String) {
         val track = currentTrackForDeletion ?: return
 
-        MaterialAlertDialogBuilder(requireContext())
+        MaterialAlertDialogBuilder(requireContext(), R.style.CustomMaterialDialog)
             .setTitle(getString(R.string.dyw_delete_track))
             .setMessage("")
             .setNegativeButton(getString(R.string.no)) { dialog, which -> }
@@ -128,7 +128,7 @@ class PlayListFragment : Fragment() {
         }
 
         binding.btnDeletePlaylist.setOnClickListener {
-            MaterialAlertDialogBuilder(requireContext())
+            MaterialAlertDialogBuilder(requireContext(), R.style.CustomMaterialDialog)
                 .setTitle(getString(R.string.delete_playlist))
                 .setMessage(getString(R.string.dyw_delete_playlist, viewModel.state.value.playList?.name))
                 .setNegativeButton(getString(R.string.no)) { dialog, which -> }

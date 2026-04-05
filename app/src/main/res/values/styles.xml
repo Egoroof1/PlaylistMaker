@@ -105,4 +105,29 @@
         <item name="android:lineSpacingExtra">4sp</item>
     </style>
 
+
+    <style name="CustomMaterialDialog" parent="ThemeOverlay.MaterialComponents.MaterialAlertDialog">
+        <!-- Фон диалога -->
+        <item name="android:background">#ffffff</item>
+
+        <!-- Цвет текста заголовка и сообщения -->
+        <item name="colorOnSurface">#000000</item>
+
+        <!-- Стиль Positive кнопки (ОК/Да) -->
+        <item name="buttonBarPositiveButtonStyle">@style/PositiveButtonStyle</item>
+
+        <!-- Стиль Negative кнопки (Отмена/Нет) -->
+        <item name="buttonBarNegativeButtonStyle">@style/NegativeButtonStyle</item>
+    </style>
+
+    <!-- Стиль для Positive кнопки -->
+    <style name="PositiveButtonStyle" parent="Widget.MaterialComponents.Button.TextButton">
+        <item name="android:textColor">#3772E7</item>
+    </style>
+
+    <!-- Стиль для Negative кнопки -->
+    <style name="NegativeButtonStyle" parent="Widget.MaterialComponents.Button.TextButton">
+        <item name="android:textColor">#3772E7</item>
+    </style>
+
 </resources>

@@ -172,11 +172,11 @@ class AddMediaPlayerFragment : Fragment() {
 
     private fun checkIsEmptyDialogExit(state: AddMediaPlayerState) {
         if (state.nameIsEnable || state.descIsEnable || currentUri != null) {
-            MaterialAlertDialogBuilder(requireContext())
-                .setTitle("Завершить создание плейлиста?")
-                .setMessage("Все несохраненные данные будут потеряны")
-                .setNeutralButton("Отмена") { dialog, which -> }
-                .setPositiveButton("Завершить") { dialog, which ->
+            MaterialAlertDialogBuilder(requireContext(), R.style.CustomMaterialDialog)
+                .setTitle(getString(R.string.finish_creating_the_playlist))
+                .setMessage(getString(R.string.all_unsaved_data_will_be_lost))
+                .setNeutralButton(getString(R.string.cancellation)) { dialog, which -> }
+                .setPositiveButton(getString(R.string.complete)) { dialog, which ->
                     findNavController().popBackStack()
                 }
                 .show()
