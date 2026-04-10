@@ -15,20 +15,26 @@ import java.util.Locale
 
 class TrackHolder(
     private val binding: ItemTrackBinding,
-    private val onTrackClick: (Track) -> Unit // Передаём callback в Holder
-): RecyclerView.ViewHolder(binding.root) {
+    private val onTrackClick: (Track) -> Unit,
+    private val onTrackLongClicked: (Track) -> Unit
+) : RecyclerView.ViewHolder(binding.root) {
     private var currentTrack: Track? = null
 
     init {
-        // Добавляем обработчик клика на весь элемент
         binding.root.setOnClickListener {
             currentTrack?.let { track ->
                 onTrackClick(track)
             }
         }
+        binding.root.setOnLongClickListener {
+            currentTrack?.let {
+                onTrackLongClicked(it)
+                true
+            } ?: false
+        }
     }
 
-    fun bind(track: Track){
+    fun bind(track: Track) {
         currentTrack = track
 
         binding.nameTrack.text = track.trackName
@@ -44,19 +50,23 @@ class TrackHolder(
             .into(binding.image)
     }
 
-    private fun dpToPx(dp: Float, context: View): Int {
+    private fun dpToPx(dp: Float, view: View): Int {
         return TypedValue.applyDimension(
             TypedValue.COMPLEX_UNIT_DIP,
             dp,
-            context.resources.displayMetrics
+            view.resources.displayMetrics
         ).toInt()
     }
 
     companion object {
-        fun from(parent: ViewGroup, onItemClick: (Track) -> Unit): TrackHolder {
+        fun from(
+            parent: ViewGroup,
+            onTrackClick: (Track) -> Unit,
+            onTrackLongClicked: (Track) -> Unit
+        ): TrackHolder {
             val inflater = LayoutInflater.from(parent.context)
             val binding = ItemTrackBinding.inflate(inflater, parent, false)
-            return TrackHolder(binding, onItemClick)
+            return TrackHolder(binding, onTrackClick, onTrackLongClicked)
         }
     }
 }

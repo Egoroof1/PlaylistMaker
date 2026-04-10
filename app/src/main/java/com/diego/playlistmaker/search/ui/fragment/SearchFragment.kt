@@ -37,11 +37,19 @@ class SearchFragment : Fragment() {
     private val historyTracks = mutableListOf<Track>()
 
     private val tracksAdapter by lazy {
-        TrackAdapter(tracks) { track -> onTrackClicked(track) }
+        TrackAdapter(
+            tracks = emptyList(),
+            onTrackClick = {track -> onTrackClicked(track)},
+            onTrackLongClicked = {}
+        )
     }
 
     private val historyAdapter by lazy {
-        TrackAdapter(historyTracks) { track -> onTrackClicked(track) }
+        TrackAdapter(
+            tracks = historyTracks,
+            onTrackClick = {track -> onTrackClicked(track)},
+            onTrackLongClicked = {}
+        )
     }
 
     // view ещё не создана
@@ -195,7 +203,7 @@ class SearchFragment : Fragment() {
     private fun updateSearchResults(newTracks: List<Track>) {
         tracks.clear()
         tracks.addAll(newTracks)
-        binding.recyclerTracks.adapter?.notifyDataSetChanged()
+        tracksAdapter.updateList(newTracks)
     }
 
     private fun clearSearch() {

@@ -30,8 +30,8 @@ class SettingsViewModel(
         _themeSettings.value = settings
     }
 
-    fun shareApp() {
-        sharingInteractor.shareApp()
+    fun shareApp(str: String) {
+        sharingInteractor.shareApp(str)
     }
 
     fun contactSupport() {

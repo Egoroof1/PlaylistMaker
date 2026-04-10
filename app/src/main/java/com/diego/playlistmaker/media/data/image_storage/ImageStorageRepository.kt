@@ -6,6 +6,6 @@ interface ImageStorageRepository {
     fun saveImage(uri: Uri, name: String): String
     fun getImage(name: String): Uri
     fun deleteAllImages()
-
+    fun deleteImage(imagePath: String)
     fun getAllImages(): List<Uri>
 }

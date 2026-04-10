@@ -41,7 +41,7 @@ class PlayerViewModel(
 
     // Флаг для отслеживания подготовки плеера
     private var isPrepared = false
-    private var currentPlayList: PlayList? = null
+//    private var currentPlayList: PlayList? = null
 
     init {
         loadPlayLists()
@@ -69,7 +69,7 @@ class PlayerViewModel(
             val isPlayList = trackInPlayList != null
             val playListId = trackInPlayList?.playlistId ?: -1
 
-            currentPlayList = playListInteractor.getPlayListById(playListId)
+//            currentPlayList = playListInteractor.getPlayListById(playListId)
 
             withContext(Dispatchers.Main) {
                 if (isPlayList) {
@@ -223,47 +223,6 @@ class PlayerViewModel(
             }
         }
     }
-
-//    fun addTrackToPlayList(playList: PlayList, track: Track) {
-//        viewModelScope.launch(Dispatchers.IO) {
-//            // Получаем текущие треки в плейлисте
-//            val tracksInPlayList = trackInPlayListInteractor
-//                .getAllTracksInPlayListByIdPlaylist(playList.id)
-//                .first()
-//
-//            // Проверяем, есть ли уже такой трек
-//            val trackExists = tracksInPlayList.any { it.trackId == track.trackId }
-//
-//            if (!trackExists) {
-//                // Обновляем счетчики
-//                playListInteractor.incrementTracksCount(playListId = playList.id)
-//                playListInteractor.addTotalTimeMillis(
-//                    playListId = playList.id,
-//                    track.trackTimeMillis
-//                )
-//
-//                // Добавляем трек
-//                trackInPlayListInteractor.insertTrackInPlayList(
-//                    TrackInPlayList(
-//                        track = track,
-//                        playlistId = playList.id
-//                    )
-//                )
-//
-//                // Обновляем UI (уже на главном)
-//                withContext(Dispatchers.Main) {
-//                    updateState {
-//                        it.copy(
-//                            isPlayList = true,
-//                            playListName = playList.name,
-//                            trackIsContentInPlayList = true
-//                        )
-//                    }
-//                }
-//
-//            }
-//        }
-//    }
 
     fun addTrackToPlayList(playList: PlayList, track: Track, onResult: (Boolean) -> Unit = {}) {
         viewModelScope.launch(Dispatchers.IO) {

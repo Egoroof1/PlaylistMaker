@@ -7,6 +7,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.lifecycle.Observer
+import com.diego.playlistmaker.R
 import com.diego.playlistmaker.databinding.FragmentSettingsBinding
 import com.diego.playlistmaker.settings.ui.view_model.SettingsViewModel
 import org.koin.androidx.viewmodel.ext.android.viewModel
@@ -59,7 +60,7 @@ class SettingsFragment : Fragment() {
 
         binding.apply {
             btnSearch.setOnClickListener {
-                viewModel.shareApp()
+                viewModel.shareApp(getString(R.string.practicum_ru))
             }
             btnSupport.setOnClickListener {
                 viewModel.contactSupport()

@@ -1,5 +1,8 @@
 package com.diego.playlistmaker.media.domain.mapper
 
+import android.content.res.Resources
+import com.diego.playlistmaker.R
+
 fun String.toLatin(): String {
     val map = mapOf(
         // Строчные
@@ -26,4 +29,14 @@ fun String.toLatin(): String {
         result.append(map[char] ?: char)
     }
     return result.toString()
+}
+
+fun Resources.getTracksCountText(count: Int): String {
+    return getQuantityString(R.plurals.tracks_count, count, count)
+}
+
+fun Long.formatDuration(): String {
+    val minutes = this / 1000 / 60
+    val seconds = (this / 1000) % 60
+    return String.format("%d:%02d", minutes, seconds)
 }

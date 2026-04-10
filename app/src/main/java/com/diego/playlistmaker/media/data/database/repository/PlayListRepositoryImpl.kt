@@ -17,7 +17,7 @@ class PlayListRepositoryImpl(
         playListDao.deletePlayListById(playListId)
     }
 
-    override suspend fun getPlayListById(playListId: Int): PlayListEntity? {
+    override suspend fun getPlayListById(playListId: Int): Flow<PlayListEntity?> {
         return playListDao.getPlayListById(playListId)
     }
 
@@ -29,8 +29,8 @@ class PlayListRepositoryImpl(
         return playListDao.getAllTracksForPlayList().distinctUntilChanged()
     }
 
-    override suspend fun updatePlayList(playListEntity: PlayListEntity) {
-        playListDao.updatePlayList(playListEntity)
+    override suspend fun updatePlayList(playListId: Int, name: String, description: String, coverImagePath: String){
+        playListDao.updatePlayList(playListId, name, description, coverImagePath)
     }
 
     override suspend fun incrementTracksCount(playListId: Int) {

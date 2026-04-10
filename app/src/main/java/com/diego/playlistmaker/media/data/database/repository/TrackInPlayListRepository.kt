@@ -5,7 +5,8 @@ import kotlinx.coroutines.flow.Flow
 
 interface TrackInPlayListRepository {
     suspend fun insertTrackInPlayList(trackInPlayListEntity: TrackInPlayListEntity)
-    suspend fun deleteTrackForPlayListById(trackId: Int)
+    suspend fun deleteTrackForPlayListById(trackId: Int, playListId: Int)
     suspend fun getTrackInPlayListByTrackId(trackId: Int): TrackInPlayListEntity?
     fun getAllTracksInPlayListByIdPlaylist(playListId: Int): Flow<List<TrackInPlayListEntity>>
+    suspend fun deleteAllTrackFromPlaylist(playListId: Int)
 }

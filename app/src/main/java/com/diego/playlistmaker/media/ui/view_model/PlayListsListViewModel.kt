@@ -23,24 +23,43 @@ class PlayListsListViewModel(
     private fun observeAllPlayList() {
         viewModelScope.launch(Dispatchers.IO) {
             playListInteractor.getAllPlayList().collect { lists ->
-                // Определяем, был ли добавлен новый плейлист
                 val previousList = _state.value.playLists
+
+                // Находим новый плейлист
                 val newPlayList = lists.firstOrNull { newItem ->
                     previousList.none { oldItem -> oldItem.id == newItem.id }
+                }
+
+                // Находим удаленный плейлист
+                val deletedPlayList = previousList.firstOrNull { oldItem ->
+                    lists.none { newItem -> newItem.id == oldItem.id }
                 }
 
                 updateState {
                     it.copy(
                         playLists = lists,
-                        nameNewPlayList = newPlayList?.name ?: "" // Сохраняем имя нового плейлиста
+                        nameNewPlayList = newPlayList?.name ?: "",
+                        nameDeletedPlayList = deletedPlayList?.name ?: ""
                     )
                 }
 
-                // Сбрасываем nameNewPlayList после небольшой задержки
+                // Сбрасываем имя нового плейлиста через задержку
                 if (newPlayList != null) {
                     resetNewPlayListName()
                 }
+
+                // Сбрасываем имя удаленного плейлиста через задержку
+                if (deletedPlayList != null) {
+                    resetDeletedPlayListName()
+                }
             }
+        }
+    }
+
+    private fun resetDeletedPlayListName() {
+        viewModelScope.launch {
+            kotlinx.coroutines.delay(100)
+            updateState { it.copy(nameDeletedPlayList = "") }
         }
     }
 
