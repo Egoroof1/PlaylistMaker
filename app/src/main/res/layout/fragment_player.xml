@@ -77,17 +77,17 @@
                             app:layout_constraintTop_toTopOf="@+id/btn_player_play"
                             app:srcCompat="@drawable/ic_btn_add_to_playlist" />
 
-                        <ImageButton
+                        <com.diego.playlistmaker.player.custom_view.PlaybackButtonView
                             android:id="@+id/btn_player_play"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
+                            android:layout_width="84dp"
+                            android:layout_height="84dp"
                             android:layout_marginTop="38dp"
-                            android:background="?attr/selectableItemBackgroundBorderless"
-                            android:contentDescription="@string/play_start"
+                            app:playIcon="@drawable/ic_btn_play"
+                            app:pauseIcon="@drawable/ic_btn_pause"
                             app:layout_constraintEnd_toStartOf="@+id/btn_player_like"
                             app:layout_constraintStart_toEndOf="@+id/btn_add_to_playlist"
                             app:layout_constraintTop_toBottomOf="@+id/player_artist_name"
-                            app:srcCompat="@drawable/ic_btn_play" />
+                            />
 
                         <ImageButton
                             android:id="@+id/btn_player_like"
