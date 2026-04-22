@@ -37,6 +37,8 @@ class PlayerFragment : Fragment() {
     private var currentTrack: Track? = null
     private var isPlayList: Boolean = false
 
+    private var lastPlayListList: List<PlayList>? = null
+
     private val playListAdapter: PlayListHorizontalAdapter by lazy {
         PlayListHorizontalAdapter(emptyList()) { playList -> onPlayListClicked(playList) }
     }
@@ -46,7 +48,7 @@ class PlayerFragment : Fragment() {
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         _binding = FragmentPlayerBinding.inflate(inflater, container, false)
         return binding.root
     }
@@ -128,14 +130,21 @@ class PlayerFragment : Fragment() {
         overlay.alpha = 0f
     }
 
+    private fun setupPlaybackButton() {
+        binding.btnPlayerPlay.onPlaybackStateChanged = { isPlaying ->
+            if (isPlaying) {
+                viewModel.play()
+            } else {
+                viewModel.pause()
+            }
+        }
+    }
+
     private fun setupUI() {
+        setupPlaybackButton()
 
         binding.toolbarPlayer.setNavigationOnClickListener {
             findNavController().popBackStack()
-        }
-
-        binding.btnPlayerPlay.setOnClickListener {
-            viewModel.togglePlayPause()
         }
 
         binding.btnPlayerLike.setOnClickListener {
@@ -169,7 +178,11 @@ class PlayerFragment : Fragment() {
                         updateTrackUI(trackInfo)
                     }
 
-                    playListAdapter.updatePlayList(screenState.playListList)
+                    // Обновляем плейлисты только если они изменились
+                    if (screenState.playListList != lastPlayListList) {
+                        lastPlayListList = screenState.playListList
+                        playListAdapter.updatePlayList(screenState.playListList)
+                    }
 
                     updatePlayerUI(playerState, isLike, isPlayList)
                     binding.trackCurrentTime.text = viewModel.getFormattedTime(position)
@@ -218,34 +231,35 @@ class PlayerFragment : Fragment() {
 
         when (state) {
             PlayerState.DEFAULT -> {
-                binding.btnPlayerPlay.setImageResource(R.drawable.ic_btn_play)
                 binding.btnPlayerPlay.isEnabled = false
                 binding.trackCurrentTime.text = getString(R.string._00_00)
+
+                binding.btnPlayerPlay.setPlaying(false)
             }
 
             PlayerState.PREPARING -> {
-                binding.btnPlayerPlay.setImageResource(R.drawable.ic_btn_play)
                 binding.btnPlayerPlay.isEnabled = false
+                binding.btnPlayerPlay.setPlaying(false)
             }
 
             PlayerState.PREPARED -> {
-                binding.btnPlayerPlay.setImageResource(R.drawable.ic_btn_play)
                 binding.btnPlayerPlay.isEnabled = true
+                binding.btnPlayerPlay.setPlaying(false)
             }
 
             PlayerState.PLAYING -> {
-                binding.btnPlayerPlay.setImageResource(R.drawable.ic_btn_pause)
                 binding.btnPlayerPlay.isEnabled = true
+                binding.btnPlayerPlay.setPlaying(true)
             }
 
             PlayerState.PAUSED -> {
-                binding.btnPlayerPlay.setImageResource(R.drawable.ic_btn_play)
                 binding.btnPlayerPlay.isEnabled = true
+                binding.btnPlayerPlay.setPlaying(false)
             }
 
             PlayerState.ERROR -> {
-                binding.btnPlayerPlay.setImageResource(R.drawable.ic_btn_play)
                 binding.btnPlayerPlay.isEnabled = false
+                binding.btnPlayerPlay.setPlaying(false)
                 Toast.makeText(
                     requireContext(),
                     getString(R.string.replication_error),
