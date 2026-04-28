@@ -38,6 +38,7 @@
             android:inputType="text"
             android:hint="@string/search"
             android:textColorHint="@color/color_edittext_hint"
+            android:textCursorDrawable="@drawable/cursor_color"
             android:fontFamily="@font/ys_display_regular"
             android:textFontWeight="400"
             android:textSize="@dimen/sp_16"
