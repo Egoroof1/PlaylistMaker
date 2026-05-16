@@ -1,5 +1,6 @@
 package com.diego.playlistmaker.player.ui
 
+import android.content.IntentFilter
 import android.os.Bundle
 import android.util.TypedValue
 import androidx.fragment.app.Fragment
@@ -8,6 +9,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.LinearLayout
 import android.widget.Toast
+import androidx.core.content.ContextCompat
 import androidx.core.view.isVisible
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
@@ -23,12 +25,16 @@ import com.diego.playlistmaker.player.models.PlayerState
 import com.diego.playlistmaker.player.models.TrackInfo
 import com.diego.playlistmaker.player.presenter.PlayListHorizontalAdapter
 import com.diego.playlistmaker.search.domain.models.Track
+import com.diego.playlistmaker.utils.BroadcastReceiverConnectivity
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import org.koin.android.ext.android.inject
 import org.koin.androidx.viewmodel.ext.android.viewModel
+import kotlin.getValue
 
 class PlayerFragment : Fragment() {
+    private val connectReceiver: BroadcastReceiverConnectivity by inject()
 
     private val args: PlayerFragmentArgs by navArgs()
     private var _binding: FragmentPlayerBinding? = null
@@ -277,8 +283,20 @@ class PlayerFragment : Fragment() {
         ).toInt()
     }
 
+    override fun onResume() {
+        super.onResume()
+
+        ContextCompat.registerReceiver(
+            requireContext(),
+            connectReceiver,
+            IntentFilter("android.net.conn.CONNECTIVITY_CHANGE"),
+            ContextCompat.RECEIVER_NOT_EXPORTED
+        )
+    }
+
     override fun onPause() {
         super.onPause()
+        requireContext().unregisterReceiver(connectReceiver)
         viewModel.pause()
     }
 

@@ -1,6 +1,7 @@
 package com.diego.playlistmaker.config
 
 import android.app.Application
+import com.diego.playlistmaker.di.broadcast
 import com.diego.playlistmaker.di.dataModule
 import com.diego.playlistmaker.di.repositoryModule
 import com.diego.playlistmaker.di.settingsModule
@@ -28,7 +29,8 @@ class App : Application() {
                 useCaseModule,
                 settingsModule,
                 sharingModule,
-                viewModelModule
+                viewModelModule,
+                broadcast
             )
         }
     }

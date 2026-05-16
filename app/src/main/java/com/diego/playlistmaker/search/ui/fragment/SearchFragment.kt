@@ -2,6 +2,7 @@ package com.diego.playlistmaker.search.ui.fragment
 
 import android.annotation.SuppressLint
 import android.content.Context
+import android.content.IntentFilter
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
@@ -10,6 +11,7 @@ import android.view.ViewGroup
 import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputMethodManager
 import android.widget.Toast
+import androidx.core.content.ContextCompat
 import androidx.core.view.isVisible
 import androidx.core.widget.doOnTextChanged
 import androidx.lifecycle.lifecycleScope
@@ -20,12 +22,15 @@ import com.diego.playlistmaker.search.domain.models.Track
 import com.diego.playlistmaker.search.presentation.TrackAdapter
 import com.diego.playlistmaker.search.ui.view_model.SearchViewModel
 import com.diego.playlistmaker.search.ui.view_model.UserActions
+import com.diego.playlistmaker.utils.BroadcastReceiverConnectivity
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import org.koin.android.ext.android.inject
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import kotlin.getValue
 
 class SearchFragment : Fragment() {
+    private val connectReceiver: BroadcastReceiverConnectivity by inject()
 
     private var _binding: FragmentSearchBinding? = null
     private val binding get() = _binding!!
@@ -314,6 +319,18 @@ class SearchFragment : Fragment() {
         super.onResume()
 
         viewModel.loadHistory()
+
+        ContextCompat.registerReceiver(
+            requireContext(),
+            connectReceiver,
+            IntentFilter("android.net.conn.CONNECTIVITY_CHANGE"),
+            ContextCompat.RECEIVER_NOT_EXPORTED
+        )
+    }
+
+    override fun onPause() {
+        super.onPause()
+        requireContext().unregisterReceiver(connectReceiver)
     }
 
     override fun onDestroy() {
