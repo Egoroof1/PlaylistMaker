@@ -12,6 +12,7 @@ import com.diego.playlistmaker.player.models.PlayerScreenState
 import com.diego.playlistmaker.player.models.PlayerState
 import com.diego.playlistmaker.player.models.TrackInfo
 import com.diego.playlistmaker.search.domain.models.Track
+import com.diego.playlistmaker.services.AudioPlayerControl
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
@@ -41,7 +42,6 @@ class PlayerViewModel(
 
     // Флаг для отслеживания подготовки плеера
     private var isPrepared = false
-//    private var currentPlayList: PlayList? = null
 
     init {
         loadPlayLists()
@@ -68,8 +68,6 @@ class PlayerViewModel(
                 trackInPlayListInteractor.getTrackInPlayListByTrackId(track.trackId)
             val isPlayList = trackInPlayList != null
             val playListId = trackInPlayList?.playlistId ?: -1
-
-//            currentPlayList = playListInteractor.getPlayListById(playListId)
 
             withContext(Dispatchers.Main) {
                 if (isPlayList) {
@@ -169,14 +167,6 @@ class PlayerViewModel(
             mediaPlayer?.currentPosition?.let { position ->
                 updateState { it.copy(currentPosition = position) }
             }
-        }
-    }
-
-    fun togglePlayPause() {
-        when (_screenState.value.playerState) {
-            PlayerState.PLAYING -> pause()
-            PlayerState.PREPARED, PlayerState.PAUSED -> play()
-            else -> Unit
         }
     }
 
