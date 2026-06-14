@@ -103,6 +103,7 @@ class MusicService : Service() {
                 stopProgressTimer()
                 mediaPlayer?.seekTo(0)
                 updateState(PlaybackState.COMPLETED, 0, _duration)
+                stopForeground(STOP_FOREGROUND_REMOVE)
                 stopSelf()
             }
 
