@@ -1,5 +1,8 @@
 package com.diego.playlistmaker.player.ui
 
+import android.Manifest
+import android.content.pm.PackageManager
+import android.os.Build
 import android.os.Bundle
 import android.util.TypedValue
 import androidx.fragment.app.Fragment
@@ -8,6 +11,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.LinearLayout
 import android.widget.Toast
+import androidx.core.content.ContextCompat
 import androidx.core.view.isVisible
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
@@ -58,6 +62,19 @@ class PlayerFragment : Fragment() {
 
         currentTrack = args.track
 
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            if (ContextCompat.checkSelfPermission(
+                    requireContext(),
+                    Manifest.permission.POST_NOTIFICATIONS
+                ) != PackageManager.PERMISSION_GRANTED
+            ) {
+                requestPermissions(
+                    arrayOf(Manifest.permission.POST_NOTIFICATIONS),
+                    REQUEST_CODE_NOTIFICATIONS
+                )
+            }
+        }
+
         if (currentTrack != null) {
             currentTrack?.let { track ->
                 viewModel.setTrack(track)
@@ -67,10 +84,13 @@ class PlayerFragment : Fragment() {
             setBottomSheet()
 
         } else {
-            Toast.makeText(requireContext(),
-                getString(R.string.eroor_load_track), Toast.LENGTH_SHORT).show()
+            Toast.makeText(
+                requireContext(),
+                getString(R.string.eroor_load_track), Toast.LENGTH_SHORT
+            ).show()
             findNavController().popBackStack()
         }
+
     }
 
     private fun onPlayListClicked(playList: PlayList) {
@@ -144,6 +164,8 @@ class PlayerFragment : Fragment() {
         setupPlaybackButton()
 
         binding.toolbarPlayer.setNavigationOnClickListener {
+            viewModel.pause()
+            viewModel.seekTo(0)
             findNavController().popBackStack()
         }
 
@@ -279,7 +301,6 @@ class PlayerFragment : Fragment() {
 
     override fun onPause() {
         super.onPause()
-        viewModel.pause()
     }
 
     override fun onDestroyView() {
@@ -289,6 +310,9 @@ class PlayerFragment : Fragment() {
 
     override fun onDestroy() {
         super.onDestroy()
-        viewModel.releasePlayer()
+    }
+
+    private companion object {
+        const val REQUEST_CODE_NOTIFICATIONS = 1001
     }
 }

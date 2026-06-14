@@ -1,6 +1,5 @@
 package com.diego.playlistmaker.player.ui
 
-import android.media.MediaPlayer
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.diego.playlistmaker.media.domain.models.PlayList
@@ -12,20 +11,17 @@ import com.diego.playlistmaker.player.models.PlayerScreenState
 import com.diego.playlistmaker.player.models.PlayerState
 import com.diego.playlistmaker.player.models.TrackInfo
 import com.diego.playlistmaker.search.domain.models.Track
+import com.diego.playlistmaker.services.MusicPlayerManager
+import com.diego.playlistmaker.services.MusicService
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import java.text.SimpleDateFormat
-import java.util.Locale
 
 class PlayerViewModel(
-    private val repositoryUseCase: FavoriteInteractor,
+    private val favoriteInteractor: FavoriteInteractor,
     private val playListInteractor: PlayListInteractor,
     private val trackInPlayListInteractor: TrackInPlayListInteractor
 ) : ViewModel() {
@@ -33,22 +29,49 @@ class PlayerViewModel(
     private val _screenState = MutableStateFlow(PlayerScreenState())
     val screenState: StateFlow<PlayerScreenState> = _screenState
 
-    // MediaPlayer
-    private var mediaPlayer: MediaPlayer? = null
-
-    // Job для обновления прогресса (замена Timer)
-    private var progressJob: Job? = null
-
-    // Флаг для отслеживания подготовки плеера
-    private var isPrepared = false
-//    private var currentPlayList: PlayList? = null
+    private var currentTrack: Track? = null
 
     init {
         loadPlayLists()
+        observePlaybackState()
+    }
+
+    private fun observePlaybackState() {
+        viewModelScope.launch {
+            MusicPlayerManager.playbackState.collect { serviceState ->
+                val playerState = mapServiceStateToPlayerState(serviceState)
+                val currentPosition = MusicPlayerManager.currentPosition.value
+
+                _screenState.value = _screenState.value.copy(
+                    playerState = playerState,
+                    currentPosition = currentPosition
+                )
+            }
+        }
+
+        viewModelScope.launch {
+            MusicPlayerManager.currentPosition.collect { position ->
+                _screenState.value = _screenState.value.copy(currentPosition = position)
+            }
+        }
+    }
+
+    private fun mapServiceStateToPlayerState(state: MusicService.PlaybackState): PlayerState {
+        return when (state) {
+            MusicService.PlaybackState.IDLE -> PlayerState.DEFAULT
+            MusicService.PlaybackState.PREPARING -> PlayerState.PREPARING
+            MusicService.PlaybackState.PREPARED -> PlayerState.PREPARED
+            MusicService.PlaybackState.PLAYING -> PlayerState.PLAYING
+            MusicService.PlaybackState.PAUSED -> PlayerState.PAUSED
+            MusicService.PlaybackState.COMPLETED -> PlayerState.PREPARED
+            MusicService.PlaybackState.ERROR -> PlayerState.ERROR
+        }
     }
 
     fun setTrack(track: Track) {
-        // Создаем TrackInfo из Track
+        currentTrack = track
+
+        // Создаем TrackInfo для UI
         val trackInfo = TrackInfo(
             trackName = track.trackName,
             artistName = track.artistName,
@@ -62,163 +85,62 @@ class PlayerViewModel(
             previewUrl = track.previewUrl
         )
 
+        // Запускаем сервис
+        MusicPlayerManager.play(track.previewUrl, track.artistName, track.trackName)
+
+        // Проверяем лайк и плейлист
         viewModelScope.launch(Dispatchers.IO) {
-            val isLike = repositoryUseCase.isFavorite(track.trackId)
-            val trackInPlayList: TrackInPlayList? =
-                trackInPlayListInteractor.getTrackInPlayListByTrackId(track.trackId)
+            val isLike = favoriteInteractor.isFavorite(track.trackId)
+            val trackInPlayList = trackInPlayListInteractor.getTrackInPlayListByTrackId(track.trackId)
             val isPlayList = trackInPlayList != null
             val playListId = trackInPlayList?.playlistId ?: -1
 
-//            currentPlayList = playListInteractor.getPlayListById(playListId)
-
             withContext(Dispatchers.Main) {
-                if (isPlayList) {
-                    updateState {
-                        it.copy(
-                            playListId = playListId
-                        )
-                    }
-                }
-
-                updateState {
-                    it.copy(
-                        trackInfo = trackInfo,
-                        isLike = isLike,
-                        isPlayList = isPlayList
-                    )
-                }
-            }
-        }
-
-        preparePlayer(track.previewUrl)
-    }
-
-    private fun updateState(updater: (PlayerScreenState) -> PlayerScreenState) {
-        val currentState = _screenState.value
-        _screenState.value = updater(currentState)
-    }
-
-    fun likeTrack(track: Track) {
-
-        viewModelScope.launch(Dispatchers.IO) {
-            if (!repositoryUseCase.isFavorite(track.trackId)) {
-                repositoryUseCase.insertTrack(track = track)
-
-                withContext(Dispatchers.Main) {
-                    updateState {
-                        it.copy(isLike = true)
-                    }
-                }
-            } else {
-                repositoryUseCase.deleteById(trackId = track.trackId)
-
-                withContext(Dispatchers.Main) {
-                    updateState {
-                        it.copy(isLike = false)
-                    }
-                }
-            }
-        }
-    }
-
-    private fun preparePlayer(previewUrl: String) {
-        releasePlayer() // Освобождаем предыдущий MediaPlayer
-
-        mediaPlayer = MediaPlayer().apply {
-            setDataSource(previewUrl)
-            prepareAsync()
-
-            setOnPreparedListener {
-                isPrepared = true
-                updateState { it.copy(playerState = PlayerState.PREPARED) }
-            }
-
-            setOnCompletionListener {
-                stopProgressTimer()
-                // Принудительно перематываем в начало
-                mediaPlayer?.seekTo(0)
-                // Обновляем состояние
-                updateState {
-                    it.copy(
-                        playerState = PlayerState.PREPARED,
-                        currentPosition = 0
-                    )
-                }
-            }
-
-            setOnErrorListener { _, what, extra ->
-                updateState { it.copy(playerState = PlayerState.ERROR) }
-                false
+                _screenState.value = _screenState.value.copy(
+                    trackInfo = trackInfo,
+                    isLike = isLike,
+                    isPlayList = isPlayList,
+                    playListId = playListId
+                )
             }
         }
     }
 
     fun play() {
-        if (isPrepared && _screenState.value.playerState != PlayerState.PLAYING) {
-            mediaPlayer?.start()
-            updateState { it.copy(playerState = PlayerState.PLAYING) }
-            startProgressTimer()
-        }
+        MusicPlayerManager.resume()
     }
 
     fun pause() {
-        if (_screenState.value.playerState == PlayerState.PLAYING) {
-            mediaPlayer?.pause()
-            updateState { it.copy(playerState = PlayerState.PAUSED) }
-            stopProgressTimer()
-            mediaPlayer?.currentPosition?.let { position ->
-                updateState { it.copy(currentPosition = position) }
-            }
-        }
+        MusicPlayerManager.pause()
+    }
+
+    fun seekTo(position: Int) {
+        MusicPlayerManager.seekTo(position)
+    }
+
+    fun release(){
+        MusicPlayerManager.unbindService()
     }
 
     fun togglePlayPause() {
-        when (_screenState.value.playerState) {
-            PlayerState.PLAYING -> pause()
-            PlayerState.PREPARED, PlayerState.PAUSED -> play()
-            else -> Unit
+        if (MusicPlayerManager.isPlaying()) {
+            pause()
+        } else {
+            play()
         }
     }
 
-    private fun startProgressTimer() {
-        stopProgressTimer() // Останавливаем предыдущую корутину, если есть
-
-        progressJob = viewModelScope.launch(Dispatchers.Main) {
-            while (isActive && _screenState.value.playerState == PlayerState.PLAYING) {
-                updateState { it.copy(currentPosition = mediaPlayer?.currentPosition ?: 0) }
-                delay(500)
-            }
-        }
-    }
-
-    private fun stopProgressTimer() {
-        progressJob?.cancel()
-        progressJob = null
-    }
-
-    fun getFormattedTime(timeMillis: Int): String {
-        return SimpleDateFormat("mm:ss", Locale.getDefault()).format(timeMillis)
-    }
-
-    override fun onCleared() {
-        super.onCleared()
-        releasePlayer()
-        stopProgressTimer()
-    }
-
-    fun releasePlayer() {
-        stopProgressTimer()
-        mediaPlayer?.release()
-        mediaPlayer = null
-        isPrepared = false
-        updateState { it.copy(playerState = PlayerState.DEFAULT) }
-    }
-
-    private fun loadPlayLists() {
+    fun likeTrack(track: Track) {
         viewModelScope.launch(Dispatchers.IO) {
-            playListInteractor.getAllPlayList().collect { lists ->
+            if (!favoriteInteractor.isFavorite(track.trackId)) {
+                favoriteInteractor.insertTrack(track)
                 withContext(Dispatchers.Main) {
-                    updateState { it.copy(playListList = lists) }
+                    _screenState.value = _screenState.value.copy(isLike = true)
+                }
+            } else {
+                favoriteInteractor.deleteById(track.trackId)
+                withContext(Dispatchers.Main) {
+                    _screenState.value = _screenState.value.copy(isLike = false)
                 }
             }
         }
@@ -234,24 +156,12 @@ class PlayerViewModel(
 
             if (!trackExists) {
                 playListInteractor.incrementTracksCount(playListId = playList.id)
-                playListInteractor.addTotalTimeMillis(
-                    playListId = playList.id,
-                    track.trackTimeMillis
-                )
-
+                playListInteractor.addTotalTimeMillis(playList.id, track.trackTimeMillis)
                 trackInPlayListInteractor.insertTrackInPlayList(
-                    TrackInPlayList(
-                        track = track,
-                        playlistId = playList.id
-                    )
+                    TrackInPlayList(track = track, playlistId = playList.id)
                 )
-
                 withContext(Dispatchers.Main) {
-                    updateState {
-                        it.copy(
-                            isPlayList = true
-                        )
-                    }
+                    _screenState.value = _screenState.value.copy(isPlayList = true)
                     onResult(true)
                 }
             } else {
@@ -260,5 +170,23 @@ class PlayerViewModel(
                 }
             }
         }
+    }
+
+    fun getFormattedTime(timeMillis: Int): String {
+        return MusicPlayerManager.getFormattedTime(timeMillis)
+    }
+
+    private fun loadPlayLists() {
+        viewModelScope.launch(Dispatchers.IO) {
+            playListInteractor.getAllPlayList().collect { lists ->
+                withContext(Dispatchers.Main) {
+                    _screenState.value = _screenState.value.copy(playListList = lists)
+                }
+            }
+        }
+    }
+
+    override fun onCleared() {
+        super.onCleared()
     }
 }
