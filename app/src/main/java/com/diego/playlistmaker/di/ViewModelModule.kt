@@ -9,6 +9,7 @@ import com.diego.playlistmaker.media.ui.view_model.TracksFragmentViewModel
 import com.diego.playlistmaker.player.ui.PlayerViewModel
 import com.diego.playlistmaker.search.ui.view_model.SearchViewModel
 import com.diego.playlistmaker.settings.ui.view_model.SettingsViewModel
+import org.koin.android.ext.koin.androidApplication
 import org.koin.androidx.viewmodel.dsl.viewModel
 import org.koin.dsl.module
 
@@ -31,7 +32,7 @@ val viewModelModule = module {
 
     // Player ViewModel (не имеет зависимостей)
     viewModel {
-        PlayerViewModel(get(), get(), get())
+        PlayerViewModel(androidApplication(), get(), get(), get())
     }
 
     // Media Activity ViewModel

@@ -1,11 +1,6 @@
 package com.diego.playlistmaker.main.ui.root
 
-import android.content.ComponentName
-import android.content.Context
-import android.content.Intent
-import android.content.ServiceConnection
 import android.os.Bundle
-import android.os.IBinder
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
@@ -15,12 +10,9 @@ import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.setupWithNavController
 import com.diego.playlistmaker.R
 import com.diego.playlistmaker.databinding.ActivityRootBinding
-import com.diego.playlistmaker.services.MusicPlayerManager
-import com.diego.playlistmaker.services.MusicService
 
 class RootActivity : AppCompatActivity() {
     private lateinit var binding: ActivityRootBinding
-    private var serviceConnection: ServiceConnection? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -59,42 +51,5 @@ class RootActivity : AppCompatActivity() {
             }
         }
 
-        bindToMusicService()
-
-    }
-
-    private fun bindToMusicService() {
-        val connection = object : ServiceConnection {
-            override fun onServiceConnected(name: ComponentName?, service: IBinder?) {
-                val binder = service as MusicService.MusicBinder
-                MusicPlayerManager.bindService(binder.getService())
-            }
-
-            override fun onServiceDisconnected(name: ComponentName?) {
-                MusicPlayerManager.unbindService()
-            }
-        }
-        serviceConnection = connection
-        bindService(
-            Intent(this, MusicService::class.java),
-            connection,
-            Context.BIND_AUTO_CREATE
-        )
-    }
-
-    override fun onResume() {
-        super.onResume()
-        MusicPlayerManager.setAppForegroundState(true)
-    }
-
-    override fun onPause() {
-        super.onPause()
-        MusicPlayerManager.setAppForegroundState(false)
-    }
-
-    override fun onDestroy() {
-        super.onDestroy()
-        serviceConnection?.let { unbindService(it) }
-        serviceConnection = null
     }
 }

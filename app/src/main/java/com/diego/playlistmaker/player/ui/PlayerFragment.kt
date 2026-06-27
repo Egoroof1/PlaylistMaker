@@ -4,6 +4,7 @@ import android.Manifest
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
+import android.util.Log
 import android.util.TypedValue
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
@@ -43,6 +44,8 @@ class PlayerFragment : Fragment() {
 
     private var lastPlayListList: List<PlayList>? = null
 
+    private val REQUEST_CODE_NOTIFICATIONS = 1001
+
     private val playListAdapter: PlayListHorizontalAdapter by lazy {
         PlayListHorizontalAdapter(emptyList()) { playList -> onPlayListClicked(playList) }
     }
@@ -62,20 +65,9 @@ class PlayerFragment : Fragment() {
 
         currentTrack = args.track
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            if (ContextCompat.checkSelfPermission(
-                    requireContext(),
-                    Manifest.permission.POST_NOTIFICATIONS
-                ) != PackageManager.PERMISSION_GRANTED
-            ) {
-                requestPermissions(
-                    arrayOf(Manifest.permission.POST_NOTIFICATIONS),
-                    REQUEST_CODE_NOTIFICATIONS
-                )
-            }
-        }
-
         if (currentTrack != null) {
+            requestNotificationPermission()
+
             currentTrack?.let { track ->
                 viewModel.setTrack(track)
             }
@@ -90,7 +82,59 @@ class PlayerFragment : Fragment() {
             ).show()
             findNavController().popBackStack()
         }
+    }
 
+    private fun requestNotificationPermission() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            if (ContextCompat.checkSelfPermission(
+                    requireContext(),
+                    Manifest.permission.POST_NOTIFICATIONS
+                ) != PackageManager.PERMISSION_GRANTED
+            ) {
+                requestPermissions(
+                    arrayOf(Manifest.permission.POST_NOTIFICATIONS),
+                    REQUEST_CODE_NOTIFICATIONS
+                )
+            }
+        }
+    }
+
+    override fun onStart() {
+        super.onStart()
+        viewModel.onAppForeground()
+    }
+
+    override fun onStop() {
+        super.onStop()
+        // При сворачивании приложения
+        Log.d("MusicService", "onStop: останавливаем таймер")
+        viewModel.onAppBackground()
+    }
+
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<out String>,
+        grantResults: IntArray
+    ) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+
+        when (requestCode) {
+            REQUEST_CODE_NOTIFICATIONS -> {
+                if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    Toast.makeText(
+                        requireContext(),
+                        "Уведомления разрешены",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                } else {
+                    Toast.makeText(
+                        requireContext(),
+                        "Для уведомлений требуется разрешение",
+                        Toast.LENGTH_LONG
+                    ).show()
+                }
+            }
+        }
     }
 
     private fun onPlayListClicked(playList: PlayList) {
@@ -144,7 +188,6 @@ class PlayerFragment : Fragment() {
             }
         })
 
-
         bottomSheetBehavior.state = BottomSheetBehavior.STATE_HIDDEN
         overlay.isVisible = true
         overlay.alpha = 0f
@@ -164,8 +207,8 @@ class PlayerFragment : Fragment() {
         setupPlaybackButton()
 
         binding.toolbarPlayer.setNavigationOnClickListener {
-            viewModel.pause()
-            viewModel.seekTo(0)
+            // Останавливаем и освобождаем плеер перед выходом
+            viewModel.releaseAndStopPlayer()
             findNavController().popBackStack()
         }
 
@@ -178,7 +221,6 @@ class PlayerFragment : Fragment() {
         }
 
         binding.btnCreateNewPlaylist.setOnClickListener {
-
             val action = PlayerFragmentDirections.actionPlayerFragmentToAddMediaPlayerFragment()
             findNavController().navigate(action)
         }
@@ -188,8 +230,8 @@ class PlayerFragment : Fragment() {
 
     private fun setupObservers() {
         viewLifecycleOwner.lifecycleScope.launch {
-            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED){
-                viewModel.screenState.collect {screenState ->
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.screenState.collect { screenState ->
                     val trackInfo = screenState.trackInfo
                     val playerState = screenState.playerState
                     val position = screenState.currentPosition
@@ -200,7 +242,6 @@ class PlayerFragment : Fragment() {
                         updateTrackUI(trackInfo)
                     }
 
-                    // Обновляем плейлисты только если они изменились
                     if (screenState.playListList != lastPlayListList) {
                         lastPlayListList = screenState.playListList
                         playListAdapter.updatePlayList(screenState.playListList)
@@ -212,7 +253,6 @@ class PlayerFragment : Fragment() {
             }
         }
     }
-
 
     private fun updateTrackUI(trackInfo: TrackInfo) {
         Glide.with(binding.image)
@@ -255,7 +295,6 @@ class PlayerFragment : Fragment() {
             PlayerState.DEFAULT -> {
                 binding.btnPlayerPlay.isEnabled = false
                 binding.trackCurrentTime.text = getString(R.string._00_00)
-
                 binding.btnPlayerPlay.setPlaying(false)
             }
 
@@ -301,6 +340,7 @@ class PlayerFragment : Fragment() {
 
     override fun onPause() {
         super.onPause()
+        viewModel.pauseProgressTimer()
     }
 
     override fun onDestroyView() {
@@ -308,11 +348,11 @@ class PlayerFragment : Fragment() {
         _binding = null
     }
 
+
+
     override fun onDestroy() {
         super.onDestroy()
-    }
-
-    private companion object {
-        const val REQUEST_CODE_NOTIFICATIONS = 1001
+        viewModel.releaseAndStopPlayer()
+        _binding = null
     }
 }

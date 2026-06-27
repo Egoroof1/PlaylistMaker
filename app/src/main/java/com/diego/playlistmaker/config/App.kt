@@ -7,7 +7,6 @@ import com.diego.playlistmaker.di.settingsModule
 import com.diego.playlistmaker.di.sharingModule
 import com.diego.playlistmaker.di.useCaseModule
 import com.diego.playlistmaker.di.viewModelModule
-import com.diego.playlistmaker.services.MusicPlayerManager
 import com.diego.playlistmaker.settings.data.shared_prefs.SharedTheme
 import org.koin.android.ext.koin.androidContext
 import org.koin.core.context.startKoin
@@ -19,7 +18,6 @@ class App : Application() {
         // Устанавливаем тему
         SharedTheme.init(this)
         SharedTheme.applyTheme()
-        MusicPlayerManager.init(this)
 
         // Инициализируем Koin
         startKoin {

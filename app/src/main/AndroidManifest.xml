@@ -32,10 +32,6 @@
             android:name=".services.MusicService"
             android:exported="false"
             android:foregroundServiceType="mediaPlayback" />
-
-        <receiver
-            android:name=".services.NotificationReceiver"
-            android:exported="false" />
     </application>
 
 </manifest>
