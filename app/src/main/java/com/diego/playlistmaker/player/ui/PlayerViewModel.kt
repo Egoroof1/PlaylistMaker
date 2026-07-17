@@ -1,6 +1,11 @@
 package com.diego.playlistmaker.player.ui
 
-import android.media.MediaPlayer
+import android.content.ComponentName
+import android.content.Context
+import android.content.Intent
+import android.content.ServiceConnection
+import android.os.Build
+import android.os.IBinder
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.diego.playlistmaker.media.domain.models.PlayList
@@ -12,6 +17,9 @@ import com.diego.playlistmaker.player.models.PlayerScreenState
 import com.diego.playlistmaker.player.models.PlayerState
 import com.diego.playlistmaker.player.models.TrackInfo
 import com.diego.playlistmaker.search.domain.models.Track
+import com.diego.playlistmaker.services.MusicService
+import com.diego.playlistmaker.services.MusicServiceController
+import com.diego.playlistmaker.services.PlayerStateListener
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
@@ -25,30 +33,120 @@ import java.text.SimpleDateFormat
 import java.util.Locale
 
 class PlayerViewModel(
+    private val context: Context,
     private val repositoryUseCase: FavoriteInteractor,
     private val playListInteractor: PlayListInteractor,
     private val trackInPlayListInteractor: TrackInPlayListInteractor
-) : ViewModel() {
+) : ViewModel(), PlayerStateListener {
 
     private val _screenState = MutableStateFlow(PlayerScreenState())
     val screenState: StateFlow<PlayerScreenState> = _screenState
 
-    // MediaPlayer
-    private var mediaPlayer: MediaPlayer? = null
-
-    // Job для обновления прогресса (замена Timer)
+    private var musicService: MusicServiceController? = null
+    private var isBound = false
+    private var currentTrack: Track? = null
     private var progressJob: Job? = null
+    private var isPreparing = false
 
-    // Флаг для отслеживания подготовки плеера
-    private var isPrepared = false
-//    private var currentPlayList: PlayList? = null
+    private val serviceConnection = object : ServiceConnection {
+        override fun onServiceConnected(name: ComponentName?, service: IBinder?) {
+            val binder = service as? MusicService.PlayerBinder
+            musicService = binder?.getService()
+            isBound = true
+
+            musicService?.setOnPlayerStateListener(this@PlayerViewModel)
+
+            // Если есть трек, но сервис еще не подготовлен
+            currentTrack?.let { track ->
+                if (!isPreparing && musicService?.getDuration() == 0) {
+                    prepareTrack(track)
+                } else {
+                    // Восстанавливаем состояние после переподключения
+                    restoreState()
+                }
+            }
+        }
+
+        override fun onServiceDisconnected(name: ComponentName?) {
+            musicService = null
+            isBound = false
+        }
+    }
 
     init {
         loadPlayLists()
+        // Запускаем сервис сразу при создании ViewModel
+        startServiceAndBind()
+    }
+
+    private fun startServiceAndBind() {
+        val intent = Intent(context, MusicService::class.java)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            context.startForegroundService(intent)
+        } else {
+            context.startService(intent)
+        }
+        context.bindService(intent, serviceConnection, Context.BIND_AUTO_CREATE)
+    }
+
+    private fun prepareTrack(track: Track) {
+        isPreparing = true
+        updateState { it.copy(playerState = PlayerState.PREPARING) }
+
+        musicService?.prepare(
+            track.previewUrl,
+            track.artistName,
+            track.trackName
+        )
+    }
+
+    private fun restoreState() {
+        // Восстанавливаем состояние плеера при переподключении
+        val isPlaying = musicService?.isPlaying() ?: false
+        val position = musicService?.currentPositionMs() ?: 0
+
+        if (isPlaying) {
+            updateState {
+                it.copy(
+                    playerState = PlayerState.PLAYING,
+                    currentPosition = position
+                )
+            }
+            startProgressTimer()
+        } else if (position > 0) {
+            updateState {
+                it.copy(
+                    playerState = PlayerState.PAUSED,
+                    currentPosition = position
+                )
+            }
+        }
+    }
+
+    fun releaseAndStopPlayer() {
+        // Останавливаем прогресс-таймер
+        stopProgressTimer()
+
+        // Останавливаем воспроизведение и освобождаем MediaPlayer
+        musicService?.pause()
+        musicService?.hideForeground()
+
+        // Сбрасываем состояние
+        updateState {
+            it.copy(
+                playerState = PlayerState.DEFAULT,
+                currentPosition = 0
+            )
+        }
+    }
+
+    fun pauseProgressTimer() {
+        stopProgressTimer()
     }
 
     fun setTrack(track: Track) {
-        // Создаем TrackInfo из Track
+        currentTrack = track
+
         val trackInfo = TrackInfo(
             trackName = track.trackName,
             artistName = track.artistName,
@@ -67,19 +165,8 @@ class PlayerViewModel(
             val trackInPlayList: TrackInPlayList? =
                 trackInPlayListInteractor.getTrackInPlayListByTrackId(track.trackId)
             val isPlayList = trackInPlayList != null
-            val playListId = trackInPlayList?.playlistId ?: -1
-
-//            currentPlayList = playListInteractor.getPlayListById(playListId)
 
             withContext(Dispatchers.Main) {
-                if (isPlayList) {
-                    updateState {
-                        it.copy(
-                            playListId = playListId
-                        )
-                    }
-                }
-
                 updateState {
                     it.copy(
                         trackInfo = trackInfo,
@@ -90,7 +177,9 @@ class PlayerViewModel(
             }
         }
 
-        preparePlayer(track.previewUrl)
+        if (isBound && musicService != null) {
+            prepareTrack(track)
+        }
     }
 
     private fun updateState(updater: (PlayerScreenState) -> PlayerScreenState) {
@@ -99,7 +188,6 @@ class PlayerViewModel(
     }
 
     fun likeTrack(track: Track) {
-
         viewModelScope.launch(Dispatchers.IO) {
             if (!repositoryUseCase.isFavorite(track.trackId)) {
                 repositoryUseCase.insertTrack(track = track)
@@ -121,71 +209,56 @@ class PlayerViewModel(
         }
     }
 
-    private fun preparePlayer(previewUrl: String) {
-        releasePlayer() // Освобождаем предыдущий MediaPlayer
-
-        mediaPlayer = MediaPlayer().apply {
-            setDataSource(previewUrl)
-            prepareAsync()
-
-            setOnPreparedListener {
-                isPrepared = true
-                updateState { it.copy(playerState = PlayerState.PREPARED) }
-            }
-
-            setOnCompletionListener {
-                stopProgressTimer()
-                // Принудительно перематываем в начало
-                mediaPlayer?.seekTo(0)
-                // Обновляем состояние
-                updateState {
-                    it.copy(
-                        playerState = PlayerState.PREPARED,
-                        currentPosition = 0
-                    )
-                }
-            }
-
-            setOnErrorListener { _, what, extra ->
-                updateState { it.copy(playerState = PlayerState.ERROR) }
-                false
-            }
-        }
-    }
-
     fun play() {
-        if (isPrepared && _screenState.value.playerState != PlayerState.PLAYING) {
-            mediaPlayer?.start()
-            updateState { it.copy(playerState = PlayerState.PLAYING) }
-            startProgressTimer()
-        }
+        musicService?.play()
+        startProgressTimer()
     }
 
     fun pause() {
-        if (_screenState.value.playerState == PlayerState.PLAYING) {
-            mediaPlayer?.pause()
-            updateState { it.copy(playerState = PlayerState.PAUSED) }
-            stopProgressTimer()
-            mediaPlayer?.currentPosition?.let { position ->
-                updateState { it.copy(currentPosition = position) }
-            }
+        musicService?.pause()
+        stopProgressTimer()
+        musicService?.currentPositionMs()?.let { position ->
+            updateState { it.copy(currentPosition = position) }
         }
     }
 
-    fun togglePlayPause() {
-        when (_screenState.value.playerState) {
-            PlayerState.PLAYING -> pause()
-            PlayerState.PREPARED, PlayerState.PAUSED -> play()
-            else -> Unit
+    fun onAppForeground() {
+        // Приложение в фореграунде
+        val currentState = _screenState.value.playerState
+
+        if (currentState == PlayerState.PLAYING) {
+            // Обновляем позицию из сервиса
+            musicService?.currentPositionMs()?.let { position ->
+                updateState { it.copy(currentPosition = position) }
+            }
+            // Перезапускаем таймер
+            startProgressTimer()
+        }
+
+        // Скрываем уведомление
+        musicService?.hideForeground()
+    }
+
+    fun onAppBackground() {
+        // Приложение свернуто
+        val currentState = _screenState.value.playerState
+
+        if (currentState == PlayerState.PLAYING || currentState == PlayerState.PAUSED) {
+            // Останавливаем таймер, чтобы не тратить ресурсы
+            stopProgressTimer()
+            // Показываем уведомление
+            musicService?.showForeground()
         }
     }
 
     private fun startProgressTimer() {
-        stopProgressTimer() // Останавливаем предыдущую корутину, если есть
+        stopProgressTimer()
 
         progressJob = viewModelScope.launch(Dispatchers.Main) {
             while (isActive && _screenState.value.playerState == PlayerState.PLAYING) {
-                updateState { it.copy(currentPosition = mediaPlayer?.currentPosition ?: 0) }
+                musicService?.currentPositionMs()?.let { position ->
+                    updateState { it.copy(currentPosition = position) }
+                }
                 delay(500)
             }
         }
@@ -202,16 +275,15 @@ class PlayerViewModel(
 
     override fun onCleared() {
         super.onCleared()
-        releasePlayer()
         stopProgressTimer()
-    }
-
-    fun releasePlayer() {
-        stopProgressTimer()
-        mediaPlayer?.release()
-        mediaPlayer = null
-        isPrepared = false
-        updateState { it.copy(playerState = PlayerState.DEFAULT) }
+        if (isBound) {
+            try {
+                context.unbindService(serviceConnection)
+            } catch (e: Exception) {
+                // Игнорируем ошибку, если сервис уже отвязан
+            }
+            isBound = false
+        }
     }
 
     private fun loadPlayLists() {
@@ -248,9 +320,7 @@ class PlayerViewModel(
 
                 withContext(Dispatchers.Main) {
                     updateState {
-                        it.copy(
-                            isPlayList = true
-                        )
+                        it.copy(isPlayList = true)
                     }
                     onResult(true)
                 }
@@ -260,5 +330,37 @@ class PlayerViewModel(
                 }
             }
         }
+    }
+
+    // PlayerStateListener implementation
+    override fun onPlaying() {
+        isPreparing = false
+        updateState { it.copy(playerState = PlayerState.PLAYING) }
+    }
+
+    override fun onPaused() {
+        isPreparing = false
+        updateState { it.copy(playerState = PlayerState.PAUSED) }
+    }
+
+    override fun onPrepared() {
+        isPreparing = false
+        updateState { it.copy(playerState = PlayerState.PREPARED) }
+    }
+
+    override fun onCompleted() {
+        stopProgressTimer()
+        updateState {
+            it.copy(
+                playerState = PlayerState.PREPARED,
+                currentPosition = 0
+            )
+        }
+    }
+
+    override fun onError() {
+        isPreparing = false
+        stopProgressTimer()
+        updateState { it.copy(playerState = PlayerState.ERROR) }
     }
 }
