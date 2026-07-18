@@ -6,9 +6,8 @@
     app:startDestination="@id/mediaFragment">
     <fragment
         android:id="@+id/searchFragment"
-        android:name="com.diego.playlistmaker.search.ui.fragment.SearchFragment"
-        android:label="fragment_search"
-        tools:layout="@layout/fragment_search" >
+        android:name="com.diego.playlistmaker.search.ui.fragment.SearchFragmentWithComposeUI"
+        android:label="fragment_search">
         <action
             android:id="@+id/action_searchFragment_to_playerFragment"
             app:destination="@id/playerFragment"

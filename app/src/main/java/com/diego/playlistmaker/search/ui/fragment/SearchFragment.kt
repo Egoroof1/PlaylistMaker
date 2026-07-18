@@ -95,7 +95,7 @@ class SearchFragment : Fragment() {
             viewModel.saveTrackToHistory(track)
 
             // Переходим на PlayerFragment
-            val action = SearchFragmentDirections.actionSearchFragmentToPlayerFragment(track)
+            val action = SearchFragmentWithComposeUIDirections.actionSearchFragmentToPlayerFragment(track)
             findNavController().navigate(action)
         }
     }
