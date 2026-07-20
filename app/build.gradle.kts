@@ -50,6 +50,8 @@ dependencies {
     implementation ("androidx.activity:activity-compose:1.8.2")
     debugImplementation("androidx.compose.ui:ui-tooling:1.6.2")
 
+    implementation("io.coil-kt:coil-compose:2.6.0")
+
     implementation(libs.material.v161)
     implementation(libs.glide)
     annotationProcessor (libs.compiler)

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 <!--    new compose-->
-    <color name="color_str_et_search">#AEAFB4</color>
+    <color name="color_str_et_search">#1A1B22</color>
 
 
     <color name="black">#FF000000</color>

@@ -11,6 +11,7 @@ import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.res.stringResource
 import androidx.fragment.app.Fragment
 import com.diego.playlistmaker.R
+import com.diego.playlistmaker.compose.HistoryTracksInSearch
 import com.diego.playlistmaker.compose.MyEditTextSearch
 import com.diego.playlistmaker.compose.MyToolbar
 
@@ -29,7 +30,7 @@ class SearchFragmentWithComposeUI: Fragment() {
                 ) {
                     MyToolbar(stringResource(R.string.search))
                     MyEditTextSearch()
-
+                    HistoryTracksInSearch()
                 }
             }
         }
