@@ -10,6 +10,7 @@ import androidx.core.view.isVisible
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import com.diego.playlistmaker.databinding.FragmentTracksBinding
+import com.diego.playlistmaker.media.ui.compose.MediaFragmentComposeDirections
 import com.diego.playlistmaker.media.ui.state.TracksState
 import com.diego.playlistmaker.media.ui.view_model.TracksFragmentViewModel
 import com.diego.playlistmaker.search.domain.models.Track
@@ -67,7 +68,7 @@ class TracksFragment : Fragment() {
             viewModel.saveTrackToHistory(track)
 
             // Переходим на PlayerFragment
-            val action = MediaFragmentDirections.actionMediaFragmentToPlayerFragment(track)
+            val action = MediaFragmentComposeDirections.actionMediaFragmentToPlayerFragment(track)
             findNavController().navigate(action)
         }
     }

@@ -18,7 +18,7 @@
     </fragment>
     <fragment
         android:id="@+id/mediaFragment"
-        android:name="com.diego.playlistmaker.media.ui.fragments.MediaFragment"
+        android:name="com.diego.playlistmaker.media.ui.compose.MediaFragmentCompose"
         android:label="fragment_media"
         tools:layout="@layout/fragment_media" >
         <action
@@ -77,8 +77,7 @@
     <fragment
         android:id="@+id/editPlayListFragment"
         android:name="com.diego.playlistmaker.media.ui.fragments.EditPlayListFragment"
-        android:label="fragment_edit_play_list"
-        tools:layout="@layout/fragment_edit_play_list" >
+        android:label="fragment_edit_play_list" >
         <argument
             android:name="playListId"
             app:argType="integer"

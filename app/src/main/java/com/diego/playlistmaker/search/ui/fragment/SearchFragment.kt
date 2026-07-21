@@ -19,7 +19,6 @@ import com.diego.playlistmaker.databinding.FragmentSearchBinding
 import com.diego.playlistmaker.search.domain.models.Track
 import com.diego.playlistmaker.search.presentation.TrackAdapter
 import com.diego.playlistmaker.search.ui.view_model.SearchViewModel
-import com.diego.playlistmaker.search.ui.view_model.UserActions
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.koin.androidx.viewmodel.ext.android.viewModel
@@ -74,7 +73,6 @@ class SearchFragment : Fragment() {
         setupAdapters()
         setupClickListeners()
         setupTextWatcher()
-        observeViewModel()
     }
 
     private fun setupAdapters() {
@@ -98,13 +96,6 @@ class SearchFragment : Fragment() {
             val action = SearchFragmentWithComposeUIDirections.actionSearchFragmentToPlayerFragment(track)
             findNavController().navigate(action)
         }
-    }
-
-    @SuppressLint("NotifyDataSetChanged")
-    private fun updateHistoryAdapter(newHistory: List<Track>) {
-        historyTracks.clear()
-        historyTracks.addAll(newHistory)
-        binding.recyclerHistory.adapter?.notifyDataSetChanged()
     }
 
     @SuppressLint("NotifyDataSetChanged")
@@ -157,55 +148,6 @@ class SearchFragment : Fragment() {
 
     }
 
-    private fun observeViewModel() {
-        viewModel.searchState.observe(viewLifecycleOwner) { state ->
-            val historyTracks = state.historyTracks
-            val searchTracks = state.searchTracks
-            val userActions = state.userActions
-            val errorMessage = state.message
-
-            updateHistoryAdapter(historyTracks)
-
-            updateUI(userActions, errorMessage)
-            updateSearchResults(searchTracks)
-
-        }
-    }
-
-    private fun updateUI(userActions: UserActions, errorMessage: String) {
-
-        when(userActions){
-            UserActions.SHOW_HISTORY -> {
-                showHistory()
-                hideSearchResults()
-            }
-            UserActions.SEARCH -> {
-                showLoadingState()
-            }
-            UserActions.SHOW_SEARCH_RESULT -> {
-                hideHistory()
-                showSearchResults()
-            }
-            UserActions.HIDE_SEARCH_RESULT -> {
-                hideSearchResults()
-                showHistory()
-            }
-            UserActions.SHOW_NOT_FOUND -> {
-                showNotFound()
-            }
-            UserActions.ERROR -> {
-                showError(errorMessage)
-            }
-        }
-    }
-
-    @SuppressLint("NotifyDataSetChanged")
-    private fun updateSearchResults(newTracks: List<Track>) {
-        tracks.clear()
-        tracks.addAll(newTracks)
-        tracksAdapter.updateList(newTracks)
-    }
-
     private fun clearSearch() {
         binding.progressBar.isVisible = false
         binding.editTextSearch.text.clear()
@@ -235,62 +177,8 @@ class SearchFragment : Fragment() {
         }
     }
 
-    private fun showLoadingState() {
-        binding.apply {
-            progressBar.isVisible = true
-            searchHistory.isVisible = false
-            recyclerTracks.isVisible = false
-            searchErrorNotFound.isVisible = false
-            searchErrorNotSignal.isVisible = false
-
-            icClearEditText.isEnabled = false
-        }
-    }
-
-    private fun showSearchResults() {
-        binding.recyclerTracks.isVisible = true
-
-        binding.icClearEditText.isEnabled = true
-    }
-
-    private fun hideSearchResults() {
-        binding.recyclerTracks.isVisible = false
-    }
-
-    private fun showNotFound() {
-        binding.progressBar.isVisible = false
-        binding.searchHistory.isVisible = false
-        binding.recyclerTracks.isVisible = false
-        binding.searchErrorNotFound.isVisible = true
-
-        binding.icClearEditText.isEnabled = true
-    }
-
-    private fun showHistory() {
-        if (historyTracks.isNotEmpty()) {
-            binding.searchHistory.isVisible = true
-        } else {
-            hideHistory()
-        }
-    }
-
-    private fun hideHistory() {
-        binding.searchHistory.isVisible = false
-    }
-
     private fun updateHistoryVisibility() {
         binding.searchHistory.isVisible = historyTracks.isEmpty()
-    }
-
-    private fun showError(message: String) {
-        binding.progressBar.isVisible = false
-        hideSearchResults()
-        hideHistory()
-        binding.searchErrorNotSignal.isVisible = true
-
-        binding.icClearEditText.isEnabled = true
-
-        Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show()
     }
 
     private fun clearButtonVisibility(s: CharSequence?): Int {

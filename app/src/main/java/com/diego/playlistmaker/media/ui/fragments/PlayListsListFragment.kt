@@ -15,6 +15,7 @@ import com.diego.playlistmaker.R
 import com.diego.playlistmaker.databinding.FragmentPlayListsListBinding
 import com.diego.playlistmaker.media.domain.models.PlayList
 import com.diego.playlistmaker.media.presentation.PlayListAdapter
+import com.diego.playlistmaker.media.ui.compose.MediaFragmentComposeDirections
 import com.diego.playlistmaker.media.ui.view_model.PlayListsListViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -125,14 +126,14 @@ class PlayListsListFragment : Fragment() {
                 delay(ANTY_DOUBLE_CLICK)
             }
 
-            val action = MediaFragmentDirections.actionMediaFragmentToPlayListFragment(playList.id)
+            val action = MediaFragmentComposeDirections.actionMediaFragmentToPlayListFragment(playList.id)
             findNavController().navigate(action)
         }
     }
 
     private fun setClickListeners() {
         binding.btnCreateNewPlaylist.setOnClickListener {
-            val action = MediaFragmentDirections.actionMediaFragmentToAddMediaPlayerFragment()
+            val action = MediaFragmentComposeDirections.actionMediaFragmentToAddMediaPlayerFragment()
             findNavController().navigate(action)
         }
     }

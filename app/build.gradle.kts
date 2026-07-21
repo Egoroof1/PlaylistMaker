@@ -52,6 +52,8 @@ dependencies {
 
     implementation("io.coil-kt:coil-compose:2.6.0")
 
+    implementation("androidx.compose.runtime:runtime-livedata:1.6.8")
+
     implementation(libs.material.v161)
     implementation(libs.glide)
     annotationProcessor (libs.compiler)

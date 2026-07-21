@@ -13,14 +13,16 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.diego.playlistmaker.R
+import com.diego.playlistmaker.search.ui.view_model.SearchViewModel
 
 @Composable
 fun MyButton(
-    text: String
+    text: String,
+    viewModel: SearchViewModel
 ){
     Button(
         onClick = {
-
+            viewModel.clearHistory()
         },
         modifier = Modifier
             .padding(vertical = 24.dp),
