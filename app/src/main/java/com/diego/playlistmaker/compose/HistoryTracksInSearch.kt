@@ -19,6 +19,7 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.diego.playlistmaker.R
 import com.diego.playlistmaker.search.domain.models.Track
+import com.diego.playlistmaker.search.ui.fragment.SearchFragmentWithComposeUIDirections
 import com.diego.playlistmaker.search.ui.view_model.SearchViewModel
 
 @Composable
@@ -51,8 +52,11 @@ fun HistoryTracksInSearch(
             MyRecyclerTracks(
                 tracks = tracks,
                 modifier = Modifier.weight(1f, fill = false),
-                navController = navController,
-                viewModel = viewModel
+                viewModel = viewModel,
+                onTrackClicked = { track ->
+                    val action = SearchFragmentWithComposeUIDirections.actionSearchFragmentToPlayerFragment(track)
+                    navController.navigate(action)
+                }
             )
 
             MyButton(

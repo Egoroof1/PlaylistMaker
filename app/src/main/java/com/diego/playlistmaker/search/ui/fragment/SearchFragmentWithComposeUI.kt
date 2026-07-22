@@ -6,14 +6,12 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
@@ -21,14 +19,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.ComposeView
-import androidx.compose.ui.res.colorResource
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.Font
-import androidx.compose.ui.text.font.FontFamily
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.fragment.app.Fragment
 import androidx.navigation.NavController
 import androidx.navigation.fragment.findNavController
@@ -38,12 +30,13 @@ import com.diego.playlistmaker.compose.MyEditTextSearch
 import com.diego.playlistmaker.compose.MyRecyclerTracks
 import com.diego.playlistmaker.compose.MyToolbar
 import com.diego.playlistmaker.compose.NoSignalView
+import com.diego.playlistmaker.compose.ShowNotFound
 import com.diego.playlistmaker.search.ui.view_model.SearchScreenState
 import com.diego.playlistmaker.search.ui.view_model.SearchViewModel
 import com.diego.playlistmaker.search.ui.view_model.UserActions
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
-class SearchFragmentWithComposeUI: Fragment() {
+class SearchFragmentWithComposeUI : Fragment() {
 
     private val viewModel: SearchViewModel by viewModel()
 
@@ -74,11 +67,11 @@ class SearchFragmentWithComposeUI: Fragment() {
     @Composable
     fun HistoryOrSearchOrError(
         viewModel: SearchViewModel
-    ){
+    ) {
         val searchState by viewModel.searchState.observeAsState(SearchScreenState())
 
         Log.d("TAG", "HistoryOrSearchOrError: ${searchState.userActions}")
-        when(searchState.userActions){
+        when (searchState.userActions) {
             UserActions.SHOW_HISTORY -> {
                 HistoryTracksInSearch(
                     tracks = searchState.historyTracks,
@@ -86,6 +79,7 @@ class SearchFragmentWithComposeUI: Fragment() {
                     viewModel = viewModel
                 )
             }
+
             UserActions.SEARCH -> {
                 Box(
                     modifier = Modifier
@@ -101,42 +95,41 @@ class SearchFragmentWithComposeUI: Fragment() {
                     )
                 }
             }
+
             UserActions.SHOW_SEARCH_RESULT -> {
                 MyRecyclerTracks(
                     tracks = searchState.searchTracks,
-                    navController = navController,
-                    viewModel = viewModel
+                    viewModel = viewModel,
+                    onTrackClicked = { track ->
+                        val action =
+                            SearchFragmentWithComposeUIDirections.actionSearchFragmentToPlayerFragment(
+                                track
+                            )
+                        navController.navigate(action)
+                    }
                 )
             }
-            UserActions.SHOW_NOT_FOUND -> {
-                Column(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(top = 102.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-                    Image(
-                        painter = painterResource(R.drawable.ic_not_found),
-                        contentDescription = stringResource(R.string.not_found)
-                    )
 
-                    Text(
-                        text = stringResource(R.string.not_found),
-                        modifier = Modifier.padding(top = 16.dp),
-                        fontSize = 19.sp,
-                        fontWeight = FontWeight(500),
-                        fontFamily = FontFamily(Font(R.font.ys_display_medium)),
-                        color = colorResource(R.color.string)
-                    )
-                }
+            UserActions.SHOW_NOT_FOUND -> {
+
+                ShowNotFound(
+                    R.drawable.ic_not_found,
+                    R.string.not_found
+                )
+
             }
+
             UserActions.ERROR -> {
                 NoSignalView(
                     onUpdateClick = {
                         viewModel.performSearch(viewModel.searchState.value?.lastSearchQuery ?: "")
                     }
                 )
-                Toast.makeText(requireContext(), viewModel.searchState.value?.message, Toast.LENGTH_SHORT).show()
+                Toast.makeText(
+                    requireContext(),
+                    viewModel.searchState.value?.message,
+                    Toast.LENGTH_SHORT
+                ).show()
             }
         }
     }
