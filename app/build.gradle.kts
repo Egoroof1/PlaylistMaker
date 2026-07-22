@@ -50,6 +50,8 @@ dependencies {
     implementation ("androidx.activity:activity-compose:1.8.2")
     debugImplementation("androidx.compose.ui:ui-tooling:1.6.2")
 
+    implementation("androidx.compose.material:material:1.6.8")
+
     implementation("io.coil-kt:coil-compose:2.6.0")
 
     implementation("androidx.compose.runtime:runtime-livedata:1.6.8")
