@@ -4,6 +4,7 @@ plugins {
     id("kotlin-parcelize")
     id("androidx.navigation.safeargs.kotlin")
     id("com.google.devtools.ksp")
+    id("org.jetbrains.kotlin.plugin.compose") version "2.0.0"
 }
 
 android {
@@ -39,10 +40,22 @@ android {
 
     buildFeatures {
         viewBinding = true
+        compose = true
     }
 }
 
 dependencies {
+    implementation ("androidx.compose.ui:ui:1.6.1")
+    implementation("androidx.compose.material3:material3:1.4.0")
+    implementation ("androidx.activity:activity-compose:1.8.2")
+    debugImplementation("androidx.compose.ui:ui-tooling:1.6.2")
+
+    implementation("androidx.compose.material:material:1.6.8")
+
+    implementation("io.coil-kt:coil-compose:2.6.0")
+
+    implementation("androidx.compose.runtime:runtime-livedata:1.6.8")
+
     implementation(libs.material.v161)
     implementation(libs.glide)
     annotationProcessor (libs.compiler)

@@ -6,9 +6,8 @@
     app:startDestination="@id/mediaFragment">
     <fragment
         android:id="@+id/searchFragment"
-        android:name="com.diego.playlistmaker.search.ui.fragment.SearchFragment"
-        android:label="fragment_search"
-        tools:layout="@layout/fragment_search" >
+        android:name="com.diego.playlistmaker.search.ui.fragment.SearchFragmentWithComposeUI"
+        android:label="fragment_search">
         <action
             android:id="@+id/action_searchFragment_to_playerFragment"
             app:destination="@id/playerFragment"
@@ -19,18 +18,19 @@
     </fragment>
     <fragment
         android:id="@+id/mediaFragment"
-        android:name="com.diego.playlistmaker.media.ui.fragments.MediaFragment"
+        android:name="com.diego.playlistmaker.media.ui.compose.MediaFragmentCompose"
         android:label="fragment_media"
         tools:layout="@layout/fragment_media" >
-        <action
-            android:id="@+id/action_mediaFragment_to_playerFragment"
-            app:destination="@id/playerFragment" />
+
         <action
             android:id="@+id/action_mediaFragment_to_addMediaPlayerFragment"
             app:destination="@id/addMediaPlayerFragment" />
         <action
             android:id="@+id/action_mediaFragment_to_playListFragment"
             app:destination="@id/playListListFragment" />
+        <action
+            android:id="@+id/action_mediaFragment_to_playerFragment"
+            app:destination="@id/playerFragment" />
     </fragment>
     <fragment
         android:id="@+id/settingsFragment"
@@ -78,8 +78,7 @@
     <fragment
         android:id="@+id/editPlayListFragment"
         android:name="com.diego.playlistmaker.media.ui.fragments.EditPlayListFragment"
-        android:label="fragment_edit_play_list"
-        tools:layout="@layout/fragment_edit_play_list" >
+        android:label="fragment_edit_play_list" >
         <argument
             android:name="playListId"
             app:argType="integer"

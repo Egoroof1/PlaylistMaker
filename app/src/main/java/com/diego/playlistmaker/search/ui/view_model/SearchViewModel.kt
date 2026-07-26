@@ -21,8 +21,6 @@ class SearchViewModel(
 
     private val coroutineScope = CoroutineScope(Dispatchers.Main)
     private var searchJob: Job? = null
-    private var lastSearchQuery = ""
-    private var lastSearchResult = ""
 
     // Состояния
 
@@ -48,18 +46,13 @@ class SearchViewModel(
                 updateState { it.copy(userActions = UserActions.SHOW_HISTORY) }
             }
             // Скрываем результаты поиска
-            updateState { it.copy(userActions = UserActions.HIDE_SEARCH_RESULT) }
+            updateState { it.copy(userActions = UserActions.SHOW_HISTORY) }
             clearSearchResults()
         } else {
-            if (text == lastSearchQuery) return
-
-            lastSearchQuery = text
 
             searchJob = coroutineScope.launch {
 
                 delay(SEARCH_DEBOUNCE_DELAY)
-
-                lastSearchResult = lastSearchQuery
 
                 performSearch(text)
             }
@@ -67,6 +60,16 @@ class SearchViewModel(
     }
 
     fun performSearch(query: String) {
+
+        if (query.isEmpty()) {
+            updateState { it.copy(
+                userActions = UserActions.SHOW_HISTORY,
+                lastSearchQuery = ""
+            ) }
+            return
+        }
+
+        updateState { it.copy(lastSearchQuery = query) }
 
         updateState { it.copy(userActions = UserActions.SEARCH) }
 

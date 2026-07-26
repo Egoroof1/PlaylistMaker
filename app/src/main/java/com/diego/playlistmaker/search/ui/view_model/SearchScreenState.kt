@@ -6,13 +6,13 @@ data class SearchScreenState(
     val historyTracks: List<Track> = emptyList(),
     val searchTracks: List<Track> = emptyList(),
     val userActions: UserActions = UserActions.SHOW_HISTORY,
-    val message: String = ""
+    val message: String = "",
+    val lastSearchQuery: String = ""
 )
 
 enum class UserActions {
     SEARCH,
     SHOW_SEARCH_RESULT,
-    HIDE_SEARCH_RESULT,
     SHOW_NOT_FOUND,
     ERROR,
     SHOW_HISTORY
