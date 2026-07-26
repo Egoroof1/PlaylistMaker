@@ -31,15 +31,21 @@ class MusicService : Service(), MusicServiceController {
     override fun onCreate() {
         super.onCreate()
         createNotificationChannel()
+
+        showForeground()
     }
 
     override fun onBind(intent: Intent?): IBinder {
-        artistName = intent?.getStringExtra(EXTRA_ARTIST) ?: ""
-        trackName = intent?.getStringExtra(EXTRA_TRACK) ?: ""
         return binder
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+        intent?.let {
+            artistName = it.getStringExtra(EXTRA_ARTIST) ?: artistName
+            trackName = it.getStringExtra(EXTRA_TRACK) ?: trackName
+            currentUrl = it.getStringExtra(EXTRA_URL) ?: currentUrl
+        }
+
         return START_NOT_STICKY
     }
 
@@ -157,5 +163,6 @@ class MusicService : Service(), MusicServiceController {
         const val NOTIFICATION_ID = 1
         const val EXTRA_ARTIST = "extra_artist"
         const val EXTRA_TRACK = "extra_track"
+        const val EXTRA_URL = "extra_url"
     }
 }

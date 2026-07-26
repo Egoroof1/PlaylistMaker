@@ -80,7 +80,13 @@ class PlayerViewModel(
     }
 
     private fun startServiceAndBind() {
-        val intent = Intent(context, MusicService::class.java)
+        val intent = Intent(context, MusicService::class.java).apply {
+            currentTrack?.let { track ->
+                putExtra(MusicService.EXTRA_ARTIST, track.artistName)
+                putExtra(MusicService.EXTRA_TRACK, track.trackName)
+                putExtra(MusicService.EXTRA_URL, track.previewUrl)
+            }
+        }
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             context.startForegroundService(intent)
         } else {
